@@ -1,0 +1,204 @@
+<ScriptEdit>:
+    # id: script_edit
+    orientation: 'horizontal'  # 横方向にレイアウト
+    size_hint: 1, 1
+    BoxLayout:
+        orientation: 'vertical'
+        size_hint: 1, 1
+        BoxLayout:
+            orientation: 'horizontal'
+            size_hint_y: None  # 高さを固定にするため、size_hint_yをNoneに
+            height: dp(50)  # ThreeColumnMenu の高さに合わせて調整
+            StackLayout:
+                padding: 5
+                spacing: 5
+                orientation: 'lr-tb'  # 左から右に配置
+
+                HoverImage:
+                    id: undo_button
+                    hover_enabled: False  # マウスホバーでの色変更を無効にする
+                    source: 'アイコン/前に戻る.png'
+                    size_hint: None, None
+                    size: dp(40), dp(40)  # 固定サイズを指定
+                    text: '元に戻す'
+                HoverImage:
+                    id: redo_button
+                    hover_enabled: False  # マウスホバーでの色変更を無効にする
+                    source: 'アイコン/次に進む.png'
+                    size_hint: None, None
+                    size: dp(40), dp(40)
+                    text: 'やり直し'
+                ScriptOutputButton:
+                    id: script_output_button
+                    size_hint: None, None
+                    size: dp(40), dp(40)
+                CreateVideoButton:
+                    id: create_video_button
+                    size_hint: None, None
+                    size: dp(40), dp(40)
+                UpdateBox:
+                    id: update_button
+                    size_hint: None, None
+                    size: dp(40), dp(40)
+                HoverImage:
+                    id: video_config_button
+                    hover_enabled: True  # マウスホバーでの色変更を無効にする
+                    source: 'アイコン/設定.png'
+                    size_hint: None, None
+                    size: dp(40), dp(40)
+                    text: "動画テンプレート設定"
+                    on_release:
+                        root.manager.current = 'VideoConfig'
+
+        BoxLayout:
+            orientation: 'horizontal'
+            size_hint: 1, 0.95
+            CustomTreeView:
+                id: tree_view_section
+                size_hint: 0.2, 1
+                screen_name: 'ScriptEdit'
+            # 下部のリサイクルビュー
+            RV:
+                id: rv_widget  # `main.py` からアクセスするために ID を追加
+                size_hint: 0.8, 1
+
+<UpdateBox>:
+    update_button: update_button  # 同様に更新ボタンを紐付け
+    id: update_button
+    source: 'アイコン/リロード.png'
+    text: 'リロード'
+
+<ScriptOutputButton>:
+    script_output_button: script_output_button
+    id: script_output_button
+    source: 'アイコン/保存.png'
+    text: "台本保存"
+
+<CreateVideoButton>:
+    create_video_button: create_video_button
+    id: create_video_button  
+    source: 'アイコン/動画作成.png'
+    text: "動画作成"
+
+<RV>:
+    id: rv_widget
+    viewclass: 'RowWidget'
+
+    RecycleBoxLayout:
+        default_size: None, dp(150)
+        default_size_hint: 1, None 
+        size_hint_y: None  
+
+        height: self.minimum_height
+        orientation: 'vertical'
+
+<CustomTreeView_ScriptEditor>:
+    orientation: 'vertical'
+    size_hint: 1, 1  # 左側に30%のスペースを確保
+
+    # ScrollViewを追加してTreeViewをラップ
+    ScrollView:
+        TreeView:
+            id: tree_view
+            hide_root: True
+            root_options: {'text': 'Root Node'}
+            size_hint_y: None  # 自動リサイズを無効化
+            height: self.minimum_height  # コンテンツに応じて高さを設定
+
+<RowWidget>:
+    id: row_widget  # IDを追加
+    index_label: index_label
+    action_button: action_button
+    input_field: input_field
+    media_container: media_container
+    keyword_button: keyword_button
+    audio_file_label: audio_file_label
+    play_audio_button: play_audio_button
+    toggle_button: toggle_button
+    orientation: 'horizontal'
+    media_files: []
+    size_hint: 1, 1
+
+    canvas.before:
+        Color:
+            rgba: root.background_color
+        Rectangle:
+            pos: self.pos
+            size: self.size
+
+    Label:
+        id: index_label
+        size_hint: 0.1, 1
+        text: root.index_label.text
+        font_size: min(self.width, self.height) * 0.5
+        halign: 'center'
+        valign: 'middle'
+        text_size: self.size
+
+    Button:
+        id: action_button
+        size_hint: 0.1, 1
+        text: root.action_button.text
+        font_size: self.width * 0.2
+        text_size: self.size
+        halign: 'center'
+        valign: 'middle'
+
+    TextInput:
+        id: input_field
+        size_hint: 0.3, 1
+        font_size: self.height * 0.15
+        readonly: True
+        disabled_foreground_color: 0, 0, 0, 1
+        foreground_color: 0, 0, 0, 1
+        disabled: True 
+        halign: 'left'
+        valign: 'top'
+        multiline: True
+        cursor: (0, 0)
+
+    RelativeLayout:
+        id: media_container
+        size_hint: 0.3, 1
+
+        MediaCarousel:
+            id: media_carousel
+            media_list: root.media_files
+            size_hint: 1, 1
+
+    ToggleButton:
+        id: toggle_button
+        size_hint: 0.1, 1
+        text: '×' if self.state == 'normal' else '〇'
+        font_size: min(self.width, self.height) * 0.5
+        on_state: root.on_toggle_button(self, self.state)
+
+    Button:
+        id: keyword_button
+        size_hint: 0.1, 1
+        text: root.keyword_button.text
+        font_size: self.width * 0.2
+        text_size: self.size
+        halign: 'center'
+        valign: 'middle'
+
+    BoxLayout:
+        orientation: 'vertical'
+        size_hint: 0.1, 1
+        Button:
+            id: audio_file_label
+            text: root.audio_file
+            size_hint: 1, 0.8
+            font_size: self.width * 0.2
+            text_size: self.size
+            halign: 'center'
+            valign: 'middle'
+
+        Button:
+            id: play_audio_button
+            text: "再生"
+            size_hint: 1, 0.2
+            font_size: self.height * 0.5
+            text_size: self.size
+            halign: 'center'
+            valign: 'middle'

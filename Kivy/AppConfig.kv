@@ -1,0 +1,162 @@
+# AppConfig.kv
+<AppConfig>:
+    BoxLayout:
+        orientation: 'vertical'
+        padding: 20
+        spacing: 20
+
+        ScrollView:
+            BoxLayout:
+                orientation: 'vertical'
+                size_hint_y: None
+                height: self.minimum_height
+                spacing: 15
+
+                # 既存のショートカット設定セクション
+                BoxLayout:
+                    orientation: 'horizontal'
+                    size_hint_y: None
+                    height: '40dp'
+                    spacing: 10
+
+                    Label:
+                        text: "ショートカットの変更[β版]"
+                        size_hint_x: 0.6
+                        font_size: '22sp'
+                        halign: 'left'
+                        valign: 'middle'
+                        text_size: self.size
+
+                    Button:
+                        text: "変更"
+                        size_hint_x: 0.2
+                        font_size: '22sp'
+                        on_release:
+                            app.root.ids.screen_manager.current = 'ShortcutConfig'
+
+                # 新規追加: ファーストログイン
+                BoxLayout:
+                    orientation: 'horizontal'
+                    size_hint_y: None
+                    height: '40dp'
+                    spacing: 10
+
+                    Label:
+                        text: "初回ログイン日時:"
+                        size_hint_x: 0.4
+                        font_size: '22sp'
+                        halign: 'left'
+                        valign: 'middle'
+                        text_size: self.size
+
+                    Label:
+                        id: first_login_label
+                        text: root.first_login
+                        size_hint_x: 0.6
+                        font_size: '22sp'
+                        halign: 'right'
+                        valign: 'middle'
+                        text_size: self.size
+
+                # 新規追加: トライアルエンド
+                BoxLayout:
+                    orientation: 'horizontal'
+                    size_hint_y: None
+                    height: '40dp'
+                    spacing: 10
+
+                    Label:
+                        text: "トライアル終了日時:"
+                        size_hint_x: 0.4
+                        font_size: '22sp'
+                        halign: 'left'
+                        valign: 'middle'
+                        text_size: self.size
+
+                    Label:
+                        id: trial_end_label
+                        text: root.trial_end
+                        size_hint_x: 0.6
+                        font_size: '22sp'
+                        halign: 'right'
+                        valign: 'middle'
+                        text_size: self.size
+
+                # 新規追加: メンバーシップステータス
+                BoxLayout:
+                    orientation: 'horizontal'
+                    size_hint_y: None
+                    height: '40dp'
+                    spacing: 10
+
+                    Label:
+                        text: "メンバーシップステータス:"
+                        size_hint_x: 0.4
+                        font_size: '22sp'
+                        halign: 'left'
+                        valign: 'middle'
+                        text_size: self.size
+
+                    Label:
+                        id: membership_status_label
+                        text: root.membership_status
+                        size_hint_x: 0.6
+                        font_size: '22sp'
+                        halign: 'right'
+                        valign: 'middle'
+                        text_size: self.size
+
+# shortcut_config.kv
+
+<ShortcutConfig>:
+    id: shortcut_config
+    tab_panel: tab_panel  # プロパティのバインド
+    BoxLayout:
+        orientation: 'vertical'
+        padding: 10
+        spacing: 10
+
+        Label:
+            text: "ショートカットキーの設定"
+            size_hint_y: None
+            height: 40
+            font_size: 24
+
+        TabbedPanel:
+            id: tab_panel
+            do_default_tab: False
+            tab_pos: 'top_mid'
+            tab_height: 40
+            # タブバーのボタンのサイズを均等に設定
+            tab_width: self.width / max(1, len(self.tab_list))
+            canvas.before:
+                Color:
+                    rgba: 1, 1, 1, 1
+                Rectangle:
+                    pos: self.pos
+                    size: self.size
+
+        BoxLayout:
+            size_hint_y: None
+            height: 40
+            spacing: 10
+
+            Button:
+                id: save_button
+                text: "保存"
+                on_release: root.save_shortcuts()
+
+            Button:
+                id: undo_button
+                text: "元に戻す"
+                on_release: root.undo_changes()
+
+            Button:
+                id: redo_button
+                text: "やり直し"
+                on_release: root.redo_changes()
+
+            Button:
+                text: "キャンセル"
+                on_release:
+                    app.root.ids.screen_manager.current = 'AppConfig'

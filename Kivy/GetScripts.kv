@@ -1,0 +1,112 @@
+<GetScripts>:
+    orientation: 'horizontal'  # 横方向にレイアウト
+    size_hint: 1, 1
+    BoxLayout:
+        orientation: 'vertical'
+        size_hint: 1, 1
+        BoxLayout:
+            orientation: 'horizontal'
+            size_hint_y: None  # 高さを固定にするため、size_hint_yをNoneに
+            height: dp(50)  # ThreeColumnMenu の高さに合わせて調整
+            Menu_RV_GetScripts:
+                id: menu_section
+                size_hint_y: None  # 子メニューの高さも固定
+                height: dp(50)  # メニューの高さを指定
+
+        BoxLayout:
+            orientation: 'horizontal'
+            size_hint: 1, 0.95
+            CustomTreeView:
+                id: tree_view_section
+                size_hint: 0.2, 1
+                screen_name: 'GetScripts'
+            RV_GetScripts:
+                id: rv_scripts
+                size_hint:0.8, 1
+
+# <CustomTreeView>:
+#     orientation: 'vertical'
+#     size_hint: 1, 1  # 左側に30%のスペースを確保
+
+#     # ScrollViewを追加してTreeViewをラップ
+#     ScrollView:
+#         TreeView:
+#             id: tree_view
+#             hide_root: True
+#             root_options: {'text': 'Root Node'}
+#             size_hint_y: None  # 自動リサイズを無効化
+#             height: self.minimum_height  # コンテンツに応じて高さを設定
+
+<Menu_RV_GetScripts>:
+    id: menu_section  # IDを統一
+    padding: 5
+    spacing: 5
+    orientation: 'lr-tb'  # 左から右に配置
+    Url:
+        id: url_search_button
+        size_hint: None, None
+        size: dp(40), dp(40)
+    Get_articles:
+        id: get_articles_button
+        size_hint: None, None
+        size: dp(40), dp(40)
+
+<Url>:
+    id: url_search_button
+    url_search_button: url_search_button  # 同様に更新ボタンを紐付け
+    source: 'アイコン/スレッド.png'
+    text: "スレッド"
+
+<Get_articles>:
+    id: get_articles_button
+    get_articles_button: get_articles_button  # 同様に更新ボタンを紐付け
+    source: 'アイコン/記事取得.png'
+    text: "記事取得"
+
+<RV_GetScripts>:
+    id: rv_scripts  # IDを統一
+    viewclass: 'RowWidget_GetScripts'
+    size_hint: 1, 0.8
+    RecycleBoxLayout:
+        default_size: None, dp(100)
+        default_size_hint: 1, None
+        size_hint_y: None
+        height: self.minimum_height
+        orientation: 'vertical'
+
+<RowWidget_GetScripts>:
+    id: row_widget_GetScripts
+    orientation: 'horizontal'
+    media_source: ''
+    size_hint: 1, 1
+
+    canvas.before:
+        Color:
+            rgba: root.background_color
+        Rectangle:
+            pos: self.pos
+            size: self.size
+
+    CheckBox:
+        id: articles_checkbox
+        size_hint: 0.1, 1
+        active: root.checkbox_state  # データバインディングで状態を反映
+        on_active: root.on_checkbox_active(self, self.active)
+
+    Label:
+        id: articles_title_label
+        size_hint: 0.4, 1
+        text: root.articles_title_label
+        font_size: min(self.width, self.height) * 0.2
+        halign: 'center'
+        valign: 'middle'
+        text_size: self.size
+
+    Label:
+        id: articles_url_label
+        size_hint: 0.5, 1
+        text: root.articles_url_label
+        font_size: min(self.width, self.height) * 0.2
+        halign: 'center'
+        valign: 'middle'
+        text_size: self.size

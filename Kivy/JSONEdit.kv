@@ -1,0 +1,99 @@
+<JSONEdit>:
+    orientation: 'horizontal'  # 横方向にレイアウト
+    search_input: search_input
+    undo_button: undo_button
+    redo_button: redo_button
+    current_file_path:root.current_file_path
+    size_hint: 1, 1
+    BoxLayout:
+        orientation: 'vertical'
+        size_hint: 1, 1
+        BoxLayout:
+            orientation: 'horizontal'
+            size_hint_y: None  # 高さを固定にするため、size_hint_yをNoneに
+            height: dp(50)  # ThreeColumnMenu の高さに合わせて調整
+            StackLayout:
+                padding: 5
+                spacing: 5
+                orientation: 'lr-tb'  # 左から右に配置
+                HoverImage:
+                    id: undo_button
+                    hover_enabled: False  # マウスホバーでの色変更を無効にする
+                    source: 'アイコン/前に戻る.png'
+                    size_hint: None, None
+                    size: dp(40), dp(40)  # 固定サイズを指定
+                    text: '元に戻す'
+                HoverImage:
+                    id: redo_button
+                    hover_enabled: False  # マウスホバーでの色変更を無効にする
+                    source: 'アイコン/次に進む.png'
+                    size_hint: None, None
+                    size: dp(40), dp(40)
+                    text: 'やり直し'
+
+                HoverImage:
+                    id: save_button
+                    source: 'アイコン/保存.png'
+                    size_hint: None, None
+                    size: dp(40), dp(40)  # 固定サイズを指定
+                    text: 'jsonを保存'
+                HoverImage:
+                    id: create_folder_button
+                    source: 'アイコン/フォルダ作成.png'
+                    size_hint: None, None
+                    size: dp(40), dp(40)
+                    text: 'フォルダ作成'
+
+                TextInput:
+                    id: search_input
+                    hint_text: 'キーワード検索'
+                    multiline: False
+                    size_hint: None, None
+                    size: dp(400), dp(40)  # 幅に具体的な値を指定
+                    font_size: 18  # フォントサイズを指定
+                    padding: [5, (self.height - self.line_height) / 2]  # 上下のpaddingで中央揃え
+
+        BoxLayout:
+            orientation: 'horizontal'
+            size_hint: 1, 0.95
+            CustomTreeView:
+                id: tree_view_section
+                size_hint: 0.2, 1
+                screen_name: 'JSONEdit'
+
+            JSONEdit_RV:
+                id:rv_widget
+
+<JSONEdit_RowWidget>:
+    orientation: 'horizontal'
+    input_field1: input_field1
+    input_field2: input_field2
+    BoxLayout:
+        orientation: 'horizontal'
+        TextInput:
+            id: input_field1
+            multiline: False
+            hint_text: "キーワード"
+            readonly: True  # リードオンリーに設定
+            font_size: 18  # フォントサイズを指定
+            height: self.font_size * 1.5  # 高さをフォントサイズに基づいて設定
+            padding: [5, (self.height - self.line_height) / 2]  # 上下のpaddingで中央揃え
+
+        TextInput:
+            id: input_field2
+            multiline: False
+            hint_text: "フォルダ名"
+            readonly: True  # リードオンリーに設定
+            font_size: 18  # フォントサイズを指定
+            height: self.font_size * 1.5  # 高さをフォントサイズに基づいて設定
+            padding: [5, (self.height - self.line_height) / 2]  # 上下のpaddingで中央揃え
+
+<JSONEdit_RV>:
+    viewclass: 'JSONEdit_RowWidget'
+    RecycleBoxLayout:
+        orientation: 'vertical'
+        default_size: None, dp(40)
+        default_size_hint: 1, None
+        size_hint_y: None
+        height: self.minimum_height
+
