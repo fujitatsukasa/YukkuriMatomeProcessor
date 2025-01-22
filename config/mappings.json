@@ -1,0 +1,38 @@
+{
+    "ITEM_TYPE_MAP": {
+        "YukkuriMovieMaker.Project.Items.VoiceItem, YukkuriMovieMaker": "ボイス",
+        "YukkuriMovieMaker.Project.Items.ImageItem, YukkuriMovieMaker": "画像",
+        "YukkuriMovieMaker.Project.Items.VideoItem, YukkuriMovieMaker": "動画",
+        "YukkuriMovieMaker.Project.Items.AudioItem, YukkuriMovieMaker": "音楽",
+        "YukkuriMovieMaker.Project.Items.TextItem, YukkuriMovieMaker": "テキスト",
+        "YukkuriMovieMaker.Project.Items.TachieItem, YukkuriMovieMaker": "立ち絵",
+        "YukkuriMovieMaker.Project.Items.TachieFaceItem, YukkuriMovieMaker": "立ち絵 表情",
+        "YukkuriMovieMaker.Project.Items.EffectItem, YukkuriMovieMaker": "エフェクト",
+        "YukkuriMovieMaker.Project.Items.TransitionItem, YukkuriMovieMaker": "場面切り替え",
+        "YukkuriMovieMaker.Project.Items.SceneItem, YukkuriMovieMaker": "シーン",
+        "YukkuriMovieMaker.Project.Items.ShapeItem, YukkuriMovieMaker": "図形"
+    },
+    "FIELD_JP_MAP": {
+        "FilePath": "ファイルパス",
+        "Text": "テキスト",
+        "Serif": "セリフ",
+        "CharacterName": "キャラクター名",
+        "Frame": "フレーム",
+        "layer": "レイヤー",
+        "Length": "長さ"
+    },
+    "ICON_MAP": {
+        "テキスト": "text-box",
+        "立ち絵": "account",
+        "エフェクト": "star",
+        "場面切り替え": "swap-horizontal",
+        "画像": "image",
+        "音楽": "music-note",
+        "動画": "video",
+        "シーン": "movie",
+        "図形": "shape",
+        "ボイス": "microphone",
+        "表情": "emoticon",
+        "不明": "help-circle"
+    }
+}

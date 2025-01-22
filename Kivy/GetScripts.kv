@@ -8,10 +8,17 @@
             orientation: 'horizontal'
             size_hint_y: None  # 高さを固定にするため、size_hint_yをNoneに
             height: dp(50)  # ThreeColumnMenu の高さに合わせて調整
-            Menu_RV_GetScripts:
-                id: menu_section
-                size_hint_y: None  # 子メニューの高さも固定
-                height: dp(50)  # メニューの高さを指定
+            StackLayout:
+                orientation: 'lr-tb'
+                Url:
+                    url_search_button:url_search_button
+                    id: url_search_button
+                    on_release:self.search_with_scraper
+
+                Get_articles:
+                    get_articles_button:get_articles_button
+                    id: get_articles_button
+                    on_release:self.on_print_selected_urls
 
         BoxLayout:
             orientation: 'horizontal'
@@ -37,38 +44,31 @@
 #             size_hint_y: None  # 自動リサイズを無効化
 #             height: self.minimum_height  # コンテンツに応じて高さを設定
 
-<Menu_RV_GetScripts>:
-    id: menu_section  # IDを統一
-    padding: 5
-    spacing: 5
-    orientation: 'lr-tb'  # 左から右に配置
-    Url:
-        id: url_search_button
-        size_hint: None, None
-        size: dp(40), dp(40)
-    Get_articles:
-        id: get_articles_button
-        size_hint: None, None
-        size: dp(40), dp(40)
 
-<Url>:
-    id: url_search_button
+<Url@HoverIconButton>:
     url_search_button: url_search_button  # 同様に更新ボタンを紐付け
+    id: url_search_button
+    tooltip_text: "記事一覧"
+    shortcut_key: "スレッド"
     source: 'アイコン/スレッド.png'
-    text: "スレッド"
+    icon_size:"40dp"
+    icon: 'database'
 
-<Get_articles>:
+<Get_articles@HoverIconButton>:
+    get_articles_button: get_articles_button
     id: get_articles_button
-    get_articles_button: get_articles_button  # 同様に更新ボタンを紐付け
     source: 'アイコン/記事取得.png'
-    text: "記事取得"
+    tooltip_text: "選択した記事をダウンロード"
+    shortcut_key: "記事取得"
+    icon_size:"40dp"
+    icon: 'download'
 
 <RV_GetScripts>:
     id: rv_scripts  # IDを統一
     viewclass: 'RowWidget_GetScripts'
     size_hint: 1, 0.8
     RecycleBoxLayout:
-        default_size: None, dp(100)
+        default_size: None, dp(150)
         default_size_hint: 1, None
         size_hint_y: None
         height: self.minimum_height
@@ -77,7 +77,7 @@
 <RowWidget_GetScripts>:
     id: row_widget_GetScripts
     orientation: 'horizontal'
-    media_source: ''
+    thumbnail: ''         # AsyncImage用の画像パスを格納するプロパティ
     size_hint: 1, 1
 
     canvas.before:
@@ -89,22 +89,43 @@
 
     CheckBox:
         id: articles_checkbox
-        size_hint: 0.1, 1
+        size_hint_x: 0.05
+        size_hint_y: 1
         active: root.checkbox_state  # データバインディングで状態を反映
         on_active: root.on_checkbox_active(self, self.active)
-
+    MDSeparator:
+        orientation: 'vertical'
+        size_hint: (None, 1)
+        color: (1,1,1,0.5)
+        width: dp(2)
+    AsyncImage:
+        id: article_image
+        size_hint_x: 0.2
+        size_hint_y: 1
+        source: root.thumbnail   # メディア画像のURL（またはファイルパス）を指定
+    MDSeparator:
+        orientation: 'vertical'
+        size_hint: (None, 1)
+        color: (1,1,1,0.5)
+        width: dp(2)
     Label:
         id: articles_title_label
-        size_hint: 0.4, 1
+        size_hint_x: 0.4
+        size_hint_y: 1
         text: root.articles_title_label
         font_size: min(self.width, self.height) * 0.2
         halign: 'center'
         valign: 'middle'
         text_size: self.size
-
-    Label:
+    MDSeparator:
+        orientation: 'vertical'
+        size_hint: (None, 1)
+        color: (1,1,1,0.5)
+        width: dp(2)
+    HoverLabel:
         id: articles_url_label
-        size_hint: 0.5, 1
+        size_hint_x: 0.3
+        size_hint_y: 1
         text: root.articles_url_label
         font_size: min(self.width, self.height) * 0.2
         halign: 'center'

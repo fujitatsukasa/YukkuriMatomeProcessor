@@ -1,0 +1,2730 @@
+﻿{
+  "FilePath": "C:\\kivy_台本編集アプリ\\動画入力\\タイプ_フォーマット.ymmp",
+  "SelectedTimelineIndex": 0,
+  "Timelines": [
+    {
+      "ID": "74d3e940-d3cd-4232-8ef2-4aba2410ff32",
+      "Name": "メイン",
+      "VideoInfo": {
+        "FPS": 30,
+        "Hz": 48000,
+        "Width": 1920,
+        "Height": 1080
+      },
+      "VerticalLine": {
+        "IsEnabled": false,
+        "StartFrame": 0,
+        "LineType": "BPM",
+        "Line": {
+          "$type": "YukkuriMovieMaker.Project.VerticalBPMLine, YukkuriMovieMaker.Plugin",
+          "BPM": 100.0
+        },
+        "Group": 4
+      },
+      "Items": [
+        {
+          "$type": "YukkuriMovieMaker.Project.Items.TextItem, YukkuriMovieMaker",
+          "Text": "",
+          "Decorations": [],
+          "Font": "メイリオ",
+          "FontSize": {
+            "Values": [
+              {
+                "Value": 118.0
+              }
+            ],
+            "Span": 0.0,
+            "AnimationType": "なし"
+          },
+          "LineHeight2": {
+            "Values": [
+              {
+                "Value": 100.0
+              }
+            ],
+            "Span": 0.0,
+            "AnimationType": "なし"
+          },
+          "LetterSpacing2": {
+            "Values": [
+              {
+                "Value": 0.0
+              }
+            ],
+            "Span": 0.0,
+            "AnimationType": "なし"
+          },
+          "DisplayInterval": 0.0,
+          "WordWrap": "NoWrap",
+          "MaxWidth": {
+            "Values": [
+              {
+                "Value": 1920.0
+              }
+            ],
+            "Span": 0.0,
+            "AnimationType": "なし"
+          },
+          "BasePoint": "LeftTop",
+          "FontColor": "#FFFFFFFF",
+          "Style": "Normal",
+          "StyleColor": "#FF000000",
+          "Bold": false,
+          "Italic": false,
+          "IsTrimEndSpace": false,
+          "IsDevidedPerCharacter": false,
+          "X": {
+            "Values": [
+              {
+                "Value": 488.0
+              }
+            ],
+            "Span": 0.0,
+            "AnimationType": "なし"
+          },
+          "Y": {
+            "Values": [
+              {
+                "Value": -570.0
+              }
+            ],
+            "Span": 0.0,
+            "AnimationType": "なし"
+          },
+          "Z": {
+            "Values": [
+              {
+                "Value": 0.0
+              }
+            ],
+            "Span": 0.0,
+            "AnimationType": "なし"
+          },
+          "Opacity": {
+            "Values": [
+              {
+                "Value": 100.0
+              }
+            ],
+            "Span": 0.0,
+            "AnimationType": "なし"
+          },
+          "Zoom": {
+            "Values": [
+              {
+                "Value": 100.0
+              }
+            ],
+            "Span": 0.0,
+            "AnimationType": "なし"
+          },
+          "Rotation": {
+            "Values": [
+              {
+                "Value": 0.0
+              }
+            ],
+            "Span": 0.0,
+            "AnimationType": "なし"
+          },
+          "FadeIn": 0.0,
+          "FadeOut": 0.0,
+          "Blend": "Normal",
+          "IsInverted": false,
+          "IsClippingWithObjectAbove": false,
+          "IsAlwaysOnTop": false,
+          "IsZOrderEnabled": false,
+          "VideoEffects": [],
+          "Group": 0,
+          "Frame": 0,
+          "Layer": 1,
+          "KeyFrames": {
+            "Frames": [],
+            "Count": 0
+          },
+          "Length": 300,
+          "PlaybackRate": 100.0,
+          "ContentOffset": "00:00:00",
+          "Remark": "",
+          "IsLocked": false,
+          "IsHidden": false
+        },
+        {
+          "$type": "YukkuriMovieMaker.Project.Items.TachieItem, YukkuriMovieMaker",
+          "CharacterName": "タイトルコール_めたん",
+          "TachieItemParameter": {
+            "$type": "YukkuriMovieMaker.Plugin.Tachie.SimpleTachie.ItemParameter, YukkuriMovieMaker.Plugin.Tachie.SimpleTachie",
+            "DefaultFace": "R:\\ゆっくり実況用環境\\IQ2_kotonoha\\茜ちゃん\\IQ2_kotonoha_0003.png",
+            "IsHiddenWhenNoSpeech": false
+          },
+          "X": {
+            "Values": [
+              {
+                "Value": 718.0
+              }
+            ],
+            "Span": 0.0,
+            "AnimationType": "なし"
+          },
+          "Y": {
+            "Values": [
+              {
+                "Value": 219.0
+              }
+            ],
+            "Span": 0.0,
+            "AnimationType": "なし"
+          },
+          "Z": {
+            "Values": [
+              {
+                "Value": 0.0
+              }
+            ],
+            "Span": 0.0,
+            "AnimationType": "なし"
+          },
+          "Opacity": {
+            "Values": [
+              {
+                "Value": 100.0
+              }
+            ],
+            "Span": 0.0,
+            "AnimationType": "なし"
+          },
+          "Zoom": {
+            "Values": [
+              {
+                "Value": 77.0
+              }
+            ],
+            "Span": 0.0,
+            "AnimationType": "なし"
+          },
+          "Rotation": {
+            "Values": [
+              {
+                "Value": 0.0
+              }
+            ],
+            "Span": 0.0,
+            "AnimationType": "なし"
+          },
+          "FadeIn": 0.0,
+          "FadeOut": 0.0,
+          "Blend": "Normal",
+          "IsInverted": false,
+          "IsClippingWithObjectAbove": false,
+          "IsAlwaysOnTop": false,
+          "IsZOrderEnabled": false,
+          "VideoEffects": [],
+          "Group": 0,
+          "Frame": 0,
+          "Layer": 7,
+          "KeyFrames": {
+            "Frames": [],
+            "Count": 0
+          },
+          "Length": 300,
+          "PlaybackRate": 100.0,
+          "ContentOffset": "00:00:00",
+          "Remark": "",
+          "IsLocked": false,
+          "IsHidden": false
+        },
+        {
+          "$type": "YukkuriMovieMaker.Project.Items.EffectItem, YukkuriMovieMaker",
+          "ShapeType2": "YukkuriMovieMaker.Shape.StarShapePlugin, YukkuriMovieMaker, Version=4.36.0.3, Culture=neutral, PublicKeyToken=null",
+          "ShapeParameter": {
+            "$type": "YukkuriMovieMaker.Project.Items.StarShapeParameter, YukkuriMovieMaker",
+            "InflationRatio": {
+              "Values": [
+                {
+                  "Value": 50.0
+                }
+              ],
+              "Span": 0.0,
+              "AnimationType": "なし"
+            },
+            "CornerRoundTarget": "OuterOnly",
+            "Round": {
+              "Values": [
+                {
+                  "Value": 0.0
+                }
+              ],
+              "Span": 0.0,
+              "AnimationType": "なし"
+            },
+            "SizeMode": "SizeAspect",
+            "Size": {
+              "Values": [
+                {
+                  "Value": 100.0
+                }
+              ],
+              "Span": 0.0,
+              "AnimationType": "なし"
+            },
+            "AspectRate": {
+              "Values": [
+                {
+                  "Value": 0.0
+                }
+              ],
+              "Span": 0.0,
+              "AnimationType": "なし"
+            },
+            "Width": {
+              "Values": [
+                {
+                  "Value": 100.0
+                }
+              ],
+              "Span": 0.0,
+              "AnimationType": "なし"
+            },
+            "Height": {
+              "Values": [
+                {
+                  "Value": 100.0
+                }
+              ],
+              "Span": 0.0,
+              "AnimationType": "なし"
+            },
+            "StrokeThickness": {
+              "Values": [
+                {
+                  "Value": 4000.0
+                }
+              ],
+              "Span": 0.0,
+              "AnimationType": "なし"
+            },
+            "Brush": {
+              "Type": "YukkuriMovieMaker.Brush.DotBrushPlugin, YukkuriMovieMaker, Version=4.36.0.3, Culture=neutral, PublicKeyToken=null",
+              "Parameter": {
+                "$type": "YukkuriMovieMaker.Brush.DotBrushParameter, YukkuriMovieMaker",
+                "Foreground": "#FFFFFFFF",
+                "Background": "#FF000000",
+                "Radius": {
+                  "Values": [
+                    {
+                      "Value": 10.0
+                    }
+                  ],
+                  "Span": 0.0,
+                  "AnimationType": "なし"
+                },
+                "Span": {
+                  "Values": [
+                    {
+                      "Value": 50.0
+                    }
+                  ],
+                  "Span": 0.0,
+                  "AnimationType": "なし"
+                },
+                "Zoom": {
+                  "Values": [
+                    {
+                      "Value": 100.0
+                    }
+                  ],
+                  "Span": 0.0,
+                  "AnimationType": "なし"
+                },
+                "X": {
+                  "Values": [
+                    {
+                      "Value": 0.0
+                    }
+                  ],
+                  "Span": 0.0,
+                  "AnimationType": "なし"
+                },
+                "Y": {
+                  "Values": [
+                    {
+                      "Value": 0.0
+                    }
+                  ],
+                  "Span": 0.0,
+                  "AnimationType": "なし"
+                },
+                "Angle": {
+                  "Values": [
+                    {
+                      "Value": 0.0
+                    }
+                  ],
+                  "Span": 0.0,
+                  "AnimationType": "なし"
+                },
+                "Aspect": {
+                  "Values": [
+                    {
+                      "Value": 0.0
+                    }
+                  ],
+                  "Span": 0.0,
+                  "AnimationType": "なし"
+                },
+                "IsInverted": false
+              }
+            }
+          },
+          "Blur": {
+            "Values": [
+              {
+                "Value": 0.0
+              }
+            ],
+            "Span": 0.0,
+            "AnimationType": "なし"
+          },
+          "InvertMask": false,
+          "VideoEffects": [],
+          "X": {
+            "Values": [
+              {
+                "Value": 0.0
+              }
+            ],
+            "Span": 0.0,
+            "AnimationType": "なし"
+          },
+          "Y": {
+            "Values": [
+              {
+                "Value": 0.0
+              }
+            ],
+            "Span": 0.0,
+            "AnimationType": "なし"
+          },
+          "Z": {
+            "Values": [
+              {
+                "Value": 0.0
+              }
+            ],
+            "Span": 0.0,
+            "AnimationType": "なし"
+          },
+          "Opacity": {
+            "Values": [
+              {
+                "Value": 100.0
+              }
+            ],
+            "Span": 0.0,
+            "AnimationType": "なし"
+          },
+          "Rotation": {
+            "Values": [
+              {
+                "Value": 0.0
+              }
+            ],
+            "Span": 0.0,
+            "AnimationType": "なし"
+          },
+          "FadeIn": 0.0,
+          "FadeOut": 0.0,
+          "Blend": "Normal",
+          "IsClippingWithObjectAbove": false,
+          "IsAlwaysOnTop": false,
+          "IsZOrderEnabled": false,
+          "Group": 0,
+          "Frame": 0,
+          "Layer": 10,
+          "KeyFrames": {
+            "Frames": [],
+            "Count": 0
+          },
+          "Length": 300,
+          "PlaybackRate": 100.0,
+          "ContentOffset": "00:00:00",
+          "Remark": "",
+          "IsLocked": false,
+          "IsHidden": false
+        },
+        {
+          "$type": "YukkuriMovieMaker.Project.Items.TransitionItem, YukkuriMovieMaker",
+          "X": {
+            "Values": [
+              {
+                "Value": 0.0
+              }
+            ],
+            "Span": 0.0,
+            "AnimationType": "なし"
+          },
+          "Y": {
+            "Values": [
+              {
+                "Value": 0.0
+              }
+            ],
+            "Span": 0.0,
+            "AnimationType": "なし"
+          },
+          "Z": {
+            "Values": [
+              {
+                "Value": 0.0
+              }
+            ],
+            "Span": 0.0,
+            "AnimationType": "なし"
+          },
+          "Opacity": {
+            "Values": [
+              {
+                "Value": 100.0
+              }
+            ],
+            "Span": 0.0,
+            "AnimationType": "なし"
+          },
+          "Zoom": {
+            "Values": [
+              {
+                "Value": 100.0
+              }
+            ],
+            "Span": 0.0,
+            "AnimationType": "なし"
+          },
+          "Rotation": {
+            "Values": [
+              {
+                "Value": 0.0
+              }
+            ],
+            "Span": 0.0,
+            "AnimationType": "なし"
+          },
+          "FadeIn": 0.0,
+          "FadeOut": 0.0,
+          "IsInverted": false,
+          "Blend": "Normal",
+          "IsAlwaysOnTop": false,
+          "IsZOrderEnabled": false,
+          "IsClippingWithObjectAbove": false,
+          "VideoEffects": [],
+          "TransitionType": "YukkuriMovieMaker.Transition.PushTransitionPlugin, YukkuriMovieMaker, Version=4.36.0.3, Culture=neutral, PublicKeyToken=null",
+          "TransitionParameter": {
+            "$type": "YukkuriMovieMaker.Transition.PushTransitionParameter, YukkuriMovieMaker",
+            "Angle": {
+              "Values": [
+                {
+                  "Value": 0.0
+                }
+              ],
+              "Span": 0.0,
+              "AnimationType": "なし"
+            },
+            "EasingType": "Expo",
+            "EasingMode": "InOut"
+          },
+          "BeforeVideoEffects": [],
+          "AfterVideoEffects": [],
+          "Group": 0,
+          "Frame": 0,
+          "Layer": 4,
+          "KeyFrames": {
+            "Frames": [],
+            "Count": 0
+          },
+          "Length": 300,
+          "PlaybackRate": 100.0,
+          "ContentOffset": "00:00:00",
+          "Remark": "",
+          "IsLocked": false,
+          "IsHidden": false
+        },
+        {
+          "$type": "YukkuriMovieMaker.Project.Items.ImageItem, YukkuriMovieMaker",
+          "FilePath": "E:\\1.png",
+          "X": {
+            "Values": [
+              {
+                "Value": 0.0
+              },
+              {
+                "Value": 0.0
+              }
+            ],
+            "Span": 0.0,
+            "AnimationType": "なし"
+          },
+          "Y": {
+            "Values": [
+              {
+                "Value": 0.0
+              },
+              {
+                "Value": 0.0
+              }
+            ],
+            "Span": 0.0,
+            "AnimationType": "なし"
+          },
+          "Z": {
+            "Values": [
+              {
+                "Value": 0.0
+              }
+            ],
+            "Span": 0.0,
+            "AnimationType": "なし"
+          },
+          "Opacity": {
+            "Values": [
+              {
+                "Value": 100.0
+              },
+              {
+                "Value": 0.0
+              }
+            ],
+            "Span": 0.0,
+            "AnimationType": "なし"
+          },
+          "Zoom": {
+            "Values": [
+              {
+                "Value": 100.0
+              },
+              {
+                "Value": 0.0
+              }
+            ],
+            "Span": 0.0,
+            "AnimationType": "なし"
+          },
+          "Rotation": {
+            "Values": [
+              {
+                "Value": 0.0
+              },
+              {
+                "Value": 0.0
+              }
+            ],
+            "Span": 0.0,
+            "AnimationType": "なし"
+          },
+          "FadeIn": 0.0,
+          "FadeOut": 0.0,
+          "Blend": "Normal",
+          "IsInverted": false,
+          "IsClippingWithObjectAbove": false,
+          "IsAlwaysOnTop": false,
+          "IsZOrderEnabled": false,
+          "VideoEffects": [],
+          "Group": 0,
+          "Frame": 0,
+          "Layer": 5,
+          "KeyFrames": {
+            "Frames": [],
+            "Count": 0
+          },
+          "Length": 300,
+          "PlaybackRate": 100.0,
+          "ContentOffset": "00:00:00",
+          "Remark": "",
+          "IsLocked": false,
+          "IsHidden": false
+        },
+        {
+          "$type": "YukkuriMovieMaker.Project.Items.AudioItem, YukkuriMovieMaker",
+          "IsWaveformEnabled": false,
+          "FilePath": "C:\\Editing2 - コピー\\BGM\\ブルアカ\\Aoharu.mp3",
+          "AudioTrackIndex": 0,
+          "Volume": {
+            "Values": [
+              {
+                "Value": 50.0
+              },
+              {
+                "Value": 0.0
+              }
+            ],
+            "Span": 0.0,
+            "AnimationType": "なし"
+          },
+          "Pan": {
+            "Values": [
+              {
+                "Value": 0.0
+              },
+              {
+                "Value": 0.0
+              }
+            ],
+            "Span": 0.0,
+            "AnimationType": "なし"
+          },
+          "PlaybackRate": 100.0,
+          "ContentOffset": "00:00:00",
+          "FadeIn": 0.0,
+          "FadeOut": 0.0,
+          "IsLooped": false,
+          "EchoIsEnabled": false,
+          "EchoInterval": 0.1,
+          "EchoAttenuation": 40.0,
+          "AudioEffects": [],
+          "Group": 0,
+          "Frame": 0,
+          "Layer": 3,
+          "KeyFrames": {
+            "Frames": [],
+            "Count": 0
+          },
+          "Length": 300,
+          "Remark": "",
+          "IsLocked": false,
+          "IsHidden": false
+        },
+        {
+          "$type": "YukkuriMovieMaker.Project.Items.VideoItem, YukkuriMovieMaker",
+          "IsWaveformEnabled": false,
+          "FilePath": "C:\\Editing2 - コピー\\背景\\汎用\\コンポ_1.mp4",
+          "AudioTrackIndex": 0,
+          "Volume": {
+            "Values": [
+              {
+                "Value": 50.0
+              },
+              {
+                "Value": 0.0
+              }
+            ],
+            "Span": 0.0,
+            "AnimationType": "なし"
+          },
+          "Pan": {
+            "Values": [
+              {
+                "Value": 0.0
+              },
+              {
+                "Value": 0.0
+              }
+            ],
+            "Span": 0.0,
+            "AnimationType": "なし"
+          },
+          "PlaybackRate": 100.0,
+          "ContentOffset": "00:00:00",
+          "IsLooped": false,
+          "EchoIsEnabled": false,
+          "EchoInterval": 0.1,
+          "EchoAttenuation": 40.0,
+          "AudioEffects": [],
+          "X": {
+            "Values": [
+              {
+                "Value": 0.0
+              },
+              {
+                "Value": 0.0
+              }
+            ],
+            "Span": 0.0,
+            "AnimationType": "なし"
+          },
+          "Y": {
+            "Values": [
+              {
+                "Value": 0.0
+              },
+              {
+                "Value": 0.0
+              }
+            ],
+            "Span": 0.0,
+            "AnimationType": "なし"
+          },
+          "Z": {
+            "Values": [
+              {
+                "Value": 0.0
+              }
+            ],
+            "Span": 0.0,
+            "AnimationType": "なし"
+          },
+          "Opacity": {
+            "Values": [
+              {
+                "Value": 100.0
+              },
+              {
+                "Value": 0.0
+              }
+            ],
+            "Span": 0.0,
+            "AnimationType": "なし"
+          },
+          "Zoom": {
+            "Values": [
+              {
+                "Value": 100.0
+              },
+              {
+                "Value": 0.0
+              }
+            ],
+            "Span": 0.0,
+            "AnimationType": "なし"
+          },
+          "Rotation": {
+            "Values": [
+              {
+                "Value": 0.0
+              },
+              {
+                "Value": 0.0
+              }
+            ],
+            "Span": 0.0,
+            "AnimationType": "なし"
+          },
+          "FadeIn": 0.0,
+          "FadeOut": 0.0,
+          "Blend": "Normal",
+          "IsInverted": false,
+          "IsClippingWithObjectAbove": false,
+          "IsAlwaysOnTop": false,
+          "IsZOrderEnabled": false,
+          "VideoEffects": [],
+          "Group": 0,
+          "Frame": 0,
+          "Layer": 2,
+          "KeyFrames": {
+            "Frames": [],
+            "Count": 0
+          },
+          "Length": 300,
+          "Remark": "",
+          "IsLocked": false,
+          "IsHidden": false
+        },
+        {
+          "$type": "YukkuriMovieMaker.Project.Items.SceneItem, YukkuriMovieMaker",
+          "IsWaveformEnabled": false,
+          "SceneId": "00000000-0000-0000-0000-000000000000",
+          "Volume": {
+            "Values": [
+              {
+                "Value": 50.0
+              }
+            ],
+            "Span": 0.0,
+            "AnimationType": "なし"
+          },
+          "Pan": {
+            "Values": [
+              {
+                "Value": 0.0
+              }
+            ],
+            "Span": 0.0,
+            "AnimationType": "なし"
+          },
+          "PlaybackRate": 100.0,
+          "ContentOffset": "00:00:00",
+          "IsLooped": false,
+          "EchoIsEnabled": false,
+          "EchoInterval": 0.1,
+          "EchoAttenuation": 40.0,
+          "AudioEffects": [],
+          "X": {
+            "Values": [
+              {
+                "Value": 0.0
+              }
+            ],
+            "Span": 0.0,
+            "AnimationType": "なし"
+          },
+          "Y": {
+            "Values": [
+              {
+                "Value": 0.0
+              }
+            ],
+            "Span": 0.0,
+            "AnimationType": "なし"
+          },
+          "Z": {
+            "Values": [
+              {
+                "Value": 0.0
+              }
+            ],
+            "Span": 0.0,
+            "AnimationType": "なし"
+          },
+          "Opacity": {
+            "Values": [
+              {
+                "Value": 100.0
+              }
+            ],
+            "Span": 0.0,
+            "AnimationType": "なし"
+          },
+          "Zoom": {
+            "Values": [
+              {
+                "Value": 100.0
+              }
+            ],
+            "Span": 0.0,
+            "AnimationType": "なし"
+          },
+          "Rotation": {
+            "Values": [
+              {
+                "Value": 0.0
+              }
+            ],
+            "Span": 0.0,
+            "AnimationType": "なし"
+          },
+          "FadeIn": 0.0,
+          "FadeOut": 0.0,
+          "Blend": "Normal",
+          "IsInverted": false,
+          "IsClippingWithObjectAbove": false,
+          "IsAlwaysOnTop": false,
+          "IsZOrderEnabled": false,
+          "VideoEffects": [],
+          "Group": 0,
+          "Frame": 0,
+          "Layer": 9,
+          "KeyFrames": {
+            "Frames": [],
+            "Count": 0
+          },
+          "Length": 300,
+          "Remark": "",
+          "IsLocked": false,
+          "IsHidden": false
+        },
+        {
+          "$type": "YukkuriMovieMaker.Project.Items.ShapeItem, YukkuriMovieMaker",
+          "ShapeType2": "YukkuriMovieMaker.Shape.QuadrilateralShapePlugin, YukkuriMovieMaker, Version=4.36.0.3, Culture=neutral, PublicKeyToken=null",
+          "ShapeParameter": {
+            "$type": "YukkuriMovieMaker.Project.Items.RectangleShapeParameter, YukkuriMovieMaker",
+            "Round": {
+              "Values": [
+                {
+                  "Value": 0.0
+                }
+              ],
+              "Span": 0.0,
+              "AnimationType": "なし"
+            },
+            "SizeMode": "SizeAspect",
+            "Size": {
+              "Values": [
+                {
+                  "Value": 100.0
+                },
+                {
+                  "Value": 0.0
+                }
+              ],
+              "Span": 0.0,
+              "AnimationType": "なし"
+            },
+            "AspectRate": {
+              "Values": [
+                {
+                  "Value": 0.0
+                },
+                {
+                  "Value": 0.0
+                }
+              ],
+              "Span": 0.0,
+              "AnimationType": "なし"
+            },
+            "Width": {
+              "Values": [
+                {
+                  "Value": 100.0
+                },
+                {
+                  "Value": 0.0
+                }
+              ],
+              "Span": 0.0,
+              "AnimationType": "なし"
+            },
+            "Height": {
+              "Values": [
+                {
+                  "Value": 100.0
+                },
+                {
+                  "Value": 0.0
+                }
+              ],
+              "Span": 0.0,
+              "AnimationType": "なし"
+            },
+            "StrokeThickness": {
+              "Values": [
+                {
+                  "Value": 4000.0
+                },
+                {
+                  "Value": 0.0
+                }
+              ],
+              "Span": 0.0,
+              "AnimationType": "なし"
+            },
+            "Brush": {
+              "Type": "YukkuriMovieMaker.Plugin.Brush.SolidColorBrushPlugin, YukkuriMovieMaker, Version=4.36.0.3, Culture=neutral, PublicKeyToken=null",
+              "Parameter": {
+                "$type": "YukkuriMovieMaker.Plugin.Brush.SolidColorBrushParameter, YukkuriMovieMaker",
+                "Color": "#FFFFFFFF"
+              }
+            }
+          },
+          "X": {
+            "Values": [
+              {
+                "Value": 0.0
+              },
+              {
+                "Value": 0.0
+              }
+            ],
+            "Span": 0.0,
+            "AnimationType": "なし"
+          },
+          "Y": {
+            "Values": [
+              {
+                "Value": 0.0
+              },
+              {
+                "Value": 0.0
+              }
+            ],
+            "Span": 0.0,
+            "AnimationType": "なし"
+          },
+          "Z": {
+            "Values": [
+              {
+                "Value": 0.0
+              }
+            ],
+            "Span": 0.0,
+            "AnimationType": "なし"
+          },
+          "Opacity": {
+            "Values": [
+              {
+                "Value": 100.0
+              },
+              {
+                "Value": 0.0
+              }
+            ],
+            "Span": 0.0,
+            "AnimationType": "なし"
+          },
+          "Zoom": {
+            "Values": [
+              {
+                "Value": 100.0
+              },
+              {
+                "Value": 0.0
+              }
+            ],
+            "Span": 0.0,
+            "AnimationType": "なし"
+          },
+          "Rotation": {
+            "Values": [
+              {
+                "Value": 0.0
+              },
+              {
+                "Value": 0.0
+              }
+            ],
+            "Span": 0.0,
+            "AnimationType": "なし"
+          },
+          "FadeIn": 0.0,
+          "FadeOut": 0.0,
+          "Blend": "Normal",
+          "IsInverted": false,
+          "IsClippingWithObjectAbove": false,
+          "IsAlwaysOnTop": false,
+          "IsZOrderEnabled": false,
+          "VideoEffects": [],
+          "Group": 0,
+          "Frame": 0,
+          "Layer": 6,
+          "KeyFrames": {
+            "Frames": [],
+            "Count": 0
+          },
+          "Length": 300,
+          "PlaybackRate": 100.0,
+          "ContentOffset": "00:00:00",
+          "Remark": "",
+          "IsLocked": false,
+          "IsHidden": false
+        },
+        {
+          "$type": "YukkuriMovieMaker.Project.Items.VoiceItem, YukkuriMovieMaker",
+          "IsWaveformEnabled": false,
+          "CharacterName": "セリフ",
+          "Serif": "セリフ",
+          "Decorations": [],
+          "Hatsuon": "せりふ",
+          "Pronounce": {
+            "$type": "YukkuriMovieMaker.Voice.AquesTalkVoicePronounce, YukkuriMovieMaker"
+          },
+          "VoiceLength": "00:00:00.4910000",
+          "VoiceCache": null,
+          "Volume": {
+            "Values": [
+              {
+                "Value": 300.0
+              }
+            ],
+            "Span": 0.0,
+            "AnimationType": "なし"
+          },
+          "Pan": {
+            "Values": [
+              {
+                "Value": 0.0
+              }
+            ],
+            "Span": 0.0,
+            "AnimationType": "なし"
+          },
+          "PlaybackRate": 100.0,
+          "VoiceParameter": {
+            "$type": "YukkuriMovieMaker.Voice.VoiceParameter, YukkuriMovieMaker",
+            "Speed": 110
+          },
+          "ContentOffset": "00:00:00",
+          "VoiceFadeIn": 0.0,
+          "VoiceFadeOut": 0.0,
+          "EchoIsEnabled": false,
+          "EchoInterval": 0.1,
+          "EchoAttenuation": 40.0,
+          "AudioEffects": [],
+          "JimakuVisibility": "UseCharacterSetting",
+          "Y": {
+            "Values": [
+              {
+                "Value": 0.0
+              }
+            ],
+            "Span": 0.0,
+            "AnimationType": "なし"
+          },
+          "X": {
+            "Values": [
+              {
+                "Value": 380.0
+              }
+            ],
+            "Span": 0.0,
+            "AnimationType": "なし"
+          },
+          "Z": {
+            "Values": [
+              {
+                "Value": 0.0
+              }
+            ],
+            "Span": 0.0,
+            "AnimationType": "なし"
+          },
+          "Opacity": {
+            "Values": [
+              {
+                "Value": 100.0
+              }
+            ],
+            "Span": 0.0,
+            "AnimationType": "なし"
+          },
+          "Zoom": {
+            "Values": [
+              {
+                "Value": 100.0
+              }
+            ],
+            "Span": 0.0,
+            "AnimationType": "なし"
+          },
+          "Rotation": {
+            "Values": [
+              {
+                "Value": 0.0
+              }
+            ],
+            "Span": 0.0,
+            "AnimationType": "なし"
+          },
+          "JimakuFadeIn": 0.0,
+          "JimakuFadeOut": 0.0,
+          "Blend": "Normal",
+          "IsInverted": false,
+          "IsClippingWithObjectAbove": false,
+          "IsAlwaysOnTop": false,
+          "IsZOrderEnabled": false,
+          "Font": "けいふぉんと",
+          "FontSize": {
+            "Values": [
+              {
+                "Value": 80.0
+              }
+            ],
+            "Span": 0.0,
+            "AnimationType": "なし"
+          },
+          "LineHeight2": {
+            "Values": [
+              {
+                "Value": 100.0
+              }
+            ],
+            "Span": 0.0,
+            "AnimationType": "なし"
+          },
+          "LetterSpacing2": {
+            "Values": [
+              {
+                "Value": 0.0
+              }
+            ],
+            "Span": 0.0,
+            "AnimationType": "なし"
+          },
+          "DisplayInterval": 0.0,
+          "WordWrap": "NoWrap",
+          "MaxWidth": {
+            "Values": [
+              {
+                "Value": 1920.0
+              }
+            ],
+            "Span": 0.0,
+            "AnimationType": "なし"
+          },
+          "BasePoint": "CenterCenter",
+          "FontColor": "#FF72FF51",
+          "Style": "Normal",
+          "StyleColor": "#FF8A0000",
+          "Bold": false,
+          "Italic": false,
+          "IsTrimEndSpace": true,
+          "IsDevidedPerCharacter": false,
+          "JimakuVideoEffects": [
+            {
+              "$type": "YukkuriMovieMaker.Project.Effects.OutlineEffect, YukkuriMovieMaker",
+              "StrokeThickness": {
+                "Values": [
+                  {
+                    "Value": 10.0
+                  }
+                ],
+                "Span": 0.0,
+                "AnimationType": "なし"
+              },
+              "Blur": {
+                "Values": [
+                  {
+                    "Value": 0.0
+                  }
+                ],
+                "Span": 0.0,
+                "AnimationType": "なし"
+              },
+              "X": {
+                "Values": [
+                  {
+                    "Value": 0.0
+                  }
+                ],
+                "Span": 0.0,
+                "AnimationType": "なし"
+              },
+              "Y": {
+                "Values": [
+                  {
+                    "Value": 0.0
+                  }
+                ],
+                "Span": 0.0,
+                "AnimationType": "なし"
+              },
+              "Opacity": {
+                "Values": [
+                  {
+                    "Value": 100.0
+                  }
+                ],
+                "Span": 0.0,
+                "AnimationType": "なし"
+              },
+              "Zoom": {
+                "Values": [
+                  {
+                    "Value": 100.0
+                  }
+                ],
+                "Span": 0.0,
+                "AnimationType": "なし"
+              },
+              "Rotation": {
+                "Values": [
+                  {
+                    "Value": 0.0
+                  }
+                ],
+                "Span": 0.0,
+                "AnimationType": "なし"
+              },
+              "StrokeBrush": {
+                "Type": "YukkuriMovieMaker.Plugin.Brush.SolidColorBrushPlugin, YukkuriMovieMaker, Version=4.36.0.3, Culture=neutral, PublicKeyToken=null",
+                "Parameter": {
+                  "$type": "YukkuriMovieMaker.Plugin.Brush.SolidColorBrushParameter, YukkuriMovieMaker",
+                  "Color": "#FF000000"
+                }
+              },
+              "IsOutlineOnly": false,
+              "IsAngular": false,
+              "IsEnabled": true,
+              "Remark": ""
+            },
+            {
+              "$type": "YukkuriMovieMaker.Project.Effects.OutlineEffect, YukkuriMovieMaker",
+              "StrokeThickness": {
+                "Values": [
+                  {
+                    "Value": 10.0
+                  }
+                ],
+                "Span": 0.0,
+                "AnimationType": "なし"
+              },
+              "Blur": {
+                "Values": [
+                  {
+                    "Value": 0.0
+                  }
+                ],
+                "Span": 0.0,
+                "AnimationType": "なし"
+              },
+              "X": {
+                "Values": [
+                  {
+                    "Value": 0.0
+                  }
+                ],
+                "Span": 0.0,
+                "AnimationType": "なし"
+              },
+              "Y": {
+                "Values": [
+                  {
+                    "Value": 0.0
+                  }
+                ],
+                "Span": 0.0,
+                "AnimationType": "なし"
+              },
+              "Opacity": {
+                "Values": [
+                  {
+                    "Value": 100.0
+                  }
+                ],
+                "Span": 0.0,
+                "AnimationType": "なし"
+              },
+              "Zoom": {
+                "Values": [
+                  {
+                    "Value": 100.0
+                  }
+                ],
+                "Span": 0.0,
+                "AnimationType": "なし"
+              },
+              "Rotation": {
+                "Values": [
+                  {
+                    "Value": 0.0
+                  }
+                ],
+                "Span": 0.0,
+                "AnimationType": "なし"
+              },
+              "StrokeBrush": {
+                "Type": "YukkuriMovieMaker.Plugin.Brush.SolidColorBrushPlugin, YukkuriMovieMaker, Version=4.36.0.3, Culture=neutral, PublicKeyToken=null",
+                "Parameter": {
+                  "$type": "YukkuriMovieMaker.Plugin.Brush.SolidColorBrushParameter, YukkuriMovieMaker",
+                  "Color": "#FFFFFFFF"
+                }
+              },
+              "IsOutlineOnly": false,
+              "IsAngular": false,
+              "IsEnabled": true,
+              "Remark": ""
+            },
+            {
+              "$type": "YukkuriMovieMaker.Project.Effects.OutlineEffect, YukkuriMovieMaker",
+              "StrokeThickness": {
+                "Values": [
+                  {
+                    "Value": 10.0
+                  }
+                ],
+                "Span": 0.0,
+                "AnimationType": "なし"
+              },
+              "Blur": {
+                "Values": [
+                  {
+                    "Value": 0.0
+                  }
+                ],
+                "Span": 0.0,
+                "AnimationType": "なし"
+              },
+              "X": {
+                "Values": [
+                  {
+                    "Value": 0.0
+                  }
+                ],
+                "Span": 0.0,
+                "AnimationType": "なし"
+              },
+              "Y": {
+                "Values": [
+                  {
+                    "Value": 0.0
+                  }
+                ],
+                "Span": 0.0,
+                "AnimationType": "なし"
+              },
+              "Opacity": {
+                "Values": [
+                  {
+                    "Value": 100.0
+                  }
+                ],
+                "Span": 0.0,
+                "AnimationType": "なし"
+              },
+              "Zoom": {
+                "Values": [
+                  {
+                    "Value": 100.0
+                  }
+                ],
+                "Span": 0.0,
+                "AnimationType": "なし"
+              },
+              "Rotation": {
+                "Values": [
+                  {
+                    "Value": 0.0
+                  }
+                ],
+                "Span": 0.0,
+                "AnimationType": "なし"
+              },
+              "StrokeBrush": {
+                "Type": "YukkuriMovieMaker.Plugin.Brush.SolidColorBrushPlugin, YukkuriMovieMaker, Version=4.36.0.3, Culture=neutral, PublicKeyToken=null",
+                "Parameter": {
+                  "$type": "YukkuriMovieMaker.Plugin.Brush.SolidColorBrushParameter, YukkuriMovieMaker",
+                  "Color": "#FF000000"
+                }
+              },
+              "IsOutlineOnly": false,
+              "IsAngular": false,
+              "IsEnabled": true,
+              "Remark": ""
+            },
+            {
+              "$type": "YukkuriMovieMaker.Project.Effects.FillBackgroundEffect, YukkuriMovieMaker",
+              "Opacity": {
+                "Values": [
+                  {
+                    "Value": 70.0
+                  }
+                ],
+                "Span": 0.0,
+                "AnimationType": "なし"
+              },
+              "Round": {
+                "Values": [
+                  {
+                    "Value": 0.0
+                  }
+                ],
+                "Span": 0.0,
+                "AnimationType": "なし"
+              },
+              "BlendMode": "Normal",
+              "IsBackgroundOnly": false,
+              "Brush": {
+                "Type": "YukkuriMovieMaker.Plugin.Brush.SolidColorBrushPlugin, YukkuriMovieMaker, Version=4.36.0.3, Culture=neutral, PublicKeyToken=null",
+                "Parameter": {
+                  "$type": "YukkuriMovieMaker.Plugin.Brush.SolidColorBrushParameter, YukkuriMovieMaker",
+                  "Color": "#FFFFFFFF"
+                }
+              },
+              "Top": {
+                "Values": [
+                  {
+                    "Value": 50.0
+                  }
+                ],
+                "Span": 0.0,
+                "AnimationType": "なし"
+              },
+              "Bottom": {
+                "Values": [
+                  {
+                    "Value": 99999.0
+                  }
+                ],
+                "Span": 0.0,
+                "AnimationType": "なし"
+              },
+              "Left": {
+                "Values": [
+                  {
+                    "Value": 99999.0
+                  }
+                ],
+                "Span": 0.0,
+                "AnimationType": "なし"
+              },
+              "Right": {
+                "Values": [
+                  {
+                    "Value": 99999.0
+                  }
+                ],
+                "Span": 0.0,
+                "AnimationType": "なし"
+              },
+              "IsEnabled": true,
+              "Remark": ""
+            }
+          ],
+          "TachieFaceParameter": {
+            "$type": "YukkuriMovieMaker.Plugin.Tachie.Psd.PsdTachieFaceParameter, YukkuriMovieMaker.Plugin.Tachie.Psd",
+            "IsEnabled": false,
+            "FilePath": null,
+            "EnableLayers": [],
+            "EyeAnimation": "Default",
+            "MouthAnimation": "Default"
+          },
+          "TachieFaceEffects": [],
+          "Group": 0,
+          "Frame": 0,
+          "Layer": 0,
+          "KeyFrames": {
+            "Frames": [],
+            "Count": 0
+          },
+          "Length": 300,
+          "Remark": "",
+          "IsLocked": false,
+          "IsHidden": false
+        },
+        {
+          "$type": "YukkuriMovieMaker.Project.Items.TachieFaceItem, YukkuriMovieMaker",
+          "CharacterName": "タイトルコール_めたん",
+          "TachieFaceParameter": {
+            "$type": "YukkuriMovieMaker.Plugin.Tachie.SimpleTachie.FaceParameter, YukkuriMovieMaker.Plugin.Tachie.SimpleTachie",
+            "Face": "R:\\ゆっくり実況用環境\\IQ2_kotonoha\\茜ちゃん\\IQ2_kotonoha_0002.png"
+          },
+          "TachieFaceEffects": [],
+          "Group": 0,
+          "Frame": 0,
+          "Layer": 8,
+          "KeyFrames": {
+            "Frames": [],
+            "Count": 0
+          },
+          "Length": 300,
+          "PlaybackRate": 100.0,
+          "ContentOffset": "00:00:00",
+          "Remark": "",
+          "IsLocked": false,
+          "IsHidden": false
+        }
+      ],
+      "LayerSettings": {
+        "Items": []
+      },
+      "CurrentFrame": 1546,
+      "Length": 300,
+      "MaxLayer": 10
+    }
+  ],
+  "Characters": [
+    {
+      "Name": "タイトルコール_めたん",
+      "GroupName": "その他",
+      "Color": "#FFF68BEB",
+      "Layer": 0,
+      "KeyGesture": {
+        "Key": 0,
+        "Modifiers": 2
+      },
+      "Voice": {
+        "API": "voicevox",
+        "Arg": "074fc39e-678b-4c13-8916-ffca8d505d1d:7ffcb7ce-00ec-4bdc-82cd-45a8889e43ff"
+      },
+      "Volume": {
+        "Values": [
+          {
+            "Value": 300.0
+          }
+        ],
+        "Span": 0.0,
+        "AnimationType": "なし"
+      },
+      "Pan": {
+        "Values": [
+          {
+            "Value": 0.0
+          }
+        ],
+        "Span": 0.0,
+        "AnimationType": "なし"
+      },
+      "PlaybackRate": 100.0,
+      "VoiceParameter": {
+        "$type": "YukkuriMovieMaker.Voice.VOICEVOXVoiceParameter, YukkuriMovieMaker",
+        "StyleID": 0,
+        "MorphingStyleID": -1,
+        "MorphingRate": 50.0,
+        "Speed": 120,
+        "Pitch": 100.0,
+        "Intonation": 120.0,
+        "PrePhonemeLength": 0.1,
+        "PostPhonemeLength": 0.1,
+        "PauseLengthScale": 100.0
+      },
+      "AdditionalTime": 0.5,
+      "VoiceFadeIn": 0.0,
+      "VoiceFadeOut": 0.0,
+      "EchoIsEnabled": false,
+      "EchoInterval": 0.1,
+      "EchoAttenuation": 40.0,
+      "CustomVoiceIsEnabled": false,
+      "CustomVoiceIncludeSubdirectories": false,
+      "CustomVoiceDirectory": "C:\\voiceroid制作\\voiceroid制作\\voiceroid音声、テキスト",
+      "CustomVoiceFileName": "ゆっくり霊夢",
+      "AudioEffects": [],
+      "IsJimakuVisible": true,
+      "IsJimakuLocked": false,
+      "X": {
+        "Values": [
+          {
+            "Value": 0.0
+          }
+        ],
+        "Span": 0.0,
+        "AnimationType": "なし"
+      },
+      "Y": {
+        "Values": [
+          {
+            "Value": 0.0
+          }
+        ],
+        "Span": 0.0,
+        "AnimationType": "なし"
+      },
+      "Z": {
+        "Values": [
+          {
+            "Value": 0.0
+          }
+        ],
+        "Span": 0.0,
+        "AnimationType": "なし"
+      },
+      "Opacity": {
+        "Values": [
+          {
+            "Value": 100.0
+          }
+        ],
+        "Span": 0.0,
+        "AnimationType": "なし"
+      },
+      "Zoom": {
+        "Values": [
+          {
+            "Value": 100.0
+          }
+        ],
+        "Span": 0.0,
+        "AnimationType": "なし"
+      },
+      "Rotation": {
+        "Values": [
+          {
+            "Value": 0.0
+          }
+        ],
+        "Span": 0.0,
+        "AnimationType": "なし"
+      },
+      "JimakuFadeIn": 0.0,
+      "JimakuFadeOut": 0.0,
+      "Blend": "Normal",
+      "IsInverted": false,
+      "IsAlwaysOnTop": false,
+      "IsZOrderEnabled": false,
+      "IsClippingWithObjectAbove": false,
+      "Font": "けいふぉんと",
+      "FontSize": {
+        "Values": [
+          {
+            "Value": 80.0
+          }
+        ],
+        "Span": 0.0,
+        "AnimationType": "なし"
+      },
+      "LineHeight2": {
+        "Values": [
+          {
+            "Value": 100.0
+          }
+        ],
+        "Span": 0.0,
+        "AnimationType": "なし"
+      },
+      "LetterSpacing2": {
+        "Values": [
+          {
+            "Value": 0.0
+          }
+        ],
+        "Span": 0.0,
+        "AnimationType": "なし"
+      },
+      "DisplayInterval": 0.0,
+      "WordWrap": "NoWrap",
+      "MaxWidth": {
+        "Values": [
+          {
+            "Value": 1920.0
+          }
+        ],
+        "Span": 0.0,
+        "AnimationType": "なし"
+      },
+      "BasePoint": "CenterCenter",
+      "FontColor": "#FFFFFFFF",
+      "Style": "Normal",
+      "StyleColor": "#FF8A0000",
+      "Bold": false,
+      "Italic": false,
+      "IsTrimEndSpace": true,
+      "IsDevidedPerCharacter": false,
+      "JimakuVideoEffects": [
+        {
+          "$type": "YukkuriMovieMaker.Project.Effects.OutlineEffect, YukkuriMovieMaker",
+          "StrokeThickness": {
+            "Values": [
+              {
+                "Value": 10.0
+              }
+            ],
+            "Span": 0.0,
+            "AnimationType": "なし"
+          },
+          "Blur": {
+            "Values": [
+              {
+                "Value": 0.0
+              }
+            ],
+            "Span": 0.0,
+            "AnimationType": "なし"
+          },
+          "X": {
+            "Values": [
+              {
+                "Value": 0.0
+              }
+            ],
+            "Span": 0.0,
+            "AnimationType": "なし"
+          },
+          "Y": {
+            "Values": [
+              {
+                "Value": 0.0
+              }
+            ],
+            "Span": 0.0,
+            "AnimationType": "なし"
+          },
+          "Opacity": {
+            "Values": [
+              {
+                "Value": 100.0
+              }
+            ],
+            "Span": 0.0,
+            "AnimationType": "なし"
+          },
+          "Zoom": {
+            "Values": [
+              {
+                "Value": 100.0
+              }
+            ],
+            "Span": 0.0,
+            "AnimationType": "なし"
+          },
+          "Rotation": {
+            "Values": [
+              {
+                "Value": 0.0
+              }
+            ],
+            "Span": 0.0,
+            "AnimationType": "なし"
+          },
+          "StrokeBrush": {
+            "Type": "YukkuriMovieMaker.Plugin.Brush.SolidColorBrushPlugin, YukkuriMovieMaker, Version=4.36.0.3, Culture=neutral, PublicKeyToken=null",
+            "Parameter": {
+              "$type": "YukkuriMovieMaker.Plugin.Brush.SolidColorBrushParameter, YukkuriMovieMaker",
+              "Color": "#FFFF0000"
+            }
+          },
+          "IsOutlineOnly": false,
+          "IsAngular": false,
+          "IsEnabled": true,
+          "Remark": ""
+        },
+        {
+          "$type": "YukkuriMovieMaker.Project.Effects.InOutZoomEffect, YukkuriMovieMaker",
+          "Value": 0.0,
+          "X": 100.0,
+          "Y": 100.0,
+          "IsInEffect": true,
+          "IsOutEffect": true,
+          "EffectTimeSeconds": 1.0,
+          "EasingType": "Linear",
+          "EasingMode": "Out",
+          "IsEnabled": true,
+          "Remark": ""
+        },
+        {
+          "$type": "YukkuriMovieMaker.Project.Effects.OutlineEffect, YukkuriMovieMaker",
+          "StrokeThickness": {
+            "Values": [
+              {
+                "Value": 10.0
+              }
+            ],
+            "Span": 0.0,
+            "AnimationType": "なし"
+          },
+          "Blur": {
+            "Values": [
+              {
+                "Value": 0.0
+              }
+            ],
+            "Span": 0.0,
+            "AnimationType": "なし"
+          },
+          "X": {
+            "Values": [
+              {
+                "Value": 0.0
+              }
+            ],
+            "Span": 0.0,
+            "AnimationType": "なし"
+          },
+          "Y": {
+            "Values": [
+              {
+                "Value": 0.0
+              }
+            ],
+            "Span": 0.0,
+            "AnimationType": "なし"
+          },
+          "Opacity": {
+            "Values": [
+              {
+                "Value": 100.0
+              }
+            ],
+            "Span": 0.0,
+            "AnimationType": "なし"
+          },
+          "Zoom": {
+            "Values": [
+              {
+                "Value": 100.0
+              }
+            ],
+            "Span": 0.0,
+            "AnimationType": "なし"
+          },
+          "Rotation": {
+            "Values": [
+              {
+                "Value": 0.0
+              }
+            ],
+            "Span": 0.0,
+            "AnimationType": "なし"
+          },
+          "StrokeBrush": {
+            "Type": "YukkuriMovieMaker.Plugin.Brush.SolidColorBrushPlugin, YukkuriMovieMaker, Version=4.36.0.3, Culture=neutral, PublicKeyToken=null",
+            "Parameter": {
+              "$type": "YukkuriMovieMaker.Plugin.Brush.SolidColorBrushParameter, YukkuriMovieMaker",
+              "Color": "#FFFFFFFF"
+            }
+          },
+          "IsOutlineOnly": false,
+          "IsAngular": false,
+          "IsEnabled": true,
+          "Remark": ""
+        },
+        {
+          "$type": "YukkuriMovieMaker.Project.Effects.OutlineEffect, YukkuriMovieMaker",
+          "StrokeThickness": {
+            "Values": [
+              {
+                "Value": 10.0
+              }
+            ],
+            "Span": 0.0,
+            "AnimationType": "なし"
+          },
+          "Blur": {
+            "Values": [
+              {
+                "Value": 0.0
+              }
+            ],
+            "Span": 0.0,
+            "AnimationType": "なし"
+          },
+          "X": {
+            "Values": [
+              {
+                "Value": 0.0
+              }
+            ],
+            "Span": 0.0,
+            "AnimationType": "なし"
+          },
+          "Y": {
+            "Values": [
+              {
+                "Value": 0.0
+              }
+            ],
+            "Span": 0.0,
+            "AnimationType": "なし"
+          },
+          "Opacity": {
+            "Values": [
+              {
+                "Value": 100.0
+              }
+            ],
+            "Span": 0.0,
+            "AnimationType": "なし"
+          },
+          "Zoom": {
+            "Values": [
+              {
+                "Value": 100.0
+              }
+            ],
+            "Span": 0.0,
+            "AnimationType": "なし"
+          },
+          "Rotation": {
+            "Values": [
+              {
+                "Value": 0.0
+              }
+            ],
+            "Span": 0.0,
+            "AnimationType": "なし"
+          },
+          "StrokeBrush": {
+            "Type": "YukkuriMovieMaker.Plugin.Brush.SolidColorBrushPlugin, YukkuriMovieMaker, Version=4.36.0.3, Culture=neutral, PublicKeyToken=null",
+            "Parameter": {
+              "$type": "YukkuriMovieMaker.Plugin.Brush.SolidColorBrushParameter, YukkuriMovieMaker",
+              "Color": "#FF000000"
+            }
+          },
+          "IsOutlineOnly": false,
+          "IsAngular": false,
+          "IsEnabled": true,
+          "Remark": ""
+        },
+        {
+          "$type": "YukkuriMovieMaker.Project.Effects.FillBackgroundEffect, YukkuriMovieMaker",
+          "Opacity": {
+            "Values": [
+              {
+                "Value": 70.0
+              }
+            ],
+            "Span": 0.0,
+            "AnimationType": "なし"
+          },
+          "Round": {
+            "Values": [
+              {
+                "Value": 0.0
+              }
+            ],
+            "Span": 0.0,
+            "AnimationType": "なし"
+          },
+          "BlendMode": "Normal",
+          "IsBackgroundOnly": false,
+          "Brush": {
+            "Type": "YukkuriMovieMaker.Plugin.Brush.SolidColorBrushPlugin, YukkuriMovieMaker, Version=4.36.0.3, Culture=neutral, PublicKeyToken=null",
+            "Parameter": {
+              "$type": "YukkuriMovieMaker.Plugin.Brush.SolidColorBrushParameter, YukkuriMovieMaker",
+              "Color": "#FF000000"
+            }
+          },
+          "Top": {
+            "Values": [
+              {
+                "Value": 100.0
+              }
+            ],
+            "Span": 0.0,
+            "AnimationType": "なし"
+          },
+          "Bottom": {
+            "Values": [
+              {
+                "Value": 100.0
+              }
+            ],
+            "Span": 0.0,
+            "AnimationType": "なし"
+          },
+          "Left": {
+            "Values": [
+              {
+                "Value": 99999.0
+              }
+            ],
+            "Span": 0.0,
+            "AnimationType": "なし"
+          },
+          "Right": {
+            "Values": [
+              {
+                "Value": 99999.0
+              }
+            ],
+            "Span": 0.0,
+            "AnimationType": "なし"
+          },
+          "IsEnabled": true,
+          "Remark": ""
+        }
+      ],
+      "TachieType": "YukkuriMovieMaker.Plugin.Tachie.SimpleTachie.SimpleTachiePlugin, YukkuriMovieMaker.Plugin.Tachie.SimpleTachie, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+      "TachieCharacterParameter": {
+        "$type": "YukkuriMovieMaker.Plugin.Tachie.SimpleTachie.CharacterParameter, YukkuriMovieMaker.Plugin.Tachie.SimpleTachie",
+        "Directory": "R:\\ゆっくり実況用環境\\IQ2_kotonoha\\茜ちゃん"
+      },
+      "MouseSmooth": 4,
+      "IsTachieLocked": false,
+      "TachieX": {
+        "Values": [
+          {
+            "Value": 700.0
+          }
+        ],
+        "Span": 0.0,
+        "AnimationType": "なし"
+      },
+      "TachieY": {
+        "Values": [
+          {
+            "Value": 380.0
+          }
+        ],
+        "Span": 0.0,
+        "AnimationType": "なし"
+      },
+      "TachieZ": {
+        "Values": [
+          {
+            "Value": 0.0
+          }
+        ],
+        "Span": 0.0,
+        "AnimationType": "なし"
+      },
+      "TachieOpacity": {
+        "Values": [
+          {
+            "Value": 100.0
+          }
+        ],
+        "Span": 0.0,
+        "AnimationType": "なし"
+      },
+      "TachieZoom": {
+        "Values": [
+          {
+            "Value": 75.0
+          }
+        ],
+        "Span": 0.0,
+        "AnimationType": "なし"
+      },
+      "TachieRotation": {
+        "Values": [
+          {
+            "Value": 0.0
+          }
+        ],
+        "Span": 0.0,
+        "AnimationType": "なし"
+      },
+      "TachieFadeIn": 0.0,
+      "TachieFadeOut": 0.0,
+      "TachieBlend": "Normal",
+      "TachieIsInverted": false,
+      "TachieIsAlwaysOnTop": false,
+      "TachieIsZOrderEnabled": false,
+      "TachieIsClippingWithObjectAbove": false,
+      "TachieDefaultItemParameter": {
+        "$type": "YukkuriMovieMaker.Plugin.Tachie.SimpleTachie.ItemParameter, YukkuriMovieMaker.Plugin.Tachie.SimpleTachie",
+        "DefaultFace": null,
+        "IsHiddenWhenNoSpeech": false
+      },
+      "TachieItemVideoEffects": [],
+      "TachieDefaultFaceParameter": {
+        "$type": "YukkuriMovieMaker.Plugin.Tachie.SimpleTachie.FaceParameter, YukkuriMovieMaker.Plugin.Tachie.SimpleTachie",
+        "Face": "R:\\ゆっくり実況用環境\\IQ2_kotonoha\\茜ちゃん\\IQ2_kotonoha_0002.png"
+      },
+      "TachieDefaultFaceEffects": [],
+      "AdditionalForegroundTemplateName": null,
+      "AdditionalBackgroundTemplateName": null,
+      "VoiceItemLength": 300,
+      "TachieItemLength": 300,
+      "VoiceItemKeyFrames": {
+        "Frames": [],
+        "Count": 0
+      },
+      "TachieItemKeyFrames": {
+        "Frames": [],
+        "Count": 0
+      }
+    },
+    {
+      "Name": "セリフ",
+      "GroupName": "その他",
+      "Color": "#FFFF0000",
+      "Layer": 0,
+      "KeyGesture": {
+        "Key": 0,
+        "Modifiers": 2
+      },
+      "Voice": {
+        "API": "AquesTalk",
+        "Arg": "f1"
+      },
+      "Volume": {
+        "Values": [
+          {
+            "Value": 300.0
+          }
+        ],
+        "Span": 0.0,
+        "AnimationType": "なし"
+      },
+      "Pan": {
+        "Values": [
+          {
+            "Value": 0.0
+          }
+        ],
+        "Span": 0.0,
+        "AnimationType": "なし"
+      },
+      "PlaybackRate": 100.0,
+      "VoiceParameter": {
+        "$type": "YukkuriMovieMaker.Voice.VoiceParameter, YukkuriMovieMaker",
+        "Speed": 110
+      },
+      "AdditionalTime": 0.5,
+      "VoiceFadeIn": 0.0,
+      "VoiceFadeOut": 0.0,
+      "EchoIsEnabled": false,
+      "EchoInterval": 0.1,
+      "EchoAttenuation": 40.0,
+      "CustomVoiceIsEnabled": true,
+      "CustomVoiceIncludeSubdirectories": false,
+      "CustomVoiceDirectory": "C:\\voiceroid制作\\voiceroid制作\\voiceroid音声、テキスト",
+      "CustomVoiceFileName": "ずんだもん",
+      "AudioEffects": [],
+      "IsJimakuVisible": true,
+      "IsJimakuLocked": false,
+      "X": {
+        "Values": [
+          {
+            "Value": 0.0
+          }
+        ],
+        "Span": 0.0,
+        "AnimationType": "なし"
+      },
+      "Y": {
+        "Values": [
+          {
+            "Value": 380.0
+          }
+        ],
+        "Span": 0.0,
+        "AnimationType": "なし"
+      },
+      "Z": {
+        "Values": [
+          {
+            "Value": 0.0
+          }
+        ],
+        "Span": 0.0,
+        "AnimationType": "なし"
+      },
+      "Opacity": {
+        "Values": [
+          {
+            "Value": 100.0
+          }
+        ],
+        "Span": 0.0,
+        "AnimationType": "なし"
+      },
+      "Zoom": {
+        "Values": [
+          {
+            "Value": 100.0
+          }
+        ],
+        "Span": 0.0,
+        "AnimationType": "なし"
+      },
+      "Rotation": {
+        "Values": [
+          {
+            "Value": 0.0
+          }
+        ],
+        "Span": 0.0,
+        "AnimationType": "なし"
+      },
+      "JimakuFadeIn": 0.0,
+      "JimakuFadeOut": 0.0,
+      "Blend": "Normal",
+      "IsInverted": false,
+      "IsAlwaysOnTop": false,
+      "IsZOrderEnabled": false,
+      "IsClippingWithObjectAbove": false,
+      "Font": "けいふぉんと",
+      "FontSize": {
+        "Values": [
+          {
+            "Value": 80.0
+          }
+        ],
+        "Span": 0.0,
+        "AnimationType": "なし"
+      },
+      "LineHeight2": {
+        "Values": [
+          {
+            "Value": 100.0
+          }
+        ],
+        "Span": 0.0,
+        "AnimationType": "なし"
+      },
+      "LetterSpacing2": {
+        "Values": [
+          {
+            "Value": 0.0
+          }
+        ],
+        "Span": 0.0,
+        "AnimationType": "なし"
+      },
+      "DisplayInterval": 0.0,
+      "WordWrap": "NoWrap",
+      "MaxWidth": {
+        "Values": [
+          {
+            "Value": 1920.0
+          }
+        ],
+        "Span": 0.0,
+        "AnimationType": "なし"
+      },
+      "BasePoint": "CenterCenter",
+      "FontColor": "#FF72FF51",
+      "Style": "Normal",
+      "StyleColor": "#FF8A0000",
+      "Bold": false,
+      "Italic": false,
+      "IsTrimEndSpace": true,
+      "IsDevidedPerCharacter": false,
+      "JimakuVideoEffects": [
+        {
+          "$type": "YukkuriMovieMaker.Project.Effects.OutlineEffect, YukkuriMovieMaker",
+          "StrokeThickness": {
+            "Values": [
+              {
+                "Value": 10.0
+              }
+            ],
+            "Span": 0.0,
+            "AnimationType": "なし"
+          },
+          "Blur": {
+            "Values": [
+              {
+                "Value": 0.0
+              }
+            ],
+            "Span": 0.0,
+            "AnimationType": "なし"
+          },
+          "X": {
+            "Values": [
+              {
+                "Value": 0.0
+              }
+            ],
+            "Span": 0.0,
+            "AnimationType": "なし"
+          },
+          "Y": {
+            "Values": [
+              {
+                "Value": 0.0
+              }
+            ],
+            "Span": 0.0,
+            "AnimationType": "なし"
+          },
+          "Opacity": {
+            "Values": [
+              {
+                "Value": 100.0
+              }
+            ],
+            "Span": 0.0,
+            "AnimationType": "なし"
+          },
+          "Zoom": {
+            "Values": [
+              {
+                "Value": 100.0
+              }
+            ],
+            "Span": 0.0,
+            "AnimationType": "なし"
+          },
+          "Rotation": {
+            "Values": [
+              {
+                "Value": 0.0
+              }
+            ],
+            "Span": 0.0,
+            "AnimationType": "なし"
+          },
+          "StrokeBrush": {
+            "Type": "YukkuriMovieMaker.Plugin.Brush.SolidColorBrushPlugin, YukkuriMovieMaker, Version=4.36.0.3, Culture=neutral, PublicKeyToken=null",
+            "Parameter": {
+              "$type": "YukkuriMovieMaker.Plugin.Brush.SolidColorBrushParameter, YukkuriMovieMaker",
+              "Color": "#FF000000"
+            }
+          },
+          "IsOutlineOnly": false,
+          "IsAngular": false,
+          "IsEnabled": true,
+          "Remark": ""
+        },
+        {
+          "$type": "YukkuriMovieMaker.Project.Effects.OutlineEffect, YukkuriMovieMaker",
+          "StrokeThickness": {
+            "Values": [
+              {
+                "Value": 10.0
+              }
+            ],
+            "Span": 0.0,
+            "AnimationType": "なし"
+          },
+          "Blur": {
+            "Values": [
+              {
+                "Value": 0.0
+              }
+            ],
+            "Span": 0.0,
+            "AnimationType": "なし"
+          },
+          "X": {
+            "Values": [
+              {
+                "Value": 0.0
+              }
+            ],
+            "Span": 0.0,
+            "AnimationType": "なし"
+          },
+          "Y": {
+            "Values": [
+              {
+                "Value": 0.0
+              }
+            ],
+            "Span": 0.0,
+            "AnimationType": "なし"
+          },
+          "Opacity": {
+            "Values": [
+              {
+                "Value": 100.0
+              }
+            ],
+            "Span": 0.0,
+            "AnimationType": "なし"
+          },
+          "Zoom": {
+            "Values": [
+              {
+                "Value": 100.0
+              }
+            ],
+            "Span": 0.0,
+            "AnimationType": "なし"
+          },
+          "Rotation": {
+            "Values": [
+              {
+                "Value": 0.0
+              }
+            ],
+            "Span": 0.0,
+            "AnimationType": "なし"
+          },
+          "StrokeBrush": {
+            "Type": "YukkuriMovieMaker.Plugin.Brush.SolidColorBrushPlugin, YukkuriMovieMaker, Version=4.36.0.3, Culture=neutral, PublicKeyToken=null",
+            "Parameter": {
+              "$type": "YukkuriMovieMaker.Plugin.Brush.SolidColorBrushParameter, YukkuriMovieMaker",
+              "Color": "#FFFFFFFF"
+            }
+          },
+          "IsOutlineOnly": false,
+          "IsAngular": false,
+          "IsEnabled": true,
+          "Remark": ""
+        },
+        {
+          "$type": "YukkuriMovieMaker.Project.Effects.OutlineEffect, YukkuriMovieMaker",
+          "StrokeThickness": {
+            "Values": [
+              {
+                "Value": 10.0
+              }
+            ],
+            "Span": 0.0,
+            "AnimationType": "なし"
+          },
+          "Blur": {
+            "Values": [
+              {
+                "Value": 0.0
+              }
+            ],
+            "Span": 0.0,
+            "AnimationType": "なし"
+          },
+          "X": {
+            "Values": [
+              {
+                "Value": 0.0
+              }
+            ],
+            "Span": 0.0,
+            "AnimationType": "なし"
+          },
+          "Y": {
+            "Values": [
+              {
+                "Value": 0.0
+              }
+            ],
+            "Span": 0.0,
+            "AnimationType": "なし"
+          },
+          "Opacity": {
+            "Values": [
+              {
+                "Value": 100.0
+              }
+            ],
+            "Span": 0.0,
+            "AnimationType": "なし"
+          },
+          "Zoom": {
+            "Values": [
+              {
+                "Value": 100.0
+              }
+            ],
+            "Span": 0.0,
+            "AnimationType": "なし"
+          },
+          "Rotation": {
+            "Values": [
+              {
+                "Value": 0.0
+              }
+            ],
+            "Span": 0.0,
+            "AnimationType": "なし"
+          },
+          "StrokeBrush": {
+            "Type": "YukkuriMovieMaker.Plugin.Brush.SolidColorBrushPlugin, YukkuriMovieMaker, Version=4.36.0.3, Culture=neutral, PublicKeyToken=null",
+            "Parameter": {
+              "$type": "YukkuriMovieMaker.Plugin.Brush.SolidColorBrushParameter, YukkuriMovieMaker",
+              "Color": "#FF000000"
+            }
+          },
+          "IsOutlineOnly": false,
+          "IsAngular": false,
+          "IsEnabled": true,
+          "Remark": ""
+        },
+        {
+          "$type": "YukkuriMovieMaker.Project.Effects.FillBackgroundEffect, YukkuriMovieMaker",
+          "Opacity": {
+            "Values": [
+              {
+                "Value": 70.0
+              }
+            ],
+            "Span": 0.0,
+            "AnimationType": "なし"
+          },
+          "Round": {
+            "Values": [
+              {
+                "Value": 0.0
+              }
+            ],
+            "Span": 0.0,
+            "AnimationType": "なし"
+          },
+          "BlendMode": "Normal",
+          "IsBackgroundOnly": false,
+          "Brush": {
+            "Type": "YukkuriMovieMaker.Plugin.Brush.SolidColorBrushPlugin, YukkuriMovieMaker, Version=4.36.0.3, Culture=neutral, PublicKeyToken=null",
+            "Parameter": {
+              "$type": "YukkuriMovieMaker.Plugin.Brush.SolidColorBrushParameter, YukkuriMovieMaker",
+              "Color": "#FFFFFFFF"
+            }
+          },
+          "Top": {
+            "Values": [
+              {
+                "Value": 50.0
+              }
+            ],
+            "Span": 0.0,
+            "AnimationType": "なし"
+          },
+          "Bottom": {
+            "Values": [
+              {
+                "Value": 99999.0
+              }
+            ],
+            "Span": 0.0,
+            "AnimationType": "なし"
+          },
+          "Left": {
+            "Values": [
+              {
+                "Value": 99999.0
+              }
+            ],
+            "Span": 0.0,
+            "AnimationType": "なし"
+          },
+          "Right": {
+            "Values": [
+              {
+                "Value": 99999.0
+              }
+            ],
+            "Span": 0.0,
+            "AnimationType": "なし"
+          },
+          "IsEnabled": true,
+          "Remark": ""
+        }
+      ],
+      "TachieType": "YukkuriMovieMaker.Plugin.Tachie.Psd.PsdTachiePlugin, YukkuriMovieMaker.Plugin.Tachie.Psd, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+      "TachieCharacterParameter": {
+        "$type": "YukkuriMovieMaker.Plugin.Tachie.Psd.PsdTachieCharacterParameter, YukkuriMovieMaker.Plugin.Tachie.Psd",
+        "FilePath": "C:\\voiceroid制作\\voiceroid制作\\立ち絵素材\\ずんだもん立ち絵素材2.3.psd",
+        "MouthSensitivity": 100.0
+      },
+      "MouseSmooth": 4,
+      "IsTachieLocked": false,
+      "TachieX": {
+        "Values": [
+          {
+            "Value": 700.0
+          }
+        ],
+        "Span": 0.0,
+        "AnimationType": "なし"
+      },
+      "TachieY": {
+        "Values": [
+          {
+            "Value": 380.0
+          }
+        ],
+        "Span": 0.0,
+        "AnimationType": "なし"
+      },
+      "TachieZ": {
+        "Values": [
+          {
+            "Value": 0.0
+          }
+        ],
+        "Span": 0.0,
+        "AnimationType": "なし"
+      },
+      "TachieOpacity": {
+        "Values": [
+          {
+            "Value": 100.0
+          }
+        ],
+        "Span": 0.0,
+        "AnimationType": "なし"
+      },
+      "TachieZoom": {
+        "Values": [
+          {
+            "Value": 75.0
+          }
+        ],
+        "Span": 0.0,
+        "AnimationType": "なし"
+      },
+      "TachieRotation": {
+        "Values": [
+          {
+            "Value": 0.0
+          }
+        ],
+        "Span": 0.0,
+        "AnimationType": "なし"
+      },
+      "TachieFadeIn": 0.0,
+      "TachieFadeOut": 0.0,
+      "TachieBlend": "Normal",
+      "TachieIsInverted": false,
+      "TachieIsAlwaysOnTop": false,
+      "TachieIsZOrderEnabled": false,
+      "TachieIsClippingWithObjectAbove": false,
+      "TachieDefaultItemParameter": {
+        "$type": "YukkuriMovieMaker.Plugin.Tachie.Psd.PsdTachieItemParameter, YukkuriMovieMaker.Plugin.Tachie.Psd",
+        "FilePath": null,
+        "EnableLayers": [],
+        "IsHiddenWhenNoSpeech": false
+      },
+      "TachieItemVideoEffects": [],
+      "TachieDefaultFaceParameter": {
+        "$type": "YukkuriMovieMaker.Plugin.Tachie.Psd.PsdTachieFaceParameter, YukkuriMovieMaker.Plugin.Tachie.Psd",
+        "IsEnabled": false,
+        "FilePath": null,
+        "EnableLayers": [],
+        "EyeAnimation": "Default",
+        "MouthAnimation": "Default"
+      },
+      "TachieDefaultFaceEffects": [],
+      "AdditionalForegroundTemplateName": null,
+      "AdditionalBackgroundTemplateName": null,
+      "VoiceItemLength": 300,
+      "TachieItemLength": 300,
+      "VoiceItemKeyFrames": {
+        "Frames": [],
+        "Count": 0
+      },
+      "TachieItemKeyFrames": {
+        "Frames": [],
+        "Count": 0
+      }
+    }
+  ],
+  "CollapsedGroups": []
+}

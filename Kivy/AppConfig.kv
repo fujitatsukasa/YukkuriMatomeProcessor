@@ -29,10 +29,32 @@
 
                     Button:
                         text: "変更"
-                        size_hint_x: 0.2
+                        size_hint_x: 0.1
                         font_size: '22sp'
                         on_release:
-                            app.root.ids.screen_manager.current = 'ShortcutConfig'
+                            app.root.ids.screen_manager.current = 'ショートカット変更'
+
+                # 既存のショートカット設定セクション
+                BoxLayout:
+                    orientation: 'horizontal'
+                    size_hint_y: None
+                    height: '40dp'
+                    spacing: 10
+
+                    Label:
+                        text: "動画出力時の動作キーの変更(変更非推奨)"
+                        size_hint_x: 0.6
+                        font_size: '22sp'
+                        halign: 'left'
+                        valign: 'middle'
+                        text_size: self.size
+
+                    Button:
+                        text: "変更"
+                        size_hint_x: 0.1
+                        font_size: '22sp'
+                        on_release:
+                            app.root.ids.screen_manager.current = '動画出力時の動作キーの変更'
 
                 # 新規追加: ファーストログイン
                 BoxLayout:
@@ -106,57 +128,50 @@
                         valign: 'middle'
                         text_size: self.size
 
-# shortcut_config.kv
+                # 新規追加: 推奨YMM4バージョン
+                BoxLayout:
+                    orientation: 'horizontal'
+                    size_hint_y: None
+                    height: '40dp'
+                    spacing: 10
 
-<ShortcutConfig>:
-    id: shortcut_config
-    tab_panel: tab_panel  # プロパティのバインド
-    BoxLayout:
-        orientation: 'vertical'
-        padding: 10
-        spacing: 10
+                    Label:
+                        text: "推奨YMM4バージョン:"
+                        size_hint_x: 0.4
+                        font_size: '22sp'
+                        halign: 'left'
+                        valign: 'middle'
+                        text_size: self.size
 
-        Label:
-            text: "ショートカットキーの設定"
-            size_hint_y: None
-            height: 40
-            font_size: 24
+                    Label:
+                        id: recommended_version_label
+                        text: root.recommended_ymm4_version
+                        size_hint_x: 0.6
+                        font_size: '22sp'
+                        halign: 'right'
+                        valign: 'middle'
+                        text_size: self.size
 
-        TabbedPanel:
-            id: tab_panel
-            do_default_tab: False
-            tab_pos: 'top_mid'
-            tab_height: 40
-            # タブバーのボタンのサイズを均等に設定
-            tab_width: self.width / max(1, len(self.tab_list))
-            canvas.before:
-                Color:
-                    rgba: 1, 1, 1, 1
-                Rectangle:
-                    pos: self.pos
-                    size: self.size
+                # 新規追加: 現在のYMM4バージョン
+                BoxLayout:
+                    orientation: 'horizontal'
+                    size_hint_y: None
+                    height: '40dp'
+                    spacing: 10
 
-        BoxLayout:
-            size_hint_y: None
-            height: 40
-            spacing: 10
+                    Label:
+                        text: "現在のYMM4バージョン:"
+                        size_hint_x: 0.4
+                        font_size: '22sp'
+                        halign: 'left'
+                        valign: 'middle'
+                        text_size: self.size
 
-            Button:
-                id: save_button
-                text: "保存"
-                on_release: root.save_shortcuts()
-
-            Button:
-                id: undo_button
-                text: "元に戻す"
-                on_release: root.undo_changes()
-
-            Button:
-                id: redo_button
-                text: "やり直し"
-                on_release: root.redo_changes()
-
-            Button:
-                text: "キャンセル"
-                on_release:
-                    app.root.ids.screen_manager.current = 'AppConfig'
+                    Label:
+                        id: current_version_label
+                        text: root.current_ymm4_version
+                        size_hint_x: 0.6
+                        font_size: '22sp'
+                        halign: 'right'
+                        valign: 'middle'
+                        text_size: self.size

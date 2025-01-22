@@ -1,107 +1,97 @@
+# MainLayout.kv
+#:import SlideTransition kivy.uix.screenmanager.SlideTransition
+#:import dp kivy.metrics.dp
 <MainLayout>:
-    orientation: 'horizontal'  # 横方向にレイアウト
-
-    StackLayout:
-        id: layout_box
-        size_hint: None, 1
-        width: dp(100)
-        padding: 10
-        spacing: 10
-        orientation: 'tb-lr'
-
-        HoverImage:
-            id: script_edit
-            source: 'アイコン/編集.png'
-            size_hint: None, None
-            size: dp(80), dp(80)
-            text: 'スクリプト編集'
-            disabled: not root.logged_in  # ログイン状態に応じて無効化
-            on_release:
-                root.ids.screen_manager.current = 'ScriptEdit'
-                root.update_active_screen('ScriptEdit')
-
-        HoverImage:
-            id: get_scripts
-            source: 'アイコン/台本取得.png'
-            size_hint: None, None
-            size: dp(80), dp(80)
-            text: 'スクリプト取得'
-            disabled: not root.logged_in  # ログイン状態に応じて無効化
-            on_release:
-                root.ids.screen_manager.current = 'GetScripts'
-                root.update_active_screen('GetScripts')
-
-        HoverImage:
-            id: json_edit
-            source: 'アイコン/JSON編集.png'
-            size_hint: None, None
-            size: dp(80), dp(80)
-            text: 'JSON編集'
-            disabled: not root.logged_in  # ログイン状態に応じて無効化
-            on_release:
-                root.ids.screen_manager.current = 'JSONEdit'
-                root.update_active_screen('JSONEdit')
-
-        HoverImage:
-            id: app_config
-            source: 'アイコン/設定.png'
-            size_hint: None, None
-            size: dp(80), dp(80)
-            text:"設定"
-            disabled: not root.logged_in  # ログイン状態に応じて無効化
-            on_release:
-                root.ids.screen_manager.current = 'AppConfig'
-                root.update_active_screen('AppConfig')
-
     ScreenManager:
-        id: screen_manager
-        size_hint: 0.95, 1
+        id: root_screen_manager
+        transition: SlideTransition()
 
-        LoginScreen:  # ログイン画面をここで定義
-            name: 'Login'
+        # 認証用のスクリーン
+        Screen:
+            name: 'auth'
 
-        RegisterScreen:  # 新規登録画面をここで定義
-            name: 'Register'
+            # 認証用の ScreenManager
+            ScreenManager:
+                id: auth_screen_manager
+                transition: SlideTransition()
 
-        ResetPasswordScreen:  # パスワードリセット画面をここで定義
-            name: 'ResetPassword'
+                LoginScreen:
+                    name: 'Login'
 
-        ScriptEdit:
-            name: 'ScriptEdit'
+                RegisterScreen:
+                    name: 'Register'
 
-        GetScripts:
-            name: 'GetScripts'
+                ResetPasswordScreen:
+                    name: 'ResetPassword'
 
-        JSONEdit:
-            name: 'JSONEdit'
 
-        AppConfig:
-            name: 'AppConfig'
+        # メインアプリ用のスクリーン
+        Screen:
+            name: 'main'
 
-        ShortcutConfig:
-            name: 'ShortcutConfig'
+            BoxLayout:
+                orientation: 'horizontal'
+                MDNavigationRail:
+                    id: navigation_rail
+                    type: "labeled"
+                    elevation: 0
+                    panel_color: app.theme_cls.primary_color
 
-        VideoConfig:
-            name: 'VideoConfig'
+                    MDNavigationRailItem:
+                        id: script_edit
+                        icon: "movie-open-edit"
+                        text: "台本編集"
+                        selected: False
+                        on_press:
+                            root.ids.screen_manager.current = "ScriptEdit"
 
-<ToolTipLabel@Label>:
-    size_hint: None, None
-    size: self.texture_size
-    color: 1, 1, 1, 1  # テキスト色は不透明
-    padding: 10, 5  # 内側の余白を調整
-    canvas.before:
-        # 背景色
-        Color:
-            rgba: 0.3, 0.3, 0.3, 1  # 不透明なグレー背景
-        RoundedRectangle:
-            size: self.size  # 背景と枠線を同じサイズに
-            pos: self.pos  # 背景と枠線を同じ位置に
-            radius: [5]  # 角を少し丸める
+                    MDNavigationRailItem:
+                        id: get_scripts
+                        icon: "file-find-outline"
+                        text: "台本取得"
+                        selected: False
+                        on_press:
+                            root.ids.screen_manager.current = "GetScripts"
 
-        # 枠線の色を白に設定
-        Color:
-            rgba: 1, 1, 1, 1  # 白色の枠線
-        Line:
-            rounded_rectangle: (self.x, self.y, self.width, self.height, 5)  # 角を少し丸めた枠線
-            width: 0.5  # 枠線の太さ
+                    MDNavigationRailItem:
+                        id: json_edit
+                        icon: "file-edit-outline"
+                        text: "台本設定"
+                        selected: False
+                        on_press:
+                            root.ids.screen_manager.current = "JSONEdit"
 
+                    MDNavigationRailItem:
+                        id: app_config
+                        icon: "cog-outline"
+                        text: "設定"
+                        selected: False
+                        on_press:
+                            root.ids.screen_manager.current = "AppConfig"
+
+                ScreenManager:
+                    id: screen_manager
+                    transition: SlideTransition()
+
+                    ScriptEdit:
+                        name: 'ScriptEdit'
+
+                    GetScripts:
+                        name: 'GetScripts'
+
+                    JSONEdit:
+                        name: 'JSONEdit'
+
+                    AppConfig:
+                        name: 'AppConfig'
+
+                    ShortcutConfig:
+                        name: 'ショートカット変更'
+
+                    VideoActionKey:
+                        name: '動画出力時の動作キーの変更'
+
+
+
+<HoverIconButton>:
+<HoverLabel>:

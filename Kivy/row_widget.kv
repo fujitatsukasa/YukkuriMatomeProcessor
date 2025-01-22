@@ -1,54 +1,99 @@
 <ScriptEdit>:
-    # id: script_edit
-    orientation: 'horizontal'  # 横方向にレイアウト
+    orientation: 'horizontal'
     size_hint: 1, 1
     BoxLayout:
         orientation: 'vertical'
         size_hint: 1, 1
         BoxLayout:
             orientation: 'horizontal'
-            size_hint_y: None  # 高さを固定にするため、size_hint_yをNoneに
-            height: dp(50)  # ThreeColumnMenu の高さに合わせて調整
+            size_hint_y: None
+            height: dp(50)
+            canvas.after:
+                Color:
+                    rgba: 1, 1, 1, 0.2  # 白色で半透明
+                Line:
+                    points: self.x, self.y, self.right, self.y  # 下側の水平線
+                    width: 1  # 線の太さ
+            # canvas.before:
+            #     Color:
+            #         rgba: (1, 1, 1, 0.9)  # 黄色系
+            #     Rectangle:
+            #         pos: self.pos
+            #         size: self.size
             StackLayout:
-                padding: 5
-                spacing: 5
-                orientation: 'lr-tb'  # 左から右に配置
+                orientation: 'lr-tb'
 
-                HoverImage:
+                HoverIconButton:
                     id: undo_button
+                    size_hint: None, 1
+                    tooltip_text: "前に戻る"
+                    shortcut_key: "前に戻る"
+                    icon_size:"40dp"
                     hover_enabled: False  # マウスホバーでの色変更を無効にする
-                    source: 'アイコン/前に戻る.png'
-                    size_hint: None, None
-                    size: dp(40), dp(40)  # 固定サイズを指定
-                    text: '元に戻す'
-                HoverImage:
+                    icon: 'arrow-left-circle'
+
+                HoverIconButton:
                     id: redo_button
+                    tooltip_text: "次に進む"
+                    shortcut_key: "次に進む"
+                    icon_size:"40dp"
                     hover_enabled: False  # マウスホバーでの色変更を無効にする
-                    source: 'アイコン/次に進む.png'
-                    size_hint: None, None
-                    size: dp(40), dp(40)
-                    text: 'やり直し'
+                    icon: 'arrow-right-circle'
+
                 ScriptOutputButton:
                     id: script_output_button
-                    size_hint: None, None
-                    size: dp(40), dp(40)
+                    on_release:root.ids.script_screen_manager.current = 'RecycleViewScreen'
+                MDSeparator:
+                    orientation: 'vertical'
+                    size_hint: (None, 1)
+                    color: (1,1,1,0.5)
+                    width: dp(2)
                 CreateVideoButton:
                     id: create_video_button
-                    size_hint: None, None
-                    size: dp(40), dp(40)
+                    on_release:root.ids.script_screen_manager.current = 'RecycleViewScreen'
+
+                ScriptProcessingButton:
+                    id: script_processing_button
+                    on_release:root.ids.script_screen_manager.current = 'RecycleViewScreen'
+
+                VideoRenderingButton:
+                    id: video_rendering_button
+                    on_release:root.ids.script_screen_manager.current = 'RecycleViewScreen'
+                MDSeparator:
+                    orientation: 'vertical'
+                    size_hint: (None, 1)
+                    color: (1,1,1,0.5)
+                    width: dp(2)
+
                 UpdateBox:
                     id: update_button
-                    size_hint: None, None
-                    size: dp(40), dp(40)
-                HoverImage:
-                    id: video_config_button
-                    hover_enabled: True  # マウスホバーでの色変更を無効にする
-                    source: 'アイコン/設定.png'
-                    size_hint: None, None
-                    size: dp(40), dp(40)
-                    text: "動画テンプレート設定"
+                    on_release:root.ids.script_screen_manager.current = 'RecycleViewScreen'
+
+                # 新しい HoverIconButton を追加
+                HoverIconButton:
+                    id: template_saver_button
+                    tooltip_text: ".ymmpファイルからフォーマットを変更する"
+                    shortcut_key: "ymmp動画フォーマット保存"
+                    icon_size: "40dp"
+                    icon: 'content-save'  # 適宜アイコンを選択
                     on_release:
-                        root.manager.current = 'VideoConfig'
+                        root.ids.template_saver_screen.thread_load_ymmp_files()
+                        root.ids.script_screen_manager.current = 'YMM4ItemTemplateSaverScreen'
+                HoverIconButton:
+                    id: video_config_button
+                    tooltip_text: "動画テンプレート設定[Beta version]"
+                    shortcut_key: "動画フォーマット一覧"
+                    icon_size:"40dp"
+                    icon: 'cog'
+                    on_release:
+                        root.ids.video_config.thread_reload_screen(self)
+                        root.ids.script_screen_manager.current = 'VideoConfig'
+
+                MDSeparator:
+                    orientation: 'vertical'
+                    size_hint: (None, 1)
+                    color: (1,1,1,0.5)
+                    width: dp(2)
 
         BoxLayout:
             orientation: 'horizontal'
@@ -57,64 +102,104 @@
                 id: tree_view_section
                 size_hint: 0.2, 1
                 screen_name: 'ScriptEdit'
-            # 下部のリサイクルビュー
-            RV:
-                id: rv_widget  # `main.py` からアクセスするために ID を追加
-                size_hint: 0.8, 1
+                canvas.after:
+                    Color:
+                        rgba: 1, 1, 1, 0.2  # 白色で半透明
+                    Line:
+                        points: self.right, self.y, self.right, self.top  # 右側の垂直線
+                        width: 1  # 線の太さ
+            # <RV> を ScreenManager に置き換え
+            ScreenManager:
+                id: script_screen_manager
+                do_default_tab: False
+                Screen:
+                    name: 'RecycleViewScreen'
+                    RV:
+                        id: rv_widget
+
+                YMM4ItemTemplateSaverScreen:
+                    id: template_saver_screen
+                    name: 'YMM4ItemTemplateSaverScreen'
+                VideoConfig:
+                    id: video_config
+                    name: 'VideoConfig'
 
 <UpdateBox>:
-    update_button: update_button  # 同様に更新ボタンを紐付け
+    update_button: update_button
     id: update_button
-    source: 'アイコン/リロード.png'
-    text: 'リロード'
+    tooltip_text: "プロジェクト画面を更新"
+    shortcut_key: "台本更新"
+    icon_size:"40dp"
+    icon: 'cached'
 
 <ScriptOutputButton>:
     script_output_button: script_output_button
     id: script_output_button
-    source: 'アイコン/保存.png'
-    text: "台本保存"
+    tooltip_text: "台本保存"
+    shortcut_key:"台本保存"
+    icon_size:"40dp"
+    icon: 'content-save'
+
+<ScriptProcessingButton>:
+    # 台本（スクリプト）処理用ボタン
+    script_processing_button: script_processing_button
+    id: script_processing_button
+    tooltip_text: "[size=20sp]動画作成-YMM4への自動保存[Beta version][/size]\n[color=ff3333]※実行中マウスは動かなさないでください。[/color]"
+    shortcut_key: "動画作成-YMM4 台本自動読み込み"
+    icon_size: "40dp"
+    icon: "file-document-outline"  # 適切なアイコン名に変更してください
+
+<VideoRenderingButton>:
+    # 動画生成用ボタン
+    video_rendering_button: video_rendering_button
+    id: video_rendering_button
+    tooltip_text: "[size=20sp]動画作成-ymmpを自動編集[/size]\n処理後にymmpを開きます。"
+    shortcut_key: "動画作成-YMM4 動画自動編集"
+    icon_size: "40dp"
+    icon: "movie"  # 使用しているアイコンセットに合わせたアイコンを指定してください
+
 
 <CreateVideoButton>:
     create_video_button: create_video_button
-    id: create_video_button  
-    source: 'アイコン/動画作成.png'
-    text: "動画作成"
+    id: create_video_button
+    tooltip_text: "[size=20sp]動画作成[Beta version][/size]\n右の2つのボタンの処理を一つで実行します。\n[color=ff3333]※実行中マウスは動かなさないでください。[/color]"
+    shortcut_key: "動画作成"
+    icon_size:"40dp"
+    icon: 'play-box'
 
 <RV>:
     id: rv_widget
     viewclass: 'RowWidget'
-
+    bar_width: 20  # スクロールバーの幅
+    bar_color: 1, 1, 1, 1  # アクティブ時の色（白）
+    bar_inactive_color: 1, 1, 1, 0.3  # 非アクティブ時の色（薄い白）
+    scroll_type: ['bars', 'content']  # 両方のスクロールタイプを有効化
     RecycleBoxLayout:
         default_size: None, dp(150)
         default_size_hint: 1, None 
-        size_hint_y: None  
-
+        size_hint_y: None
         height: self.minimum_height
         orientation: 'vertical'
 
 <CustomTreeView_ScriptEditor>:
     orientation: 'vertical'
-    size_hint: 1, 1  # 左側に30%のスペースを確保
-
-    # ScrollViewを追加してTreeViewをラップ
+    size_hint: 1, 1
     ScrollView:
         TreeView:
             id: tree_view
             hide_root: True
             root_options: {'text': 'Root Node'}
-            size_hint_y: None  # 自動リサイズを無効化
-            height: self.minimum_height  # コンテンツに応じて高さを設定
+            size_hint_y: None
+            height: self.minimum_height
 
 <RowWidget>:
-    id: row_widget  # IDを追加
+    id: row_widget
     index_label: index_label
     action_button: action_button
     input_field: input_field
     media_container: media_container
-    keyword_button: keyword_button
-    audio_file_label: audio_file_label
-    play_audio_button: play_audio_button
-    toggle_button: toggle_button
+    audio_card:audio_card
+    bgm_card:bgm_card
     orientation: 'horizontal'
     media_files: []
     size_hint: 1, 1
@@ -151,54 +236,531 @@
         readonly: True
         disabled_foreground_color: 0, 0, 0, 1
         foreground_color: 0, 0, 0, 1
-        disabled: True 
+        disabled: True
         halign: 'left'
         valign: 'top'
         multiline: True
         cursor: (0, 0)
 
-    RelativeLayout:
+    # メディア管理レイアウト
+    MediaManagerLayout:
         id: media_container
-        size_hint: 0.3, 1
 
-        MediaCarousel:
-            id: media_carousel
-            media_list: root.media_files
-            size_hint: 1, 1
-
-    ToggleButton:
-        id: toggle_button
+    AudioCard:
+        id: audio_card
+        media_path: root.audio_file
         size_hint: 0.1, 1
-        text: '×' if self.state == 'normal' else '〇'
-        font_size: min(self.width, self.height) * 0.5
-        on_state: root.on_toggle_button(self, self.state)
-
-    Button:
-        id: keyword_button
+    BGMCard:
+        id: bgm_card
+        bgm_path: root.bgm_file
         size_hint: 0.1, 1
-        text: root.keyword_button.text
-        font_size: self.width * 0.2
+
+    Widget:
+        size_hint_x: None
+        width: dp(20)  # スクロールバーの幅分の空白
+        canvas.before:
+            Color:
+                rgba: 0, 0, 0, 1  # 黒色 (RGBA形式)
+            Rectangle:
+                pos: self.pos
+                size: self.size
+
+# MediaManagerLayout内部のKV定義
+<MediaSelectableItem>:
+    text: ""
+    selected: False
+    icon: "image"
+    orientation: 'horizontal'
+    size_hint_y: None
+    height: dp(30)
+    spacing: dp(5)
+
+    canvas.before:
+        Color:
+            rgba: (0.2, 0.6, 0.86, 0.3) if self.selected else (1, 1, 1, 1)
+        Rectangle:
+            pos: self.pos
+            size: self.size
+    canvas.after:
+        Color:
+            rgba: 0.7, 0.7, 0.7, 1
+        Line:
+            width: 1
+            points: self.x, self.y, self.x + self.width, self.y
+    HoverIconButton:
+        icon: root.icon
+        size_hint_x: None
+        width: dp(40)
+        pos_hint: {"center_y": 0.5}
+        # tooltip_text: "選択"
+        # on_release:
+        #     root.select_item(root.text, 'media')
+
+    Label:
+        text: root.text
+        font_size: self.height * 0.6
+        valign: "middle"
+        halign: "left"
         text_size: self.size
-        halign: 'center'
-        valign: 'middle'
+        size_hint_x: 1
+        shorten: True
+        shorten_from: "right"
+        pos_hint: {"center_y": 0.5}
+        color: 0, 0, 0, 1
+        
+
+    HoverIconButton:
+        icon: "pencil"
+        size_hint_x: None
+        width: dp(40)
+        pos_hint: {"center_y": 0.5}
+        tooltip_text: "メディアを変更"
+        on_release:
+            root.parent.parent.parent.parent.parent.parent.media_change('media',root.index)
+
+    HoverIconButton:
+        icon: "delete"
+        size_hint_x: None
+        width: dp(40)
+        pos_hint: {"center_y": 0.5}
+        tooltip_text: "メディアを削除"
+        on_release:
+            root.parent.parent.parent.parent.parent.parent.media_delete('media',root.index)
+
+
+<BackgroundSelectableItem>:
+    text: ""
+    selected: False
+    icon: "image"
+    orientation: 'horizontal'
+    size_hint_y: None
+    height: dp(30)
+    spacing: dp(5)
+
+    canvas.before:
+        Color:
+            rgba: (0.2, 0.6, 0.86, 0.3) if self.selected else (1, 1, 1, 1)
+        Rectangle:
+            pos: self.pos
+            size: self.size
+    canvas.after:
+        Color:
+            rgba: 0.7, 0.7, 0.7, 1
+        Line:
+            width: 1
+            points: self.x, self.y, self.x + self.width, self.y
+    HoverIconButton:
+        icon: root.icon
+        size_hint_x: None
+        width: dp(40)
+        pos_hint: {"center_y": 0.5}
+        # tooltip_text: "選択"
+        # on_release:
+        #     root.parent.parent.parent.select_item_action(root.text)
+
+    Label:
+        text: root.text
+        font_size: self.height * 0.6
+        valign: "middle"
+        halign: "left"
+        text_size: self.size
+        size_hint_x: 1
+        shorten: True
+        shorten_from: "right"
+        pos_hint: {"center_y": 0.5}
+        color: 0, 0, 0, 1
+
+    HoverIconButton:
+        icon: "pencil"
+        size_hint_x: None
+        width: dp(40)
+        pos_hint: {"center_y": 0.5}
+        tooltip_text: "背景を変更"
+        on_release:
+            root.parent.parent.parent.parent.parent.parent.media_change('background',root.index)
+
+    HoverIconButton:
+        icon: "delete"
+        size_hint_x: None
+        width: dp(30)
+        pos_hint: {"center_y": 0.5}
+        tooltip_text: "背景を削除"
+        on_release:
+            root.parent.parent.parent.parent.parent.parent.media_delete('background',root.index)
+
+<SelectableRecycleBoxLayout@RecycleBoxLayout>:
+    default_size: None, dp(30)
+    default_size_hint: 1, None
+    size_hint_y: None
+    height: self.minimum_height
+    orientation: 'vertical'
+
+<MediaHeader>:
+    id: media_header_widget
+    orientation: 'horizontal'
+    size_hint_y: None
+    height: dp(30)
+    spacing: dp(5)
+    
+    canvas.before:
+        Color:
+            rgba: (0.9, 0.9, 0.2, 1)  # 黄色系
+        Rectangle:
+            pos: self.pos
+            size: self.size
+
+    canvas.after:
+        Color:
+            rgba: 0.7, 0.7, 0.7, 1
+        Line:
+            width: 1
+            points: self.x, self.y, self.x + self.width, self.y
+
+    # MDIcon:
+    #     icon: "image"
+    #     size_hint_x: None
+    #     pos_hint: {"center_y": 0.5}
+    #     font_size: self.height
+    MDCheckbox:
+        id: media_checkbox
+        size_hint_x: None
+        width: dp(30)
+        color_active: "red"
+        color_inactive: "red"
+        pos_hint: {'center_y': .5}
+        on_release: root.parent.parent.parent.parent.on_media_checkbox(self, self.active)
+
+    Label:
+        text: "メディア"
+        font_size: self.height * 0.6
+        valign: "middle"
+        halign: "left"
+        text_size: self.size
+        size_hint_x: 1
+        shorten: True
+        shorten_from: "right"
+        pos_hint: {"center_y": 0.5}
+        color: 0, 0, 0, 1
+
+    # Widget:
+    #     size_hint_x: 1
+
+    HoverIconButton:
+        icon: "plus"
+        tooltip_text: "メディアを追加"
+        size_hint_x: None
+        width: dp(40)
+        pos_hint: {"center_y": 0.5}
+        on_release: root.parent.parent.parent.parent.open_keyword_popup('media')
+
+    HoverIconButton:
+        icon: "folder-plus"
+        tooltip_text: "フォルダからメディアを追加"
+        size_hint_x: None
+        width: dp(40)
+        pos_hint: {"center_y": 0.5}
+        on_release: root.parent.parent.parent.parent.media_add('media')
+
+
+<BackgroundHeader>:
+    id: background_header_widget
+    orientation: 'horizontal'
+    size_hint_y: None
+    height: dp(30)
+    spacing: dp(5)
+    
+    canvas.before:
+        Color:
+            rgba: (0.2, 0.7, 0.7, 1) # シアン系
+        Rectangle:
+            pos: self.pos
+            size: self.size
+
+    canvas.after:
+        Color:
+            rgba: 0.7, 0.7, 0.7, 1
+        Line:
+            width: 1
+            points: self.x, self.y, self.x + self.width, self.y
+
+    # MDIcon:
+    #     icon: "image"
+    #     size_hint_x: None
+    #     pos_hint: {"center_y": 0.5}
+    #     font_size: self.height
+    MDCheckbox:
+        id: background_checkbox
+        size_hint_x: None
+        width: dp(30)
+        color_active: "red"
+        color_inactive: "red"
+        pos_hint: {'center_y': .5}
+        on_release: root.parent.parent.parent.parent.on_background_checkbox(self, self.active)
+    Label:
+        text: "背景"
+        font_size: self.height * 0.6
+        valign: "middle"
+        halign: "left"
+        text_size: self.size
+        size_hint_x: 1
+        shorten: True
+        shorten_from: "right"
+        pos_hint: {"center_y": 0.5}
+        color: 0, 0, 0, 1
+
+    HoverIconButton:
+        icon: "plus"
+        tooltip_text: "背景を追加"
+        size_hint_x: None
+        pos_hint: {"center_y": 0.5}
+        on_release: root.parent.parent.parent.parent.open_keyword_popup('background')
+
+    HoverIconButton:
+        icon: "folder-plus"
+        tooltip_text: "フォルダから背景を追加"
+        size_hint_x: None
+        pos_hint: {"center_y": 0.5}
+        on_release: root.parent.parent.parent.parent.media_add('background')
+
+
+<MediaManagerLayout>:
+    id: media_manager
+    media_header: media_header
+    background_header: background_header
+    media_recycle_view: media_recycle_view
+    background_recycle_view: background_recycle_view
+    media_box:media_box
+    background_box:background_box
+    orientation: "horizontal"
+    media_display_container:media_display_container
+    media_source_label:media_source_label
+    media_data: []  # ListProperty にバインドされている
+    background_data: []  # ListProperty にバインドされている
+    BoxLayout:
+        id: left_box
+        orientation: "vertical"
+        size_hint: 0.4, 1
+
+        BoxLayout:
+            id: media_display_container
+            orientation: "vertical"
+            size_hint_y: None
+            height: dp(30)
+            Label:
+                id: media_source_label
+                text: "ソース: なし"
+                halign: "left"
+                valign: "middle"
+                size_hint_y: None
+                height: self.texture_size[1]
+                color: 1, 1, 1, 1
+
+        Label:
+            id: media_display
+            text: "メディアプレビュー"
+            halign: "center"
+            valign: "middle"
+            text_size: self.size
+            size_hint_y: 1
+
+    BoxLayout:
+        orientation: "horizontal"
+        size_hint: 0.6, 1
+        spacing: 0
+        canvas.before:
+            Color:
+                rgba: (1, 1, 1, 1)
+            Rectangle:
+                pos: self.pos
+                size: self.size
+        BoxLayout:
+            id: background_box
+            orientation: "vertical"
+            size_hint: 0.5, 1
+            spacing: 0
+            BackgroundHeader:
+                id: background_header
+            RecycleView:
+                id: background_recycle_view
+                viewclass: 'BackgroundSelectableItem'
+                data: root.background_data
+                SelectableRecycleBoxLayout:
+                    key_selection: 'selected'
+                    default_size: None, dp(30)
+                    default_size_hint: 1, None
+                    size_hint_y: None
+                    height: self.minimum_height
+                    orientation: 'vertical'
+        BoxLayout:
+            id:media_box
+            orientation: "vertical"
+            size_hint: 0.5, 1
+            spacing: 0
+            canvas.before:
+                Color:
+                    rgba: (1, 1, 1, 1)
+                Rectangle:
+                    pos: self.pos
+                    size: self.size
+            MediaHeader:
+                id: media_header
+            RecycleView:
+                id: media_recycle_view
+                viewclass: 'MediaSelectableItem'
+                data: root.media_data
+                SelectableRecycleBoxLayout:
+                    key_selection: 'selected'
+                    default_size: None, dp(30)
+                    default_size_hint: 1, None
+                    size_hint_y: None
+                    height: self.minimum_height
+                    orientation: 'vertical'
+
+<ImagePreviewPopup>:
+    title: "画像プレビュー"
+    size_hint: 0.9, 0.9
+    auto_dismiss: False
 
     BoxLayout:
         orientation: 'vertical'
-        size_hint: 0.1, 1
-        Button:
-            id: audio_file_label
-            text: root.audio_file
-            size_hint: 1, 0.8
-            font_size: self.width * 0.2
-            text_size: self.size
-            halign: 'center'
-            valign: 'middle'
+        padding: 10
+        spacing: 10
+
+        Image:
+            allow_stretch: True
+            keep_ratio: True
+            source: root.source
 
         Button:
-            id: play_audio_button
-            text: "再生"
-            size_hint: 1, 0.2
-            font_size: self.height * 0.5
-            text_size: self.size
-            halign: 'center'
-            valign: 'middle'
+            text: "閉じる"
+            size_hint: (1, 0.1)
+            on_press: root.dismiss()
+
+<AudioCard>:
+    orientation: 'vertical'
+    size_hint: 1, 1
+    # padding: 10
+    # spacing: 10
+    elevation: 0
+    ripple_behavior: True
+    style: "outlined"
+    on_release: root.on_card_release()
+
+    BoxLayout:
+        orientation: 'vertical'
+        spacing: 10
+        size_hint_y: None
+        height: "48dp"
+
+        HoverIconButton:
+            icon: "music"
+            disabled: True
+            tooltip_text: root.file_name if root.file_name else "No Audio"
+            pos_hint:{"center_x": 0.5,"center_y": 0.5}
+
+        MDLabel:
+            id: path_label
+            text: root.file_name if root.file_name else "No Audio"
+            halign: "center"
+            valign: "middle"
+            theme_text_color: "Secondary"
+            font_style: "Subtitle1"
+            size_hint_y: None
+            height: self.texture_size[1]
+            shorten: True
+            shorten_from: "right"
+
+    BoxLayout:
+        orientation: 'horizontal'
+        size_hint_y: None
+        height: "48dp"
+
+        HoverIconButton:
+            id: play_button
+            icon: "play-circle"
+            tooltip_text: "効果音を再生/停止"
+            size_hint_x: 1
+            font_size: self.width
+            on_release: root.toggle_play_pause()
+
+        HoverIconButton:
+            id: file_replace_button
+            icon: "file-replace"
+            tooltip_text: "効果音を変更"
+            size_hint_x: 1
+            font_size: self.width
+            on_release: root.change_media()
+
+        HoverIconButton:
+            id: delete_button
+            icon: "delete"
+            tooltip_text: "効果音を削除"
+            size_hint_x: 1
+            font_size: self.width 
+            on_release: root.delete_media()
+
+<BGMCard>:
+    orientation: 'vertical'
+    size_hint: 1, 1
+    elevation: 0
+    ripple_behavior: True
+    on_release: root.on_card_release()
+    canvas.before:
+        Color:
+            rgba: 0, 0, 0, 1  # 黒い枠線の色（RGBA形式）
+        Line:
+            width: 1.5  # 枠線の太さ
+            rectangle: self.x, self.y, self.width, self.height
+    BoxLayout:
+        orientation: 'vertical'
+        spacing: 10
+        size_hint_y: None
+        height: "48dp"
+
+        HoverIconButton:
+            icon: "music-box"
+            disabled: True
+            tooltip_text: root.file_name if root.file_name else "No BGM"
+            pos_hint: {"center_x": 0.5, "center_y": 0.5}
+
+        MDLabel:
+            id: bgm_path_label
+            text: root.file_name if root.file_name else "No BGM"
+            halign: "center"
+            valign: "middle"
+            theme_text_color: "Secondary"
+            font_style: "Subtitle1"
+            size_hint_y: None
+            height: self.texture_size[1]
+            shorten: True
+            shorten_from: "right"
+
+    BoxLayout:
+        orientation: 'horizontal'
+        size_hint_y: None
+        height: "48dp"
+
+        HoverIconButton:
+            id: play_bgm_button
+            icon: "play-circle"
+            tooltip_text: "BGMを再生/停止"
+            on_release: root.toggle_play_pause()
+            size_hint_x: 1  # 横方向に均等な幅を占有
+            font_size: self.width
+
+        HoverIconButton:
+            id: replace_bgm_button
+            icon: "file-replace"
+            tooltip_text: "BGMを変更"
+            on_release: root.change_bgm()
+            size_hint_x: 1
+            font_size: self.width
+
+        HoverIconButton:
+            id: delete_bgm_button
+            icon: "delete"
+            tooltip_text: "BGMを削除"
+            force_tooltip: True
+            on_release: root.delete_bgm()
+            size_hint_x: 1
+            font_size: self.width
