@@ -1,177 +1,248 @@
-# AppConfig.kv
+<Divider@Widget>:
+    size_hint_y: None
+    height: dp(1)
+    canvas:
+        Color:
+            rgba: 1, 1, 1, 0.2
+        Rectangle:
+            pos: self.pos
+            size: self.size
+
 <AppConfig>:
     BoxLayout:
         orientation: 'vertical'
-        padding: 20
-        spacing: 20
+        padding: dp(20)
+        spacing: dp(20)
 
         ScrollView:
+            do_scroll_x: False
             BoxLayout:
                 orientation: 'vertical'
                 size_hint_y: None
                 height: self.minimum_height
-                spacing: 15
+                spacing: dp(15)
 
-                # 既存のショートカット設定セクション
+                # Row: YMM4フォルダパス (値と変更ボタン)
                 BoxLayout:
                     orientation: 'horizontal'
                     size_hint_y: None
-                    height: '40dp'
-                    spacing: 10
+                    height: dp(40)
+                    spacing: dp(10)
+                    # 左側のタイトル
+                    Label:
+                        text: "YMM4フォルダパス:"
+                        size_hint_x: None
+                        width: dp(600)
+                        font_size: '22sp'
+                        halign: 'left'
+                        valign: 'middle'
+                        text_size: self.size
 
+                    AnchorLayout:
+                        anchor_x: 'right'
+                        anchor_y: 'center'
+                        size_hint_x: 1
+                        BoxLayout:
+                            orientation: 'horizontal'
+                            size_hint: None, None
+                            height: dp(40)
+                            width: self.minimum_width
+                            spacing: dp(10)
+                            Button:
+                                text: "変更"
+                                size_hint_x: None
+                                width: dp(80)
+                                font_size: '22sp'
+                                on_release: root.change_ymm4_path()
+                Divider:
+
+                # Row: ショートカットの変更[β版] (ボタンのみ)
+                BoxLayout:
+                    orientation: 'horizontal'
+                    size_hint_y: None
+                    height: dp(40)
+                    spacing: dp(10)
                     Label:
                         text: "ショートカットの変更[β版]"
-                        size_hint_x: 0.6
+                        size_hint_x: None
+                        width: dp(600)
                         font_size: '22sp'
                         halign: 'left'
                         valign: 'middle'
                         text_size: self.size
+                    AnchorLayout:
+                        anchor_x: 'right'
+                        anchor_y: 'center'
+                        size_hint_x: 1
+                        Button:
+                            text: "変更"
+                            size_hint_x: None
+                            width: dp(80)
+                            font_size: '22sp'
+                            on_release: app.root.ids.screen_manager.current = 'ショートカット変更'
+                Divider:
 
-                    Button:
-                        text: "変更"
-                        size_hint_x: 0.1
-                        font_size: '22sp'
-                        on_release:
-                            app.root.ids.screen_manager.current = 'ショートカット変更'
-
-                # 既存のショートカット設定セクション
+                # Row: 動画出力時の動作キーの変更 (変更非推奨)
                 BoxLayout:
                     orientation: 'horizontal'
                     size_hint_y: None
-                    height: '40dp'
-                    spacing: 10
-
+                    height: dp(40)
+                    spacing: dp(10)
                     Label:
                         text: "動画出力時の動作キーの変更(変更非推奨)"
-                        size_hint_x: 0.6
+                        size_hint_x: None
+                        width: dp(600)
                         font_size: '22sp'
                         halign: 'left'
                         valign: 'middle'
                         text_size: self.size
+                    AnchorLayout:
+                        anchor_x: 'right'
+                        anchor_y: 'center'
+                        size_hint_x: 1
+                        Button:
+                            text: "変更"
+                            size_hint_x: None
+                            width: dp(80)
+                            font_size: '22sp'
+                            on_release: app.root.ids.screen_manager.current = '動画出力時の動作キーの変更'
+                Divider:
 
-                    Button:
-                        text: "変更"
-                        size_hint_x: 0.1
-                        font_size: '22sp'
-                        on_release:
-                            app.root.ids.screen_manager.current = '動画出力時の動作キーの変更'
-
-                # 新規追加: ファーストログイン
+                # Row: 初回ログイン日時 (値のみ)
                 BoxLayout:
                     orientation: 'horizontal'
                     size_hint_y: None
-                    height: '40dp'
-                    spacing: 10
-
+                    height: dp(40)
+                    spacing: dp(10)
                     Label:
                         text: "初回ログイン日時:"
-                        size_hint_x: 0.4
+                        size_hint_x: None
+                        width: dp(600)
                         font_size: '22sp'
                         halign: 'left'
                         valign: 'middle'
                         text_size: self.size
+                    AnchorLayout:
+                        anchor_x: 'right'
+                        anchor_y: 'center'
+                        size_hint_x: 1
+                        HoverCopyableLabel:
+                            id: first_login_label
+                            text: root.first_login
+                            font_size: '22sp'
+                            halign: 'right'
+                            valign: 'middle'
+                            text_size: self.size
+                Divider:
 
-                    Label:
-                        id: first_login_label
-                        text: root.first_login
-                        size_hint_x: 0.6
-                        font_size: '22sp'
-                        halign: 'right'
-                        valign: 'middle'
-                        text_size: self.size
-
-                # 新規追加: トライアルエンド
+                # Row: トライアル終了日時
                 BoxLayout:
                     orientation: 'horizontal'
                     size_hint_y: None
-                    height: '40dp'
-                    spacing: 10
-
+                    height: dp(40)
+                    spacing: dp(10)
                     Label:
                         text: "トライアル終了日時:"
-                        size_hint_x: 0.4
+                        size_hint_x: None
+                        width: dp(600)
                         font_size: '22sp'
                         halign: 'left'
                         valign: 'middle'
                         text_size: self.size
+                    AnchorLayout:
+                        anchor_x: 'right'
+                        anchor_y: 'center'
+                        size_hint_x: 1
+                        HoverCopyableLabel:
+                            id: trial_end_label
+                            text: root.trial_end
+                            font_size: '22sp'
+                            halign: 'right'
+                            valign: 'middle'
+                            text_size: self.size
+                            tooltip_text: "クリックしてコピー"
+                Divider:
 
-                    Label:
-                        id: trial_end_label
-                        text: root.trial_end
-                        size_hint_x: 0.6
-                        font_size: '22sp'
-                        halign: 'right'
-                        valign: 'middle'
-                        text_size: self.size
-
-                # 新規追加: メンバーシップステータス
+                # Row: メンバーシップステータス
                 BoxLayout:
                     orientation: 'horizontal'
                     size_hint_y: None
-                    height: '40dp'
-                    spacing: 10
-
+                    height: dp(40)
+                    spacing: dp(10)
                     Label:
                         text: "メンバーシップステータス:"
-                        size_hint_x: 0.4
+                        size_hint_x: None
+                        width: dp(600)
                         font_size: '22sp'
                         halign: 'left'
                         valign: 'middle'
                         text_size: self.size
+                    AnchorLayout:
+                        anchor_x: 'right'
+                        anchor_y: 'center'
+                        size_hint_x: 1
+                        HoverCopyableLabel:
+                            id: membership_status_label
+                            text: root.membership_status
+                            font_size: '22sp'
+                            halign: 'right'
+                            valign: 'middle'
+                            text_size: self.size
+                            tooltip_text: "クリックしてコピー"
+                Divider:
 
-                    Label:
-                        id: membership_status_label
-                        text: root.membership_status
-                        size_hint_x: 0.6
-                        font_size: '22sp'
-                        halign: 'right'
-                        valign: 'middle'
-                        text_size: self.size
-
-                # 新規追加: 推奨YMM4バージョン
+                # Row: 推奨YMM4バージョン
                 BoxLayout:
                     orientation: 'horizontal'
                     size_hint_y: None
-                    height: '40dp'
-                    spacing: 10
-
+                    height: dp(40)
+                    spacing: dp(10)
                     Label:
                         text: "推奨YMM4バージョン:"
-                        size_hint_x: 0.4
+                        size_hint_x: None
+                        width: dp(600)
                         font_size: '22sp'
                         halign: 'left'
                         valign: 'middle'
                         text_size: self.size
+                    AnchorLayout:
+                        anchor_x: 'right'
+                        anchor_y: 'center'
+                        size_hint_x: 1
+                        HoverCopyableLabel:
+                            id: recommended_version_label
+                            text: root.recommended_ymm4_version
+                            font_size: '22sp'
+                            halign: 'right'
+                            valign: 'middle'
+                            text_size: self.size
+                            tooltip_text: "クリックしてコピー"
+                Divider:
 
-                    Label:
-                        id: recommended_version_label
-                        text: root.recommended_ymm4_version
-                        size_hint_x: 0.6
-                        font_size: '22sp'
-                        halign: 'right'
-                        valign: 'middle'
-                        text_size: self.size
-
-                # 新規追加: 現在のYMM4バージョン
+                # Row: 現在のYMM4バージョン
                 BoxLayout:
                     orientation: 'horizontal'
                     size_hint_y: None
-                    height: '40dp'
-                    spacing: 10
-
+                    height: dp(40)
+                    spacing: dp(10)
                     Label:
                         text: "現在のYMM4バージョン:"
-                        size_hint_x: 0.4
+                        size_hint_x: None
+                        width: dp(600)
                         font_size: '22sp'
                         halign: 'left'
                         valign: 'middle'
                         text_size: self.size
-
-                    Label:
-                        id: current_version_label
-                        text: root.current_ymm4_version
-                        size_hint_x: 0.6
-                        font_size: '22sp'
-                        halign: 'right'
-                        valign: 'middle'
-                        text_size: self.size
+                    AnchorLayout:
+                        anchor_x: 'right'
+                        anchor_y: 'center'
+                        size_hint_x: 1
+                        HoverCopyableLabel:
+                            id: current_version_label
+                            text: root.current_ymm4_version
+                            font_size: '22sp'
+                            halign: 'right'
+                            valign: 'middle'
+                            text_size: self.size
+                            tooltip_text: "クリックしてコピー"
+                Divider:

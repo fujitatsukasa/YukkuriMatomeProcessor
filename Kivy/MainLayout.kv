@@ -1,6 +1,8 @@
 # MainLayout.kv
 #:import SlideTransition kivy.uix.screenmanager.SlideTransition
 #:import dp kivy.metrics.dp
+#:import webbrowser webbrowser
+
 <MainLayout>:
     ScreenManager:
         id: root_screen_manager
@@ -38,20 +40,20 @@
                     panel_color: app.theme_cls.primary_color
 
                     MDNavigationRailItem:
-                        id: script_edit
-                        icon: "movie-open-edit"
-                        text: "台本編集"
-                        selected: False
-                        on_press:
-                            root.ids.screen_manager.current = "ScriptEdit"
-
-                    MDNavigationRailItem:
                         id: get_scripts
                         icon: "file-find-outline"
                         text: "台本取得"
                         selected: False
                         on_press:
                             root.ids.screen_manager.current = "GetScripts"
+
+                    MDNavigationRailItem:
+                        id: script_edit
+                        icon: "movie-open-edit"
+                        text: "台本編集"
+                        selected: False
+                        on_press:
+                            root.ids.screen_manager.current = "ScriptEdit"
 
                     MDNavigationRailItem:
                         id: json_edit
@@ -68,6 +70,36 @@
                         selected: False
                         on_press:
                             root.ids.screen_manager.current = "AppConfig"
+
+                    MDNavigationRailItem:
+                        icon: "email"
+                        text: "メール送信"
+                        on_press:
+                            webbrowser.open("mailto:fujita.otm@gmail.com")
+
+                    MDNavigationRailItem:
+                        icon: "アイコン/chatwork.png"
+                        text: "Chatwork"
+                        on_press:
+                            webbrowser.open("https://www.chatwork.com/fujita_otm")
+
+                    MDNavigationRailItem:
+                        icon: "アイコン/discord.png"
+                        text: "Discord"
+                        on_press:
+                            webbrowser.open("discordapp.com/users/762244902124912695")
+
+                    MDNavigationRailItem:
+                        icon: "twitter"
+                        text: "Twitter"
+                        on_press:
+                            webbrowser.open("https://x.com/OTM_corp")
+
+                    MDNavigationRailItem:
+                        icon: "web"
+                        text: "公式サイト"
+                        on_press:
+                            webbrowser.open("https://yukkurimatomeprocessor.com/aboutme/")
 
                 ScreenManager:
                     id: screen_manager
@@ -95,3 +127,4 @@
 
 <HoverIconButton>:
 <HoverLabel>:
+<HoverCopyableLabel>:

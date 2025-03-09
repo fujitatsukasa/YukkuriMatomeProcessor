@@ -1,243 +1,225 @@
-# auth.kv
-
 #:import C kivy.utils.get_color_from_hex
-
-<ClickableLabel@ButtonBehavior+Label>:
-    font_size: 16
-    color: C("#FF0000")
-    halign: 'center'
-    valign: 'middle'
-    background_color: (0, 0, 0, 0)
-    background_down: (0, 0, 0, 0)
+#:import dp kivy.metrics.dp
 
 <LoginScreen>:
     name: "login"
-    FloatLayout:
-        canvas.before:
-            Color:
-                rgba: C("#f8f8ff")
-            Rectangle:
-                pos: self.pos
-                size: self.size
+    remember_me: False
+    md_bg_color: C("#121212")  # ダーク背景
+
+    MDCard:
+        orientation: "vertical"
+        size_hint: 0.2, None
+        height: self.minimum_height
+        padding: dp(20)
+        spacing: dp(20)
+        pos_hint: {"center_x": 0.5, "center_y": 0.5}
+        elevation: 4
+        md_bg_color: C("#1E1E1E")
+
+        MDLabel:
+            text: "ログイン"
+            halign: "center"
+            theme_text_color: "Custom"
+            text_color: C("#FFFFFF")
+            font_style: "H4"
+            size_hint_y: None
+            height: self.texture_size[1] * 1.5
+
+        MDTextField:
+            id: login_email
+            hint_text: "メールアドレス"
+            helper_text_mode: "on_focus"
+            icon_right: "account-outline"
+            size_hint_y: None
+            height: dp(60)   # 高めに
+            text_color: 1, 1, 1, 1
+            hint_text_color_normal: 0.7, 0.7, 0.7, 1
+        MDTextField:
+            id: login_password
+            hint_text: "パスワード"
+            helper_text_mode: "on_focus"
+            icon_right: "lock-outline"
+            # password: True
+            size_hint_y: None
+            height: dp(60)   # 高めに
+            text_color: 1, 1, 1, 1
+            hint_text_color_normal: 0.7, 0.7, 0.7, 1
 
         BoxLayout:
-            orientation: "vertical"
-            spacing: dp(20)
-            padding: dp(20), dp(20), dp(20), dp(20)
-            size_hint: 0.8, 0.7
-            pos_hint: {"center_x": 0.5, "center_y": 0.5}
+            orientation: 'horizontal'
+            size_hint_y: None
+            height: dp(20)
+            spacing: dp(5)
 
-            Label:
-                text: "ログイン"
-                font_size: 36
-                color: C("#333333")
-                size_hint_y: None
-                height: self.texture_size[1] * 1.5
+            MDCheckbox:
+                id: login_remember
+                active: root.remember_me
+                size_hint: None, None
+                size: dp(24), dp(24)
+                pos_hint: {"center_y": 0.5}  # 縦中央揃え
 
-            TextInput:
-                id: login_email  # 必須
-                hint_text: "メールアドレス"
-                multiline: False
-                size_hint_y: None
-                height: dp(40)
-                font_size: 18
-                background_color: C("#ffffff")
-                foreground_color: C("#333333")
-                padding: dp(10)
+            HoverLabel:  # HoverableMDLabelをHoverLabelに置き換え
+                text: "次回から情報を記憶する"
+                tooltip_text: "「次回から情報を記憶する」をクリックします"
+                normal_color: (1, 1, 1, 1)
+                hover_color: (1, 0.7, 0.7, 1)  # 例: マウスが乗ると少しピンクに
+                on_release:
+                    login_remember.active = not login_remember.active
+                    root.remember_me = login_remember.active
 
-            TextInput:
-                id: login_password  # 必須
-                hint_text: "パスワード"
-                password: True
-                multiline: False
-                size_hint_y: None
-                height: dp(40)
-                font_size: 18
-                background_color: C("#ffffff")
-                foreground_color: C("#333333")
-                padding: dp(10)
+        MDRaisedButton:
+            text: "ログイン"
+            md_bg_color: C("#03A9F4")
+            text_color: 1, 1, 1, 1
+            size_hint_y: None
+            height: dp(50)
+            on_release: root.login(login_email.text, login_password.text)
 
-            BoxLayout:
-                orientation: 'horizontal'
-                size_hint_y: None  # 高さを固定する
-                height: dp(30)  # 全体の高さを30dpに調整
-                spacing: dp(5)  # チェックボックスとラベルの間隔をさらに狭く
-                
-                CheckBox:
-                    id: login_remember
-                    active: root.remember_me
-                    size_hint: None, None
-                    size: dp(30), dp(30)  # チェックボックスのサイズを小さく
-                    canvas.before:
-                        Color:
-                            rgba: (1, 0, 0, 1) if self.active else (0.5, 0.5, 0.5, 1)
-                        Rectangle:
-                            pos: self.pos
-                            size: self.size
+        BoxLayout:
+            orientation: 'horizontal'
+            size_hint_y: None
+            height: dp(15)
+            spacing: dp(5)
 
-                Label:
-                    text: "次回から情報を記憶する"
-                    font_size: 16
-                    color: C("#333333")
-                    halign: 'left'
-                    valign: 'middle'
-                    on_touch_down:
-                        if self.collide_point(*args[1].pos): login_remember.active = not login_remember.active; root.remember_me = login_remember.active
-
-            Button:
-                text: "ログイン"
-                font_size: 20
-                background_color: C("#007BFF")
-                color: C("#ffffff")
-                size_hint_y: None
-                height: dp(50)
-                on_release: root.login(login_email.text, login_password.text)
-
-            ClickableLabel:
+            HoverLabel:  # MDTextButtonの代わりにHoverLabelを使用
                 text: "アカウントをお持ちでない方はこちら"
+                tooltip_text: "新規登録画面へ移動します"
+                normal_color: C("#BB86FC")
+                hover_color: C("#FFFFFF")
                 on_release:
                     print("RegisterScreenへ移動")
                     root.manager.current = "Register"
 
-            ClickableLabel:
+        BoxLayout:
+            orientation: 'horizontal'
+            size_hint_y: None
+            height: dp(15)
+            spacing: dp(5)
+            HoverLabel:  # MDTextButtonの代わりにHoverLabelを使用
                 text: "パスワードをお忘れですか？"
+                tooltip_text: "パスワードリセット画面へ移動します"
+                normal_color: C("#BB86FC")
+                hover_color: C("#FFFFFF")
                 on_release:
                     print("ResetPasswordScreenへ移動")
                     root.manager.current = "ResetPassword"
 
 <RegisterScreen>:
     name: "Register"
-    FloatLayout:
-        canvas.before:
-            Color:
-                rgba: C("#f8f8ff")
-            Rectangle:
-                pos: self.pos
-                size: self.size
+    remember_me: False
+    md_bg_color: C("#121212")
+
+    MDCard:
+        orientation: "vertical"
+        size_hint: 0.2, None
+        height: self.minimum_height
+        padding: dp(20)
+        spacing: dp(20)
+        pos_hint: {"center_x": 0.5, "center_y": 0.5}
+        elevation: 4
+        md_bg_color: C("#1E1E1E")
+
+        MDLabel:
+            text: "新規登録"
+            halign: "center"
+            theme_text_color: "Custom"
+            text_color: C("#FFFFFF")
+            font_style: "H4"
+            size_hint_y: None
+            height: self.texture_size[1] * 1.5
+
+        MDTextField:
+            id: register_email
+            hint_text: "メールアドレス"
+            helper_text_mode: "on_focus"
+            icon_right: "email-outline"
+            size_hint_y: None
+            height: dp(60)
+            text_color: 1, 1, 1, 1
+            hint_text_color_normal: 0.7, 0.7, 0.7, 1
+
+        MDTextField:
+            id: register_password
+            hint_text: "パスワード"
+            helper_text_mode: "on_focus"
+            icon_right: "lock-outline"
+            # password: True
+            size_hint_y: None
+            height: dp(60)   # 高めに
+            text_color: 1, 1, 1, 1
+            hint_text_color_normal: 0.7, 0.7, 0.7, 1
+
+        MDRaisedButton:
+            text: "登録"
+            md_bg_color: C("#28a745")
+            text_color: 1, 1, 1, 1
+            size_hint_y: None
+            height: dp(50)
+            on_release: root.register(register_email.text, register_password.text)
 
         BoxLayout:
-            orientation: "vertical"
-            spacing: dp(20)
-            padding: dp(20), dp(20), dp(20), dp(20)
-            size_hint: 0.8, 0.7
-            pos_hint: {"center_x": 0.5, "center_y": 0.5}
-
-            Label:
-                text: "新規登録"
-                font_size: 36
-                color: C("#333333")
-                size_hint_y: None
-                height: self.texture_size[1] * 1.5
-
-            TextInput:
-                id: register_email
-                hint_text: "メールアドレス"
-                multiline: False
-                size_hint_y: None
-                height: dp(40)
-                font_size: 18
-                background_color: C("#ffffff")
-                foreground_color: C("#333333")
-                padding: dp(10)
-
-            TextInput:
-                id: register_password
-                hint_text: "パスワード"
-                password: True
-                multiline: False
-                size_hint_y: None
-                height: dp(40)
-                font_size: 18
-                background_color: C("#ffffff")
-                foreground_color: C("#333333")
-                padding: dp(10)
-
-            BoxLayout:
-                orientation: 'horizontal'
-                size_hint_y: None  # 高さを固定する
-                height: dp(30)  # 高さを40dpに固定
-                spacing: dp(5)  # チェックボックスとラベルの間のスペースを調整
-                
-                CheckBox:
-                    id: register_remember
-                    active: root.remember_me
-                    size_hint: None, None
-                    size: dp(30), dp(30)  # チェックボックスのサイズを小さく
-                    canvas.before:
-                        Color:
-                            rgba: (1, 0, 0, 1) if self.active else (0.5, 0.5, 0.5, 1)
-                        Rectangle:
-                            pos: self.pos
-                            size: self.size
-
-                Label:
-                    text: "次回から情報を記憶する"
-                    font_size: 16
-                    color: C("#333333")
-                    halign: 'left'
-                    valign: 'middle'
-                    on_touch_down:
-                        if self.collide_point(*args[1].pos): register_remember.active = not register_remember.active; root.remember_me = register_remember.active
-
-            Button:
-                text: "登録"
-                font_size: 20
-                background_color: C("#28a745")
-                color: C("#ffffff")
-                size_hint_y: None
-                height: dp(50)
-                on_release: root.register(register_email.text, register_password.text)
-
-            ClickableLabel:
+            orientation: 'horizontal'
+            size_hint_y: None
+            height: dp(15)
+            spacing: dp(5)
+            HoverLabel:  # MDTextButtonの代わりにHoverLabelを使用
                 text: "既にアカウントをお持ちの方はこちら"
+                tooltip_text: "ログイン画面へ戻ります"
+                normal_color: C("#BB86FC")
+                hover_color: C("#FFFFFF")
                 on_release:
                     root.manager.current = "Login"
 
 <ResetPasswordScreen>:
     name: "ResetPassword"
-    FloatLayout:
-        canvas.before:
-            Color:
-                rgba: C("#f8f8ff")
-            Rectangle:
-                pos: self.pos
-                size: self.size
+    md_bg_color: C("#121212")
+
+    MDCard:
+        orientation: "vertical"
+        size_hint: 0.2, None
+        height: self.minimum_height
+        padding: dp(20)
+        spacing: dp(20)
+        pos_hint: {"center_x": 0.5, "center_y": 0.5}
+        elevation: 4
+        md_bg_color: C("#1E1E1E")
+
+        MDLabel:
+            text: "パスワードリセット"
+            halign: "center"
+            theme_text_color: "Custom"
+            text_color: C("#FFFFFF")
+            font_style: "H4"
+            size_hint_y: None
+            height: self.texture_size[1] * 1.5
+
+        MDTextField:
+            id: reset_email
+            hint_text: "メールアドレス"
+            helper_text_mode: "on_focus"
+            icon_right: "email-outline"
+            size_hint_y: None
+            height: dp(60)
+            text_color: 1, 1, 1, 1
+            hint_text_color_normal: 0.7, 0.7, 0.7, 1
+
+        MDRaisedButton:
+            text: "リセットメールを送信"
+            md_bg_color: C("#dc3545")
+            text_color: 1, 1, 1, 1
+            size_hint_y: None
+            height: dp(50)
+            on_release: root.reset(reset_email.text)
 
         BoxLayout:
-            orientation: "vertical"
-            spacing: dp(20)
-            padding: dp(20), dp(20), dp(20), dp(20)
-            size_hint: 0.8, 0.7
-            pos_hint: {"center_x": 0.5, "center_y": 0.5}
-
-            Label:
-                text: "パスワードリセット"
-                font_size: 36
-                color: C("#333333")
-                size_hint_y: None
-                height: self.texture_size[1] * 1.5
-
-            TextInput:
-                id: reset_email
-                hint_text: "メールアドレス"
-                multiline: False
-                size_hint_y: None
-                height: dp(40)
-                font_size: 18
-                background_color: C("#ffffff")
-                foreground_color: C("#333333")
-                padding: dp(10)
-
-            Button:
-                text: "リセットメールを送信"
-                font_size: 20
-                background_color: C("#dc3545")
-                color: C("#ffffff")
-                size_hint_y: None
-                height: dp(50)
-                on_release: root.reset(reset_email.text)
-
-            ClickableLabel:
+            orientation: 'horizontal'
+            size_hint_y: None
+            height: dp(15)
+            spacing: dp(5)
+            HoverLabel:  # MDTextButtonの代わりにHoverLabelを使用
                 text: "ログイン画面に戻る"
+                tooltip_text: "ログイン画面へ戻ります"
+                normal_color: C("#BB86FC")
+                hover_color: C("#FFFFFF")
                 on_release:
                     root.manager.current = "Login"

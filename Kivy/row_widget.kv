@@ -1,3 +1,5 @@
+
+
 <ScriptEdit>:
     orientation: 'horizontal'
     size_hint: 1, 1
@@ -63,7 +65,7 @@
                     orientation: 'vertical'
                     size_hint: (None, 1)
                     color: (1,1,1,0.5)
-                    width: dp(2)
+                    width: dp(1)
 
                 UpdateBox:
                     id: update_button
@@ -72,7 +74,7 @@
                 # 新しい HoverIconButton を追加
                 HoverIconButton:
                     id: template_saver_button
-                    tooltip_text: ".ymmpファイルからフォーマットを変更する"
+                    tooltip_text: "[size=20sp].ymmpファイルからフォーマットを変更する[/size]\n台本取得で現在設定されているスレッドボイス順にキャラクタボイスを変更します。\n一番最初のタイトルコールは変更されません。)"
                     shortcut_key: "ymmp動画フォーマット保存"
                     icon_size: "40dp"
                     icon: 'content-save'  # 適宜アイコンを選択
@@ -81,13 +83,33 @@
                         root.ids.script_screen_manager.current = 'YMM4ItemTemplateSaverScreen'
                 HoverIconButton:
                     id: video_config_button
-                    tooltip_text: "動画テンプレート設定[Beta version]"
+                    tooltip_text: "[size=20sp]動画テンプレート設定[Beta version][/size]"
                     shortcut_key: "動画フォーマット一覧"
                     icon_size:"40dp"
                     icon: 'cog'
                     on_release:
                         root.ids.video_config.thread_reload_screen(self)
                         root.ids.script_screen_manager.current = 'VideoConfig'
+
+                MDSeparator:
+                    orientation: 'vertical'
+                    size_hint: (None, 1)
+                    color: (1,1,1,0.5)
+                    width: dp(2)
+
+                ThreadVoiceOrderUpdateButton:
+                    id: thread_voice_update_button
+                    tooltip_text: "[size=20sp]スレッドボイス 連番変更[/size]\n台本取得で現在設定されているスレッドボイス順にキャラクタボイスを変更します。\n※ 一番最初のタイトルコールは変更されません。\n[color=ff3333]【動画作成】、【動画作成-YMM4への自動保存】を実行しないとYMM4の更新されません。[/color]"
+                    shortcut_key: "スレッドボイス更新"
+                    icon_size: "40dp"
+                    icon: 'sort-variant'
+
+                ThreadVoiceRandomOrderUpdateButton:
+                    id: thread_voice_random_update_button
+                    tooltip_text:  "[size=20sp]スレッドボイス ランダム変更[/size]\n台本取得で現在設定されているスレッドボイスをランダムでキャラクタボイスを変更します。\n※ 一番最初のタイトルコールは変更されません。\n[color=ff3333]【動画作成】、【動画作成-YMM4への自動保存】を実行しないとYMM4の更新されません。[/color]"
+                    shortcut_key: "スレッドボイスランダム更新"
+                    icon_size: "40dp"
+                    icon: 'shuffle-variant'
 
                 MDSeparator:
                     orientation: 'vertical'
@@ -127,7 +149,7 @@
 <UpdateBox>:
     update_button: update_button
     id: update_button
-    tooltip_text: "プロジェクト画面を更新"
+    tooltip_text: "[size=20sp]プロジェクト画面を更新[/size]"
     shortcut_key: "台本更新"
     icon_size:"40dp"
     icon: 'cached'
@@ -135,7 +157,7 @@
 <ScriptOutputButton>:
     script_output_button: script_output_button
     id: script_output_button
-    tooltip_text: "台本保存"
+    tooltip_text: "[size=20sp]台本保存[/size]\n動画作成時に保存されるので事前に保存する必要ありません。"
     shortcut_key:"台本保存"
     icon_size:"40dp"
     icon: 'content-save'
@@ -144,7 +166,7 @@
     # 台本（スクリプト）処理用ボタン
     script_processing_button: script_processing_button
     id: script_processing_button
-    tooltip_text: "[size=20sp]動画作成-YMM4への自動保存[Beta version][/size]\n[color=ff3333]※実行中マウスは動かなさないでください。[/color]"
+    tooltip_text: "[size=20sp]動画作成-YMM4への自動保存[Beta version][/size]\ninput.ymmpへ台本の書き込みを実施します。\n【動画作成】ボタンの2分割処理の一つです。\n[color=ff3333]※実行中マウスは動かなさないでください。[/color]"
     shortcut_key: "動画作成-YMM4 台本自動読み込み"
     icon_size: "40dp"
     icon: "file-document-outline"  # 適切なアイコン名に変更してください
@@ -153,7 +175,7 @@
     # 動画生成用ボタン
     video_rendering_button: video_rendering_button
     id: video_rendering_button
-    tooltip_text: "[size=20sp]動画作成-ymmpを自動編集[/size]\n処理後にymmpを開きます。"
+    tooltip_text: "[size=20sp]動画作成-ymmpを自動編集[/size]\ninput.ymmpにあるアイテム(ボイスアイテム)を元に画像や効果音などを挿入します。\n処理後にymmpを開きます。\n【動画作成】ボタンの2分割処理の一つです。"
     shortcut_key: "動画作成-YMM4 動画自動編集"
     icon_size: "40dp"
     icon: "movie"  # 使用しているアイコンセットに合わせたアイコンを指定してください
@@ -162,7 +184,7 @@
 <CreateVideoButton>:
     create_video_button: create_video_button
     id: create_video_button
-    tooltip_text: "[size=20sp]動画作成[Beta version][/size]\n右の2つのボタンの処理を一つで実行します。\n[color=ff3333]※実行中マウスは動かなさないでください。[/color]"
+    tooltip_text: "[size=20sp]動画作成[Beta version][/size]\n動画入力フォルダのinput.ymmpへ台本を書き込み、その内容を編集します。\n処理後にymmpを開きます。\n[color=ff3333]※実行中マウスは動かなさないでください。\n必ずYMM4を開いた状態でご使用ください。[/color]"
     shortcut_key: "動画作成"
     icon_size:"40dp"
     icon: 'play-box'
@@ -229,18 +251,47 @@
         halign: 'center'
         valign: 'middle'
 
-    TextInput:
-        id: input_field
-        size_hint: 0.3, 1
-        font_size: self.height * 0.15
-        readonly: True
-        disabled_foreground_color: 0, 0, 0, 1
-        foreground_color: 0, 0, 0, 1
-        disabled: True
-        halign: 'left'
-        valign: 'top'
-        multiline: True
-        cursor: (0, 0)
+    # TextInput:
+    #     id: input_field
+    #     size_hint: 0.3, 1
+    #     font_size: self.height * 0.15
+    #     readonly: True
+    #     disabled_foreground_color: 0, 0, 0, 1
+    #     foreground_color: 0, 0, 0, 1
+    #     disabled: True
+    #     halign: 'left'
+    #     valign: 'top'
+    #     multiline: True
+    #     cursor: (0, 0)
+    # TextInput の代わりに UnderlineTooltipLabel を使用
+    BoxLayout:
+        size_hint: 0.5, 1
+        ScrollView:
+            # ※ StencilView は子ウィジェットの描画をクリップしてくれます
+            UnderlineTooltipLabel:
+                id: input_field
+                size_hint: 1, 1
+                font_size: root.height * 0.15
+                markup: True
+                text_size: self.size
+                theme_text_color: "Custom"   # テキスト色をカスタム指定するため
+                text_color: 0, 0, 0, 1        # 黒
+                halign: 'center'
+                valign: 'middle'
+                # 背景を白くし、枠線を付けるための描画
+                canvas.before:
+                    # 白い背景
+                    Color:
+                        rgba: 1, 1, 1, 1
+                    Rectangle:
+                        pos: self.pos
+                        size: self.size
+                    # 黒い枠線
+                    Color:
+                        rgba: 0, 0, 0, 1
+                    Line:
+                        rectangle: (self.x, self.y, self.width, self.height)
+                        width: 1
 
     # メディア管理レイアウト
     MediaManagerLayout:
@@ -540,12 +591,26 @@
         id: left_box
         orientation: "vertical"
         size_hint: 0.4, 1
+        canvas.before:
+            # 白い背景
+            Color:
+                rgba: 0, 0, 0, 1
+            Rectangle:
+                pos: self.pos
+                size: self.size
+            # 黒い枠線
+            Color:
+                rgba: 0, 0, 0, 1
+            Line:
+                rectangle: (self.x, self.y, self.width, self.height)
+                width: 1
 
         BoxLayout:
             id: media_display_container
             orientation: "vertical"
             size_hint_y: None
             height: dp(30)
+
             Label:
                 id: media_source_label
                 text: "ソース: なし"
@@ -562,6 +627,7 @@
             valign: "middle"
             text_size: self.size
             size_hint_y: 1
+
 
     BoxLayout:
         orientation: "horizontal"
