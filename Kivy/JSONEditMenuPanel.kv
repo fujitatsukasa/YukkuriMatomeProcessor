@@ -1,0 +1,155 @@
+<JSONEditMenuPanel@MDBoxLayout>:
+    orientation: "vertical"
+    size_hint_x: None
+    width: 600
+
+    MDScrollView:
+        do_scroll_y: True
+        do_scroll_x: False
+
+        MDBoxLayout:
+            orientation: "vertical"
+            size_hint_y: None
+            adaptive_height: True
+            padding: "10dp"
+            spacing: "10dp"
+
+            # 1) 著作権表記
+            MDBoxLayout:
+                orientation: "horizontal"
+                size_hint_y: None
+                height: self.minimum_height
+                spacing: "5dp"
+
+                MDBoxLayout:
+                    orientation: "horizontal"
+                    size_hint_x: 0.5
+                    size_hint_y: 1
+                    height: self.minimum_height
+                    HoverTooltipLabel:
+                        text: "著作権表記"
+                        tooltip_text: "Copyright JSONの選択"
+                        text_size: self.width, None
+                        halign: "left"
+                        valign: "center"
+
+                MDBoxLayout:
+                    orientation: "horizontal"
+                    size_hint_x: 0.5
+                    size_hint_y: None
+                    height: self.minimum_height
+                    MyAdaptiveButton:
+                        id: copyright_btn
+                        text: "Copyright.json"
+                        size_hint_x: 1
+                        on_release: root.open_copyright_popup()
+
+            MDSeparator:
+                height: "1dp"
+
+            # 2) 禁止ワード
+            MDBoxLayout:
+                orientation: "horizontal"
+                size_hint_y: None
+                height: self.minimum_height
+                spacing: "5dp"
+
+                MDBoxLayout:
+                    orientation: "horizontal"
+                    size_hint_x: 0.5
+                    size_hint_y: 1
+                    height: self.minimum_height
+                    HoverTooltipLabel:
+                        text: "禁止ワード"
+                        tooltip_text: "BannedWords JSONの選択"
+                        text_size: self.width, None
+                        halign: "left"
+                        valign: "center"
+
+                MDBoxLayout:
+                    orientation: "horizontal"
+                    size_hint_x: 0.5
+                    size_hint_y: None
+                    height: self.minimum_height
+                    MyAdaptiveButton:
+                        id: banned_btn
+                        text: "BannedWords.json"
+                        size_hint_x: 1
+                        on_release: root.open_bannedwords_popup()
+
+            MDSeparator:
+                height: "1dp"
+
+            # 3) 編集素材
+            MDBoxLayout:
+                orientation: "horizontal"
+                size_hint_y: None
+                height: self.minimum_height
+                spacing: "5dp"
+
+                MDBoxLayout:
+                    orientation: "horizontal"
+                    size_hint_x: 0.5
+                    size_hint_y: 1
+                    height: self.minimum_height
+                    HoverTooltipLabel:
+                        text: "編集素材"
+                        tooltip_text: "サブフォルダを選択"
+                        text_size: self.width, None
+                        halign: "left"
+                        valign: "center"
+
+                # 右側: Spinner でサブフォルダを選択
+                MDBoxLayout:
+                    orientation: "horizontal"
+                    size_hint_x: 0.5
+                    size_hint_y: None
+                    height: dp(36)
+                    Spinner:
+                        id: asset_spinner
+                        text: "選択してください"
+                        values: []
+                        size_hint_x: 1
+                        size_hint_y: None
+                        height: "36dp"
+                        option_cls: 'MySpinnerOption'
+                        on_text: root.on_asset_subfolder_select(self.text)
+
+            MDSeparator:
+                height: "1dp"
+
+
+<MyAdaptiveButton@ButtonBehavior+MDLabel>:
+    size_hint_y: None
+    # テキストが空でも最低36dp以上
+    height: max(self.texture_size[1] + dp(16), dp(36))
+    text_size: self.width - dp(16), None
+    halign: "center"
+    valign: "middle"
+    md_bg_color: 0.2, 0.2, 0.2, 1
+    canvas.before:
+        Color:
+            rgba: self.md_bg_color
+        Rectangle:
+            pos: self.pos
+            size: self.size
+
+<HoverTooltipLabel@MDLabel>:
+    halign: "center"
+    valign: "middle"
+
+<MySpinnerOption@SpinnerOption>:
+    size_hint_y: None
+    height: dp(40)
+    text_size: self.size
+    halign: 'center'
+    valign: 'middle'
+    shorten: True
+    shorten_from: 'right'
+    max_lines: 1
+    canvas.before:
+        Color:
+            rgba: 1, 0, 0, 1
+        Line:
+            rectangle: (self.x, self.y, self.width, self.height)
+            width: dp(2)

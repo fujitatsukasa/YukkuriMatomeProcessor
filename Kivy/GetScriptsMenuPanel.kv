@@ -1,0 +1,319 @@
+#:import HoverTooltipLabel hover_tooltip_label.HoverTooltipLabel
+#:import dp kivy.metrics.dp
+
+<GetScriptsMenuPanel@MDBoxLayout>:
+    orientation: "vertical"
+    size_hint_x: None
+    width: 600
+    # （必要に応じて背景色を白にしたいなら下行をコメント解除）
+    # md_bg_color: 1,1,1,1
+    canvas.after:
+        Color:
+            rgba: 1, 1, 1, 0.2  # 白色で半透明
+        Line:
+            points: self.right, self.y, self.right, self.top  # 右端の垂直線
+            width: 1
+    MDScrollView:
+        do_scroll_x: False
+        do_scroll_y: True
+
+        MDBoxLayout:
+            orientation: "vertical"
+            size_hint_y: None
+            adaptive_height: True
+            padding: "10dp"
+            spacing: "10dp"
+
+            # 1. サイト名
+            MDBoxLayout:
+                orientation: "horizontal"
+                size_hint_y: None
+                height: self.minimum_height
+                spacing: "5dp"
+
+                MDBoxLayout:
+                    orientation: "horizontal"
+                    size_hint_x: 0.5
+                    size_hint_y: 1
+                    height: self.minimum_height
+                    HoverTooltipLabel:
+                        text: "サイト名"
+                        tooltip_text: "クリックするとサイト名を変更できます"
+                        text_size: self.width, None
+                        halign: "left"
+                        valign: "center"
+
+                MDBoxLayout:
+                    orientation: "horizontal"
+                    size_hint_x: 0.5
+                    size_hint_y: None
+                    height: self.minimum_height
+                    MyAdaptiveButton:
+                        id: site_name_button
+                        text: "example.com"
+                        size_hint_x: 1
+                        # ★ 指定通り: site_name_button → open_url_popup()
+                        on_release: root.open_url_popup()
+
+            MDSeparator:
+                height: "1dp"
+
+            # 2. サイトURL (common_methodsで言う「入力URL」)
+            MDBoxLayout:
+                orientation: "horizontal"
+                size_hint_y: None
+                height: self.minimum_height
+                spacing: "5dp"
+
+                MDBoxLayout:
+                    orientation: "horizontal"
+                    size_hint_x: 0.5
+                    size_hint_y: 1
+                    height: self.minimum_height
+                    HoverTooltipLabel:
+                        text: "サイトURL"
+                        tooltip_text: "クリックするとURLを入力できます"
+                        text_size: self.width, None
+                        halign: "left"
+                        valign: "center"
+
+                MDBoxLayout:
+                    orientation: "horizontal"
+                    size_hint_x: 0.5
+                    size_hint_y: None
+                    height: self.minimum_height
+                    MyAdaptiveButton:
+                        id: site_url_button
+                        text: "https://example.com"
+                        size_hint_x: 1
+                        # ★ 指定通り: site_url_button → on_text_input_touch_down("入力URL")
+                        on_release: root.on_text_input_touch_down("入力URL")
+
+            MDSeparator:
+                height: "1dp"
+
+            # 3. タイトル前セリフ
+            MDBoxLayout:
+                orientation: "horizontal"
+                size_hint_y: None
+                height: self.minimum_height
+                spacing: "5dp"
+
+                MDBoxLayout:
+                    orientation: "horizontal"
+                    size_hint_x: 0.5
+                    size_hint_y: 1
+                    height: self.minimum_height
+                    HoverTooltipLabel:
+                        text: "タイトル前セリフ"
+                        tooltip_text: "クリックするとタイトル前セリフを入力"
+                        text_size: self.width, None
+                        halign: "left"
+                        valign: "center"
+
+                MDBoxLayout:
+                    orientation: "horizontal"
+                    size_hint_x: 0.5
+                    size_hint_y: None
+                    height: self.minimum_height
+                    MyAdaptiveButton:
+                        id: title_prefix_button
+                        text: "(空)"
+                        size_hint_x: 1
+                        # ★ on_text_input_touch_down("タイトル前セリフ")
+                        on_release: root.on_text_input_touch_down("タイトル前セリフ")
+
+            MDSeparator:
+                height: "1dp"
+
+            # 4. タイトル後セリフ
+            MDBoxLayout:
+                orientation: "horizontal"
+                size_hint_y: None
+                height: self.minimum_height
+                spacing: "5dp"
+
+                MDBoxLayout:
+                    orientation: "horizontal"
+                    size_hint_x: 0.5
+                    size_hint_y: 1
+                    height: self.minimum_height
+                    HoverTooltipLabel:
+                        text: "タイトル後セリフ"
+                        tooltip_text: "クリックするとタイトル後セリフを入力"
+                        text_size: self.width, None
+                        halign: "left"
+                        valign: "center"
+
+                MDBoxLayout:
+                    orientation: "horizontal"
+                    size_hint_x: 0.5
+                    size_hint_y: None
+                    height: self.minimum_height
+                    MyAdaptiveButton:
+                        id: title_suffix_button
+                        text: "(空)"
+                        size_hint_x: 1
+                        # ★ on_text_input_touch_down("タイトル後セリフ")
+                        on_release: root.on_text_input_touch_down("タイトル後セリフ")
+
+            MDSeparator:
+                height: "1dp"
+
+            # 5. タイトルボイス (1つ選択)
+            MDBoxLayout:
+                orientation: "horizontal"
+                size_hint_y: None
+                height: self.minimum_height
+                spacing: "5dp"
+
+                MDBoxLayout:
+                    orientation: "horizontal"
+                    size_hint_x: 0.5
+                    size_hint_y: 1
+                    height: self.minimum_height
+                    HoverTooltipLabel:
+                        text: "タイトルボイス"
+                        tooltip_text: "クリックするとタイトルボイスを選択"
+                        text_size: self.width, None
+                        halign: "left"
+                        valign: "center"
+
+                MDBoxLayout:
+                    orientation: "horizontal"
+                    size_hint_x: 0.5
+                    size_hint_y: None
+                    height: self.minimum_height
+                    MyAdaptiveButton:
+                        id: title_voice_button
+                        text: "(未選択)"
+                        size_hint_x: 1
+                        # ★ open_title_voice_popup()
+                        on_release: root.open_title_voice_popup()
+
+            MDSeparator:
+                height: "1dp"
+
+            # 6. スレッドボイス (複数)
+            MDBoxLayout:
+                orientation: "horizontal"
+                size_hint_y: None
+                height: self.minimum_height
+                spacing: "5dp"
+
+                MDBoxLayout:
+                    orientation: "horizontal"
+                    size_hint_x: 0.5
+                    size_hint_y: 1
+                    height: self.minimum_height
+                    HoverTooltipLabel:
+                        text: "スレッドボイス"
+                        tooltip_text: "複数選択ポップアップ"
+                        text_size: self.width, None
+                        halign: "left"
+                        valign: "center"
+
+                # 右カラム: MyAdaptiveButton 1つだけ
+                MDBoxLayout:
+                    orientation: "horizontal"
+                    size_hint_x: 0.5
+                    size_hint_y: None
+                    height: self.minimum_height
+                    MyAdaptiveButton:
+                        id: thread_voices_button
+                        # 複数ボイスを改行表示する予定
+                        text: "(空)"
+                        size_hint_x: 1
+                        # ボタンを押したら open_voice_popup() 
+                        # → 複数選択popupでself.thread_voicesを更新
+                        on_release: root.open_voice_popup()
+
+            MDSeparator:
+                height: "1dp"
+
+            # 7. スレッドボイスモード (連番/ランダム)
+            MDBoxLayout:
+                orientation: "horizontal"
+                size_hint_y: None
+                height: self.minimum_height
+                spacing: "5dp"
+
+                MDBoxLayout:
+                    orientation: "horizontal"
+                    size_hint_x: 0.5
+                    size_hint_y: 1
+                    height: self.minimum_height
+                    HoverTooltipLabel:
+                        text: "スレッドボイスモード"
+                        tooltip_text: "連番とランダムを切り替え"
+                        text_size: self.width, None
+                        halign: "left"
+                        valign: "center"
+
+                MDBoxLayout:
+                    orientation: "horizontal"
+                    size_hint_x: 0.5
+                    size_hint_y: None
+                    height: self.minimum_height
+                    MDFlatButton:
+                        id: thread_voice_mode_btn
+                        text: "連番"
+                        size_hint_x: 1
+                        md_bg_color: 0,1,0,1
+                        # ★ common_methods的には toggle_thread_voice_mode()
+                        on_release: root.toggle_thread_voice_mode(self)
+
+            MDSeparator:
+                height: "1dp"
+
+            # 8. コメントの取得 (ON/OFF)
+            MDBoxLayout:
+                orientation: "horizontal"
+                size_hint_y: None
+                height: self.minimum_height
+                spacing: "5dp"
+
+                MDBoxLayout:
+                    orientation: "horizontal"
+                    size_hint_x: 0.5
+                    size_hint_y: 1
+                    height: self.minimum_height
+                    HoverTooltipLabel:
+                        text: "コメントの取得"
+                        tooltip_text: "ON/OFFで切り替え"
+                        text_size: self.width, None
+                        halign: "left"
+                        valign: "center"
+
+                MDBoxLayout:
+                    orientation: "horizontal"
+                    size_hint_x: 0.5
+                    size_hint_y: None
+                    height: self.minimum_height
+                    MDFlatButton:
+                        id: comments_enable_btn
+                        text: "OFF"
+                        size_hint_x: 1
+                        md_bg_color: 1,0,0,1
+                        # ★ -> on_toggle_comments_enable(self)
+                        on_release: root.toggle_comments_enable(self)
+
+<MyAdaptiveButton@ButtonBehavior+MDLabel>:
+    size_hint_y: None
+    # ここで、テキストが空の場合でも最低 dp(36) の高さを保証
+    height: max(self.texture_size[1] + dp(16), dp(36))
+    text_size: self.width - dp(16), None
+    halign: "center"
+    valign: "middle"
+    md_bg_color: 0.2, 0.2, 0.2, 1
+    canvas.before:
+        Color:
+            rgba: self.md_bg_color
+        Rectangle:
+            pos: self.pos
+            size: self.size
+
+
+<HoverTooltipLabel@MDLabel>:
+    halign: "center"
+    valign: "middle"

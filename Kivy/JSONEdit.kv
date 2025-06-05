@@ -17,6 +17,23 @@
                 orientation: 'lr-tb'  # 左から右に配置
 
                 HoverIconButton:
+                    id: menu_close_button
+                    size_hint: None, 1
+                    tooltip_text: "メニューを閉じる/開く"
+                    icon_size: "40dp"
+                    hover_enabled: True   # ホバー有効にしたいなら True
+                    icon: 'chevron-left'  # 好みのアイコン (例: chevron-left)
+                    on_release:
+                        # ここにメニューを閉じる処理を書く
+                        # 例: root.ids.scriptedit_left_panel.width = 0
+                        root.ids.json_edit_menu.toggle_menu()
+                MDSeparator:
+                    orientation: 'vertical'
+                    size_hint: (None, 1)
+                    color: (1,1,1,0.5)
+                    width: dp(2)
+
+                HoverIconButton:
                     id: undo_button
                     tooltip_text: "前に戻る"
                     shortcut_key: "前に戻る"
@@ -46,17 +63,20 @@
                     icon_size:"40dp"
                     icon: 'folder-multiple-plus'
 
+                HoverIconButton:
+                    id: export_button
+                    tooltip_text: "開いている編集素材のJSONにサブフォルダ名を自動追加"
+                    shortcut_key: "サブフォルダ追加"
+                    icon_size: "40dp"
+                    icon: 'export-variant'
+
         BoxLayout:
             orientation: 'horizontal'
             size_hint: 1, 0.95
 
-            CustomTreeView:
-                id: tree_view_section
-                size_hint: 0.2, 1
-                screen_name: 'JSONEdit'
-                show_save_button: False
-                show_load_button: False
-                show_delete_button: False
+            JSONEditMenuPanel:
+                id: json_edit_menu
+                md_bg_color: app.theme_cls.bg_dark
 
             # 右側：検索フィールドと RecycleView を縦にレイアウト
             BoxLayout:

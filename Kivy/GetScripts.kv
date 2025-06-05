@@ -8,8 +8,30 @@
             orientation: 'horizontal'
             size_hint_y: None  # 高さを固定にするため、size_hint_yをNoneに
             height: dp(50)  # ThreeColumnMenu の高さに合わせて調整
+            canvas.after:
+                Color:
+                    rgba: 1, 1, 1, 0.2  # 白色で半透明
+                Line:
+                    points: self.x, self.y, self.right, self.y  # 下側の水平線
+                    width: 1  # 線の太さ
             StackLayout:
                 orientation: 'lr-tb'
+                HoverIconButton:
+                    id: menu_close_button
+                    size_hint: None, 1
+                    tooltip_text: "メニューを閉じる/開く"
+                    icon_size: "40dp"
+                    hover_enabled: True   # ホバー有効にしたいなら True
+                    icon: 'chevron-left'  # 好みのアイコン (例: chevron-left)
+                    on_release:
+                        # ここにメニューを閉じる処理を書く
+                        # 例: root.ids.scriptedit_left_panel.width = 0
+                        root.ids.get_scripts_menu.toggle_menu()
+                MDSeparator:
+                    orientation: 'vertical'
+                    size_hint: (None, 1)
+                    color: (1,1,1,0.5)
+                    width: dp(2)
                 Url:
                     url_search_button:url_search_button
                     id: url_search_button
@@ -21,13 +43,12 @@
         BoxLayout:
             orientation: 'horizontal'
             size_hint: 1, 0.95
-            CustomTreeView:
-                id: tree_view_section
-                size_hint: 0.2, 1
-                screen_name: 'GetScripts'
+            GetScriptsMenuPanel:
+                id: get_scripts_menu
+                md_bg_color: app.theme_cls.bg_dark
             RV_GetScripts:
                 id: rv_scripts
-                size_hint:0.8, 1
+                size_hint:1, 1
 
 # <CustomTreeView>:
 #     orientation: 'vertical'

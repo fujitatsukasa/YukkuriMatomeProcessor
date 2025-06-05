@@ -24,7 +24,22 @@
             #         size: self.size
             StackLayout:
                 orientation: 'lr-tb'
-
+                HoverIconButton:
+                    id: menu_close_button
+                    size_hint: None, 1
+                    tooltip_text: "メニューを閉じる/開く"
+                    icon_size: "40dp"
+                    hover_enabled: True   # ホバー有効にしたいなら True
+                    icon: 'chevron-left'  # 好みのアイコン (例: chevron-left)
+                    on_release:
+                        # ここにメニューを閉じる処理を書く
+                        # 例: root.ids.scriptedit_left_panel.width = 0
+                        root.ids.scriptedit_menu_panel.toggle_menu()
+                MDSeparator:
+                    orientation: 'vertical'
+                    size_hint: (None, 1)
+                    color: (1,1,1,0.5)
+                    width: dp(2)
                 HoverIconButton:
                     id: undo_button
                     size_hint: None, 1
@@ -117,27 +132,116 @@
                     color: (1,1,1,0.5)
                     width: dp(2)
 
+                CsvProjectGeneratorButton:        # ★ここが新ボタン
+                    id: csv_project_button
+                    tooltip_text: "[size=20sp]CSV → プロジェクト生成[/size]\nCSV を選んで【ユーザー指定】フォルダにプロジェクトを作成します。"
+                    shortcut_key: "CSVプロジェクト生成"
+                    icon_size: "40dp"
+                    icon: "file-table"            # 好きなアイコンに変更可
+
+                MDSeparator:
+                    orientation: 'vertical'
+                    size_hint: (None, 1)
+                    color: (1,1,1,0.5)
+                    width: dp(2)
+
         BoxLayout:
             orientation: 'horizontal'
             size_hint: 1, 0.95
-            CustomTreeView:
-                id: tree_view_section
-                size_hint: 0.2, 1
-                screen_name: 'ScriptEdit'
-                canvas.after:
-                    Color:
-                        rgba: 1, 1, 1, 0.2  # 白色で半透明
-                    Line:
-                        points: self.right, self.y, self.right, self.top  # 右側の垂直線
-                        width: 1  # 線の太さ
+            # CustomTreeView:
+            #     id: tree_view_section
+            #     size_hint: 0.2, 1
+            #     screen_name: 'ScriptEdit'
+                # canvas.after:
+                #     Color:
+                #         rgba: 1, 1, 1, 0.2  # 白色で半透明
+                #     Line:
+                #         points: self.right, self.y, self.right, self.top  # 右側の垂直線
+                #         width: 1  # 線の太さ
+            # カスタムツリービューの代わりに ScriptEditMenuPanel を表示
+            ScriptEditMenuPanel:
+                id: scriptedit_menu_panel
+                md_bg_color: root.theme_cls.bg_dark
+                # size_hint_x: 0.2  # 幅を固定したいならNone + width:600dpでもOK
+                # 幅を600dpにしたいなら:
+                # size_hint_x: None
+                # width: 600
             # <RV> を ScreenManager に置き換え
             ScreenManager:
                 id: script_screen_manager
                 do_default_tab: False
                 Screen:
                     name: 'RecycleViewScreen'
-                    RV:
-                        id: rv_widget
+                    BoxLayout:
+                        orientation: 'vertical'
+                        size_hint: 1, 1
+
+                        # ─── ヘッダー行 ───────────────────────────────
+                        BoxLayout:
+                            size_hint_y: None
+                            height: dp(36)
+
+                            canvas.before:
+                                Color:
+                                    rgba: 0.2, 0.2, 0.2, 1    # 好みで背景色
+                                Rectangle:
+                                    pos: self.pos
+                                    size: self.size
+
+                            Label:
+                                text: 'No.'
+                                size_hint_x: 0.1
+                                color: 1,1,1,1
+                                font_size: self.height * 0.5
+                            MDSeparator:
+                                orientation: 'vertical'
+                            Label:
+                                text: 'キャラ'
+                                size_hint_x: 0.1
+                                color: 1,1,1,1
+                                font_size: self.height * 0.5
+                            MDSeparator:
+                                orientation: 'vertical'
+                            Label:
+                                text: 'セリフ'
+                                size_hint_x: 0.5
+                                color: 1,1,1,1
+                                font_size: self.height * 0.5
+                            MDSeparator:
+                                orientation: 'vertical'
+                            Label:
+                                text: 'メディア'
+                                size_hint_x: 1
+                                color: 1,1,1,1
+                                font_size: self.height * 0.5
+                            MDSeparator:
+                                orientation: 'vertical'
+                            Label:
+                                text: '効果音'
+                                size_hint_x: 0.1
+                                color: 1,1,1,1
+                                font_size: self.height * 0.5
+                            MDSeparator:
+                                orientation: 'vertical'
+                            Label:
+                                text: 'BGM'
+                                size_hint_x: 0.1
+                                color: 1,1,1,1
+                                font_size: self.height * 0.5
+                            Widget:
+                                size_hint_x: None
+                                width: dp(20)  # スクロールバーの幅分の空白
+                                canvas.before:
+                                    Color:
+                                        rgba: 0, 0, 0, 1  # 黒色 (RGBA形式)
+                                    Rectangle:
+                                        pos: self.pos
+                                        size: self.size
+                        # ─── RecycleView 本体 ─────────────────────────
+                        RV:
+                            id: rv_widget
+                            viewclass: 'RowWidget'
+                            # (その他のプロパティは元の設定を残してください)
 
                 YMM4ItemTemplateSaverScreen:
                     id: template_saver_screen
@@ -145,6 +249,14 @@
                 VideoConfig:
                     id: video_config
                     name: 'VideoConfig'
+
+<CsvProjectGeneratorButton>:
+    csv_project_button: csv_project_button
+    id: csv_project_button
+    tooltip_text: root.tooltip_text      # ← 上書きできるように
+    shortcut_key: root.shortcut_key if hasattr(root, 'shortcut_key') else ""
+    icon_size: "40dp"
+    icon: root.icon if hasattr(root, 'icon') else "file-table"
 
 <UpdateBox>:
     update_button: update_button
@@ -573,7 +685,6 @@
         pos_hint: {"center_y": 0.5}
         on_release: root.parent.parent.parent.parent.media_add('background')
 
-
 <MediaManagerLayout>:
     id: media_manager
     media_header: media_header
@@ -681,26 +792,6 @@
                     size_hint_y: None
                     height: self.minimum_height
                     orientation: 'vertical'
-
-<ImagePreviewPopup>:
-    title: "画像プレビュー"
-    size_hint: 0.9, 0.9
-    auto_dismiss: False
-
-    BoxLayout:
-        orientation: 'vertical'
-        padding: 10
-        spacing: 10
-
-        Image:
-            allow_stretch: True
-            keep_ratio: True
-            source: root.source
-
-        Button:
-            text: "閉じる"
-            size_hint: (1, 0.1)
-            on_press: root.dismiss()
 
 <AudioCard>:
     orientation: 'vertical'

@@ -1,0 +1,877 @@
+# ScriptEditMenuPanel.kv
+
+#:import HoverTooltipLabel hover_tooltip_label.HoverTooltipLabel
+#:import dp kivy.metrics.dp
+
+<ScriptEditMenuPanel@MDBoxLayout>:
+    id: menu_box
+    orientation: "vertical"
+    size_hint_x: None
+    width: 600   # メニューの固定幅
+
+    MDScrollView:
+        do_scroll_x: False
+        do_scroll_y: True
+
+        MDBoxLayout:
+            id: menu_container
+            orientation: "vertical"
+            size_hint_y: None
+            adaptive_height: True
+            padding: "10dp"
+            spacing: "10dp"
+
+            # 1. プロジェクト名
+            MDBoxLayout:
+                orientation: "horizontal"
+                size_hint_y: None
+                height: self.minimum_height
+                spacing: "5dp"
+
+                # 左カラム (ツールチップ付きラベル)
+                MDBoxLayout:
+                    orientation: "horizontal"
+                    size_hint_x: 0.5
+                    size_hint_y: 1
+                    height: self.minimum_height
+                    HoverTooltipLabel:
+                        text: "プロジェクト名"
+                        tooltip_text: "ここでプロジェクトを選択できます"
+                        text_size: self.width, None
+                        halign: "left"
+                        valign: "center"
+
+                # 右カラム (Spinner＋追加／削除ボタン)
+                MDBoxLayout:
+                    orientation: "horizontal"
+                    size_hint_x: 0.5
+                    size_hint_y: None
+                    height: "36dp"
+                    Spinner:
+                        id: project_spinner
+                        text: "Select Project"
+                        values: []
+                        size_hint_y: None
+                        height: "36dp"
+                        option_cls: 'MySpinnerOption'
+                        on_text: root.on_project_spinner_select(self, self.text)
+                    MDFlatButton:
+                        text: "追加"
+                        size_hint_x: None
+                        width: "60dp"
+                        on_release: root.add_project()
+                    MDFlatButton:
+                        text: "削除"
+                        size_hint_x: None
+                        width: "60dp"
+                        on_release: root.delete_project()
+
+            MDSeparator:
+                height: "1dp"
+
+            # 2. キーワード
+            MDBoxLayout:
+                orientation: "horizontal"
+                size_hint_y: None
+                height: self.minimum_height
+                spacing: "5dp"
+                MDBoxLayout:
+                    orientation: "horizontal"
+                    size_hint_x: 0.5
+                    size_hint_y: 1
+                    height: self.minimum_height
+                    HoverTooltipLabel:
+                        text: "キーワード"
+                        tooltip_text: "キーワードを選択してください"
+                        text_size: self.width, None
+                        halign: "left"
+                        valign: "center"
+                MDBoxLayout:
+                    orientation: "horizontal"
+                    size_hint_x: 0.5
+                    size_hint_y: None
+                    height: "36dp"
+                    Spinner:
+                        id: keyword_spinner
+                        text: "Select Keyword"
+                        values: ["Keyword1", "Keyword2", "Keyword3"]
+                        size_hint_x: 1
+                        size_hint_y: None
+                        height: "36dp"
+                        option_cls: 'MySpinnerOption'
+                        on_text: root.on_keyword_spinner_select(self, self.text)
+
+            MDSeparator:
+                height: "1dp"
+
+            # 3. サイト
+            MDBoxLayout:
+                orientation: "horizontal"
+                size_hint_y: None
+                height: self.minimum_height
+                spacing: "5dp"
+
+                MDBoxLayout:
+                    orientation: "horizontal"
+                    size_hint_x: 0.5
+                    size_hint_y: 1
+                    height: self.minimum_height
+                    HoverTooltipLabel:
+                        text: "サイト"
+                        tooltip_text: "クリックするとサイト設定が開きます"
+                        text_size: self.width, None
+                        halign: "left"
+                        valign: "center"
+
+                MDBoxLayout:
+                    orientation: "horizontal"
+                    size_hint_x: 0.5
+                    size_hint_y: None
+                    height: self.minimum_height
+                    MyAdaptiveButton:
+                        id: site_button
+                        text: "example.com これは非常に長いテキストの例です。自動で折り返されてボタンの高さが変わります。"
+                        size_hint_x: 1
+                        on_release: root.open_site_popup()
+
+            MDSeparator:
+                height: "1dp"
+
+            # 4. キーワードによるメディア追加
+            MDBoxLayout:
+                orientation: "horizontal"
+                size_hint_y: None
+                height: self.minimum_height
+                spacing: "5dp"
+                MDBoxLayout:
+                    orientation: "horizontal"
+                    size_hint_x: 0.5
+                    size_hint_y: 1
+                    height: self.minimum_height
+                    HoverTooltipLabel:
+                        text: "キーワードによるメディア追加"
+                        tooltip_text: "キーワードが含まれている場合に自動でメディアを追加"
+                        text_size: self.width, None
+                        halign: "left"
+                        valign: "center"
+                MDBoxLayout:
+                    orientation: "horizontal"
+                    size_hint_x: 0.5
+                    size_hint_y: None
+                    height: "36dp"
+                    MDFlatButton:
+                        id: media_toggle_btn
+                        text: "有効"
+                        size_hint_x: 1
+                        size_hint_y: None
+                        height: "36dp"
+                        md_bg_color: 0,1,0,1
+                        on_release: root.toggle_button_text(self)
+
+            MDSeparator:
+                height: "1dp"
+
+            # 5. 改行文字数（変更後）
+            MDBoxLayout:
+                orientation: "horizontal"
+                size_hint_y: None
+                height: self.minimum_height
+                spacing: "5dp"
+                MDBoxLayout:
+                    orientation: "horizontal"
+                    size_hint_x: 0.5
+                    size_hint_y: 1
+                    height: self.minimum_height
+                    HoverTooltipLabel:
+                        text: "改行文字数"
+                        tooltip_text: "この文字数で自動改行します"
+                        text_size: self.width, None
+                        halign: "left"
+                        valign: "center"
+                MDBoxLayout:
+                    orientation: "horizontal"
+                    size_hint_x: 0.5
+                    size_hint_y: None
+                    height: "36dp"
+                    TextInput:
+                        id: line_break_text
+                        text: "40"
+                        input_filter: "int"
+                        multiline: False
+                        size_hint_x: 1
+                        height: "36dp"
+                        halign: "center"
+                        # ヒントテキストが必要な場合は、カスタム実装やオーバーレイで対応してください
+                        on_text: root.on_line_break_text_input(self, self.text)
+
+            MDSeparator:
+                height: "1dp"
+
+            # 8. 自動フォントサイズ  ← ★番号はお好みで
+            MDBoxLayout:                     # ─── 行全体 1 行
+                orientation: "horizontal"
+                size_hint_y: None
+                height: self.minimum_height
+                spacing: "5dp"
+
+                # ── 左ラベル ──────────────────────────────
+                MDBoxLayout:
+                    orientation: "horizontal"
+                    size_hint_x: 0.5
+                    size_hint_y: 1
+                    height: self.minimum_height
+                    HoverTooltipLabel:
+                        text: "自動フォントサイズ"
+                        tooltip_text: "有効/無効・最小/最大を設定できます"
+                        text_size: self.width, None
+                        halign: "left"
+                        valign: "center"
+
+                # ── 右側 : 縦に 3 つ並べる ─────────────────
+                MDBoxLayout:
+                    orientation: "vertical"   # ← ここが縦並びのポイント
+                    size_hint_x: 0.5
+                    size_hint_y: None
+                    height: self.minimum_height
+                    spacing: "5dp"
+
+                    # 1) 有効 / 無効 切替ボタン
+                    MDFlatButton:
+                        id: auto_font_btn
+                        text: "有効"
+                        size_hint_x: 1
+                        size_hint_y: None
+                        height: "36dp"
+                        md_bg_color: 0,1,0,1
+                        on_release: root.toggle_button_text(self)     # ← 既存メソッドを再利用
+
+                    # 2) 最小フォントサイズ
+                    MDBoxLayout:
+                        orientation: "horizontal"
+                        size_hint_y: None
+                        height: "36dp"
+                        spacing: "5dp"
+                        HoverTooltipLabel:
+                            text: "最小"
+                            tooltip_text: "最低フォントサイズ"
+                            halign: "left"
+                            valign: "center"
+                        TextInput:
+                            id: min_font_text
+                            text: "80"
+                            input_filter: "int"
+                            multiline: False
+                            on_text: root.on_font_size_input("フォント最小サイズ", self.text)
+
+                    # 3) 最大フォントサイズ
+                    MDBoxLayout:
+                        orientation: "horizontal"
+                        size_hint_y: None
+                        height: "36dp"
+                        spacing: "5dp"
+                        HoverTooltipLabel:
+                            text: "最大"
+                            tooltip_text: "最大フォントサイズ"
+                            halign: "left"
+                            valign: "center"
+                        TextInput:
+                            id: max_font_text
+                            text: "130"
+                            input_filter: "int"
+                            multiline: False
+                            on_text: root.on_font_size_input("フォント最大サイズ", self.text)
+
+            MDSeparator:
+                height: "1dp"
+
+            # 6. セリフの自動折り返し
+            MDBoxLayout:
+                orientation: "horizontal"
+                size_hint_y: None
+                height: self.minimum_height
+                spacing: "5dp"
+                MDBoxLayout:
+                    orientation: "horizontal"
+                    size_hint_x: 0.5
+                    size_hint_y: 1
+                    height: self.minimum_height
+                    HoverTooltipLabel:
+                        text: "セリフの自動折り返し"
+                        tooltip_text: "セリフテキストが指定文字数を超えると自動で折り返し"
+                        text_size: self.width, None
+                        halign: "left"
+                        valign: "center"
+                MDBoxLayout:
+                    orientation: "horizontal"
+                    size_hint_x: 0.5
+                    size_hint_y: None
+                    height: "36dp"
+                    MDFlatButton:
+                        id: auto_wrap_btn
+                        text: "有効"
+                        size_hint_x: 1
+                        size_hint_y: None
+                        height: "36dp"
+                        md_bg_color: 0,1,0,1
+                        on_release: root.toggle_button_text(self)
+
+            MDSeparator:
+                height: "1dp"
+
+            # 7. 4行以上時のテキスト移動
+            MDBoxLayout:
+                orientation: "horizontal"
+                size_hint_y: None
+                height: self.minimum_height
+                spacing: "5dp"
+                MDBoxLayout:
+                    orientation: "horizontal"
+                    size_hint_x: 0.5
+                    size_hint_y: 1
+                    height: self.minimum_height
+                    HoverTooltipLabel:
+                        text: "4行以上のテキスト移動"
+                        tooltip_text: "4行以上の時にスクロール表示にするかどうか"
+                        text_size: self.width, None
+                        halign: "left"
+                        valign: "center"
+                MDBoxLayout:
+                    orientation: "horizontal"
+                    size_hint_x: 0.5
+                    size_hint_y: None
+                    height: "36dp"
+                    MDFlatButton:
+                        id: text_scroll_btn
+                        text: "無効"
+                        size_hint_x: 1
+                        size_hint_y: None
+                        height: "36dp"
+                        md_bg_color: 1,0,0,1
+                        on_release: root.toggle_button_text(self)
+
+            MDSeparator:
+                height: "1dp"
+
+            # 5-B. 挿入画像最大数  ★★ ここが新設項目 ★★
+            MDBoxLayout:
+                orientation: "horizontal"
+                size_hint_y: None
+                height: self.minimum_height
+                spacing: "5dp"
+
+                MDBoxLayout:
+                    orientation: "horizontal"
+                    size_hint_x: 0.5
+                    size_hint_y: 1
+                    height: self.minimum_height
+                    HoverTooltipLabel:
+                        text: "挿入画像最大数"
+                        tooltip_text: "1セリフにつき画像をいくつまで重ねるか"
+                        text_size: self.width, None
+                        halign: "left"
+                        valign: "center"
+
+                MDBoxLayout:
+                    orientation: "horizontal"
+                    size_hint_x: 0.5
+                    size_hint_y: None
+                    height: "36dp"
+                    TextInput:
+                        id: max_images_text
+                        text: "3"                     # デフォルト
+                        input_filter: "int"
+                        multiline: False
+                        size_hint_x: 1
+                        height: "36dp"
+                        halign: "center"
+                        on_text: root.on_max_images_text_input(self, self.text)
+            MDSeparator:
+                height: "1dp"
+            # 8. YMM4テンプレート挿入 (新規)
+            MDBoxLayout:
+                orientation: "horizontal"
+                size_hint_y: None
+                height: self.minimum_height
+                spacing: "5dp"
+
+                MDBoxLayout:
+                    orientation: "vertical"
+                    size_hint_x: 0.5
+                    size_hint_y: 1
+                    HoverTooltipLabel:
+                        text: "YMM4テンプレート挿入"
+                        tooltip_text: "最初・途中・最後など任意の番号に挿入可能"
+                        halign: "left"
+                        valign: "center"
+
+                MDBoxLayout:
+                    orientation: "vertical"
+                    size_hint_x: 0.5
+                    size_hint_y: None
+                    height: self.minimum_height
+                    adaptive_height: True
+                    spacing: "5dp"
+                    canvas.before:
+                        Color:
+                            rgba: 1, 1, 1, 1
+                        Line:
+                            rectangle: (self.x, self.y, self.width, self.height)
+                            width: 1
+
+                    MDScrollView:
+                        size_hint_y: None
+                        height: "160dp"
+                        do_scroll_x: False
+                        do_scroll_y: True
+
+                        MDBoxLayout:
+                            id: template_box
+                            orientation: "vertical"
+                            size_hint_y: None
+                            adaptive_height: True
+                            spacing: "5dp"
+
+                    MDBoxLayout:
+                        orientation: "horizontal"
+                        size_hint_y: None
+                        height: "36dp"
+                        spacing: "5dp"
+                        canvas.before:
+                            Color:
+                                rgba: 1, 1, 1, 1
+                            Line:
+                                rectangle: (self.x, self.y, self.width, self.height)
+                                width: 1
+                        MDFlatButton:
+                            text: "追加"
+                            size_hint_x: 1
+                            on_release: root.add_template_item()
+            MDSeparator:
+                height: "1dp"
+
+            # ▼ 9. メディアのエフェクト 〈有効／無効トグル〉
+            MDBoxLayout:
+                orientation: "horizontal"
+                size_hint_y: None
+                height: self.minimum_height
+                spacing: "5dp"
+
+                MDBoxLayout:
+                    orientation: "horizontal"
+                    size_hint_x: 0.5
+                    size_hint_y: 1
+                    height: self.minimum_height
+                    HoverTooltipLabel:
+                        text: "メディアのエフェクト"
+                        tooltip_text: "ON／OFF を切り替え"
+                        halign: "left"
+                        valign: "center"
+
+                MDBoxLayout:
+                    orientation: "horizontal"
+                    size_hint_x: 0.5
+                    size_hint_y: None
+                    height: "36dp"
+                    MDFlatButton:
+                        id: media_effect_toggle_btn
+                        text: "有効"
+                        size_hint_x: 1
+                        size_hint_y: None
+                        height: "36dp"
+                        md_bg_color: 0,1,0,1
+                        on_release: root.toggle_media_effect_enable(self)
+
+            # ▼ メディアエフェクトのリスト＋追加ボタン
+            MDBoxLayout:
+                orientation: "horizontal"
+                size_hint_y: None
+                height: self.minimum_height
+                spacing: "5dp"
+
+                MDBoxLayout:
+                    orientation: "vertical"
+                    size_hint_x: 0.5
+                    size_hint_y: 1
+                    HoverTooltipLabel:
+                        text: "メディアエフェクトリスト"
+                        tooltip_text: "適用するエフェクトを管理"
+                        halign: "left"
+                        valign: "center"
+
+                MDBoxLayout:
+                    orientation: "vertical"
+                    size_hint_x: 0.5
+                    size_hint_y: None
+                    height: self.minimum_height
+                    adaptive_height: True
+                    spacing: "5dp"
+                    canvas.before:
+                        Color:
+                            rgba: 1, 1, 1, 1
+                        Line:
+                            rectangle: (self.x, self.y, self.width, self.height)
+                            width: 1
+
+                    MDScrollView:
+                        size_hint_y: None
+                        height: "160dp"
+                        do_scroll_x: False
+                        do_scroll_y: True
+
+                        MDBoxLayout:
+                            id: media_effect_box
+                            orientation: "vertical"
+                            size_hint_y: None
+                            adaptive_height: True
+                            spacing: "5dp"
+
+                    MDBoxLayout:
+                        orientation: "horizontal"
+                        size_hint_y: None
+                        height: "36dp"
+                        spacing: "5dp"
+                        canvas.before:
+                            Color:
+                                rgba: 1, 1, 1, 1
+                            Line:
+                                rectangle: (self.x, self.y, self.width, self.height)
+                                width: 1
+                        MDFlatButton:
+                            text: "追加"
+                            size_hint_x: 1
+                            on_release: root.add_media_effect_item()
+
+            MDSeparator:
+                height: "1dp"
+
+            # 10. 効果音の番号指定挿入
+            MDBoxLayout:
+                orientation: "horizontal"
+                size_hint_y: None
+                height: self.minimum_height
+                spacing: "5dp"
+                # 左カラム（固定ラベル）
+                MDBoxLayout:
+                    orientation: "vertical"
+                    size_hint_x: 0.5
+                    size_hint_y: 1
+                    height: self.minimum_height
+                    HoverTooltipLabel:
+                        text: "効果音の番号指定挿入"
+                        tooltip_text: "効果音番号と使いたい箇所を設定します"
+                        text_size: self.width, None
+                        halign: "left"
+                        valign: "center"
+                # 右カラム（追加ボタン＋スクロールビュー）
+                MDBoxLayout:
+                    orientation: "vertical"
+                    size_hint_x: 0.5
+                    size_hint_y: None
+                    height: self.minimum_height
+                    adaptive_height: True
+                    spacing: "5dp"
+                    canvas.before:
+                        Color:
+                            rgba: 1, 1, 1, 1
+                        Line:
+                            rectangle: (self.x, self.y, self.width, self.height)
+                            width: 1
+                    MDScrollView:
+                        size_hint_y: None
+                        height: "160dp"
+                        do_scroll_x: False
+                        do_scroll_y: True
+                        MDBoxLayout:
+                            id: effect_box
+                            orientation: "vertical"
+                            size_hint_y: None
+                            adaptive_height: True
+                            spacing: "5dp"
+                    MDBoxLayout:
+                        orientation: "horizontal"
+                        size_hint_y: None
+                        height: "36dp"
+                        spacing: "5dp"
+                        canvas.before:
+                            Color:
+                                rgba: 1, 1, 1, 1
+                            Line:
+                                rectangle: (self.x, self.y, self.width, self.height)
+                                width: 1
+                        MDFlatButton:
+                            text: "追加"
+                            size_hint_x: 1
+                            on_release: root.add_effect_item()
+
+            MDSeparator:
+                height: "1dp"
+
+            # 11. BGMの番号指定挿入
+            MDBoxLayout:
+                orientation: "horizontal"
+                size_hint_y: None
+                height: self.minimum_height
+                spacing: "5dp"
+                MDBoxLayout:
+                    orientation: "horizontal"
+                    size_hint_x: 0.5
+                    size_hint_y: 1
+                    height: self.minimum_height
+                    HoverTooltipLabel:
+                        text: "BGMの番号指定挿入"
+                        tooltip_text: "BGM番号と使いたい箇所を設定します"
+                        text_size: self.width, None
+                        halign: "left"
+                        valign: "center"
+                MDBoxLayout:
+                    orientation: "vertical"
+                    size_hint_x: 0.5
+                    size_hint_y: None
+                    height: self.minimum_height
+                    adaptive_height: True
+                    spacing: "5dp"
+                    canvas.before:
+                        Color:
+                            rgba: 1, 1, 1, 1
+                        Line:
+                            rectangle: (self.x, self.y, self.width, self.height)
+                            width: 1
+                    MDScrollView:
+                        size_hint_y: None
+                        height: "160dp"
+                        do_scroll_x: False
+                        do_scroll_y: True
+                        MDBoxLayout:
+                            id: bgm_box
+                            orientation: "vertical"
+                            size_hint_y: None
+                            adaptive_height: True
+                            spacing: "5dp"
+                    MDBoxLayout:
+                        orientation: "horizontal"
+                        size_hint_y: None
+                        height: "36dp"
+                        spacing: "5dp"
+                        canvas.before:
+                            Color:
+                                rgba: 1, 1, 1, 1
+                            Line:
+                                rectangle: (self.x, self.y, self.width, self.height)
+                                width: 1
+                        MDFlatButton:
+                            text: "追加"
+                            size_hint_x: 1
+                            on_release: root.add_bgm_item()
+
+            MDSeparator:
+                height: "1dp"
+
+            # 12. フォーマット (7行)
+            MDBoxLayout:
+                orientation: "horizontal"
+                size_hint_y: None
+                height: self.minimum_height
+                spacing: "5dp"
+                MDBoxLayout:
+                    orientation: "horizontal"
+                    size_hint_x: 0.5
+                    size_hint_y: 1
+                    height: self.minimum_height
+                    HoverTooltipLabel:
+                        text: "フォーマット"
+                        tooltip_text: "各種ファイルを挿入する時の命名フォーマット"
+                        text_size: self.width, None
+                        halign: "left"
+                        valign: "center"
+                # 右カラム (7行分を縦に並べる)
+                MDBoxLayout:
+                    orientation: "vertical"
+                    size_hint_x: 0.5
+                    spacing: "5dp"
+                    size_hint_y: None
+                    height: self.minimum_height
+                    adaptive_height: True
+
+                    # 1) 背景画像
+                    MDBoxLayout:
+                        orientation: "horizontal"
+                        size_hint_y: None
+                        height: self.minimum_height
+                        spacing: "5dp"
+                        HoverTooltipLabel:
+                            text: "背景画像"
+                            tooltip_text: "背景画像のファイル名フォーマット"
+                            text_size: self.width, None
+                            halign: "left"
+                            valign: "center"
+                        Spinner:
+                            id: bg_img_fmt_spinner
+                            text: "BG_Img_Fmt"
+                            values: ["BG_Img_FmtA", "BG_Img_FmtB", "BG_Img_FmtC"]
+                            size_hint_x: 2
+                            size_hint_y: None
+                            height: "36dp"
+                            option_cls: 'MySpinnerOption'
+
+                    # 2) 背景動画
+                    MDBoxLayout:
+                        orientation: "horizontal"
+                        size_hint_y: None
+                        height: self.minimum_height
+                        spacing: "5dp"
+                        HoverTooltipLabel:
+                            text: "背景動画"
+                            tooltip_text: "背景動画のファイル名フォーマット"
+                            text_size: self.width, None
+                            halign: "left"
+                            valign: "center"
+                        Spinner:
+                            id: bg_vid_fmt_spinner
+                            text: "BG_Vid_Fmt"
+                            values: ["BG_Vid_FmtA", "BG_Vid_FmtB", "BG_Vid_FmtC"]
+                            size_hint_x: 2
+                            size_hint_y: None
+                            height: "36dp"
+                            option_cls: 'MySpinnerOption'
+
+                    # 3) 画像
+                    MDBoxLayout:
+                        orientation: "horizontal"
+                        size_hint_y: None
+                        height: self.minimum_height
+                        spacing: "5dp"
+                        HoverTooltipLabel:
+                            text: "画像"
+                            tooltip_text: "画像のファイル名フォーマット"
+                            text_size: self.width, None
+                            halign: "left"
+                            valign: "center"
+                        Spinner:
+                            id: img_fmt_spinner
+                            text: "Img_Fmt"
+                            values: ["Img_FmtA", "Img_FmtB", "Img_FmtC"]
+                            size_hint_x: 2
+                            size_hint_y: None
+                            height: "36dp"
+                            option_cls: 'MySpinnerOption'
+
+                    # 4) 効果音
+                    MDBoxLayout:
+                        orientation: "horizontal"
+                        size_hint_y: None
+                        height: self.minimum_height
+                        spacing: "5dp"
+                        HoverTooltipLabel:
+                            text: "効果音"
+                            tooltip_text: "効果音のファイル名フォーマット"
+                            text_size: self.width, None
+                            halign: "left"
+                            valign: "center"
+                        Spinner:
+                            id: se_fmt_spinner
+                            text: "SE_Fmt"
+                            values: ["SE_FmtA", "SE_FmtB", "SE_FmtC"]
+                            size_hint_x: 2
+                            size_hint_y: None
+                            height: "36dp"
+                            option_cls: 'MySpinnerOption'
+
+                    # 5) 動画
+                    MDBoxLayout:
+                        orientation: "horizontal"
+                        size_hint_y: None
+                        height: self.minimum_height
+                        spacing: "5dp"
+                        HoverTooltipLabel:
+                            text: "動画"
+                            tooltip_text: "動画ファイルの命名フォーマット"
+                            text_size: self.width, None
+                            halign: "left"
+                            valign: "center"
+                        Spinner:
+                            id: video_fmt_spinner
+                            text: "Video_Fmt"
+                            values: ["Video_FmtA", "Video_FmtB", "Video_FmtC"]
+                            size_hint_x: 2
+                            size_hint_y: None
+                            height: "36dp"
+                            option_cls: 'MySpinnerOption'
+
+                    # 6) BGM
+                    MDBoxLayout:
+                        orientation: "horizontal"
+                        size_hint_y: None
+                        height: self.minimum_height
+                        spacing: "5dp"
+                        HoverTooltipLabel:
+                            text: "BGM"
+                            tooltip_text: "BGMファイルの命名フォーマット"
+                            text_size: self.width, None
+                            halign: "left"
+                            valign: "center"
+                        Spinner:
+                            id: bgm_fmt_spinner
+                            text: "BGM_Fmt"
+                            values: ["BGM_FmtA", "BGM_FmtB", "BGM_FmtC"]
+                            size_hint_x: 2
+                            size_hint_y: None
+                            height: "36dp"
+                            option_cls: 'MySpinnerOption'
+
+                    # 7) 著作権表記
+                    MDBoxLayout:
+                        orientation: "horizontal"
+                        size_hint_y: None
+                        height: self.minimum_height
+                        spacing: "5dp"
+                        HoverTooltipLabel:
+                            text: "著作権表記"
+                            tooltip_text: "クレジット表記をどう入れるか"
+                            text_size: self.width, None
+                            halign: "left"
+                            valign: "center"
+                        Spinner:
+                            id: copyright_fmt_spinner
+                            text: "Copyright_Fmt"
+                            values: ["CopyrightA", "CopyrightB", "CopyrightC"]
+                            size_hint_x: 2
+                            size_hint_y: None
+                            height: "36dp"
+                            option_cls: 'MySpinnerOption'
+
+<MySpinnerOption@SpinnerOption>:
+    size_hint_y: None
+    height: dp(40)
+    text_size: self.size
+    halign: 'center'
+    valign: 'middle'
+    shorten: True
+    shorten_from: 'right'
+    max_lines: 1
+    canvas.before:
+        Color:
+            rgba: 1, 0, 0, 1  # 赤色の枠線
+        Line:
+            rectangle: (self.x, self.y, self.width, self.height)
+            width: dp(2)
+    canvas.after:
+        Color:
+            rgba: 1, 0, 0, 1
+        Line:
+            points: [self.x, self.y, self.right, self.y]
+            width: dp(2)
+
+<MyAdaptiveButton@ButtonBehavior+MDLabel>:
+    size_hint_y: None
+    # ここで、テキストが空の場合でも最低 dp(36) の高さを保証
+    height: max(self.texture_size[1] + dp(16), dp(36))
+    text_size: self.width - dp(16), None
+    halign: "center"
+    valign: "middle"
+    md_bg_color: 0.2, 0.2, 0.2, 1
+    canvas.before:
+        Color:
+            rgba: self.md_bg_color
+        Rectangle:
+            pos: self.pos
+            size: self.size
