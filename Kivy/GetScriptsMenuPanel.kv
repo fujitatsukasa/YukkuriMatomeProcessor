@@ -297,6 +297,40 @@
                         md_bg_color: 1,0,0,1
                         # ★ -> on_toggle_comments_enable(self)
                         on_release: root.toggle_comments_enable(self)
+            MDSeparator:
+                height: "1dp"
+
+            # 8. 改行時のスレッド自動分割 (ON/OFF)   ←★追加ブロック
+            MDBoxLayout:
+                orientation: "horizontal"
+                size_hint_y: None
+                height: self.minimum_height
+                spacing: "5dp"
+
+                MDBoxLayout:
+                    orientation: "horizontal"
+                    size_hint_x: 0.5
+                    size_hint_y: 1
+                    height: self.minimum_height
+                    HoverTooltipLabel:
+                        text: "改行時のスレッド自動分割"
+                        tooltip_text: "ONにすると改行ごとに自動でスレッドを分けます"
+                        text_size: self.width, None
+                        halign: "left"
+                        valign: "center"
+
+                MDBoxLayout:
+                    orientation: "horizontal"
+                    size_hint_x: 0.5
+                    size_hint_y: None
+                    height: self.minimum_height
+                    MDFlatButton:
+                        id: auto_thread_split_btn          # ←ID を忘れずに
+                        text: "OFF"
+                        size_hint_x: 1
+                        md_bg_color: 1,0,0,1
+                        on_release: root.toggle_auto_thread_split(self)
+
 
 <MyAdaptiveButton@ButtonBehavior+MDLabel>:
     size_hint_y: None
