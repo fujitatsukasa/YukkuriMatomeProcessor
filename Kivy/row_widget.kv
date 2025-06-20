@@ -145,6 +145,19 @@
                     color: (1,1,1,0.5)
                     width: dp(2)
 
+                MergeJsonButton:                 # ★新ボタン
+                    id: merge_json_button
+                    tooltip_text: "[size=20sp]プロジェクト結合[/size]\n複数プロジェクトを選んで 1 つに連結します。"
+                    shortcut_key: "プロジェクト結合"
+                    icon_size: "40dp"
+                    icon: "source-merge"        # MDI のお好きなアイコン
+
+                MDSeparator:
+                    orientation: 'vertical'
+                    size_hint: (None, 1)
+                    color: (1,1,1,0.5)
+                    width: dp(2)
+
         BoxLayout:
             orientation: 'horizontal'
             size_hint: 1, 0.95
@@ -282,6 +295,14 @@
     shortcut_key: "動画作成-YMM4 台本自動読み込み"
     icon_size: "40dp"
     icon: "file-document-outline"  # 適切なアイコン名に変更してください
+
+<MergeJsonButton>:
+    merge_json_button: merge_json_button
+    id: merge_json_button
+    tooltip_text: root.tooltip_text
+    shortcut_key: root.shortcut_key if hasattr(root, 'shortcut_key') else ""
+    icon_size: "40dp"
+    icon: root.icon if hasattr(root, 'icon') else "source-merge"
 
 <VideoRenderingButton>:
     # 動画生成用ボタン
