@@ -72,13 +72,13 @@
                     height: self.minimum_height
                     HoverTooltipLabel:
                         text: "サイトURL"
-                        tooltip_text: "クリックするとURLを入力できます"
+                        tooltip_text: "クリックするとURLを入力できます。\nまた、履歴を押すと過去の入力したURLを選択することができます。"
                         text_size: self.width, None
                         halign: "left"
                         valign: "center"
 
                 MDBoxLayout:
-                    orientation: "horizontal"
+                    orientation: "vertical"
                     size_hint_x: 0.5
                     size_hint_y: None
                     height: self.minimum_height
@@ -88,6 +88,17 @@
                         size_hint_x: 1
                         # ★ 指定通り: site_url_button → on_text_input_touch_down("入力URL")
                         on_release: root.on_text_input_touch_down("入力URL")
+                    MDSeparator:
+                        orientation: "horizontal"
+                        size_hint: (1,None)
+                        color: (1,1,1,0.5)
+                        width: dp(2)
+                    MyAdaptiveButton:
+                        id: url_history_button
+                        text: "履歴"
+                        size_hint_x: 1
+                        on_release: root.open_history_popup()
+                
 
             MDSeparator:
                 height: "1dp"
@@ -330,6 +341,42 @@
                         size_hint_x: 1
                         md_bg_color: 1,0,0,1
                         on_release: root.toggle_auto_thread_split(self)
+
+            # ----- ここは「改行時のスレッド自動分割」の次あたり -----
+            MDSeparator:
+                height: "1dp"
+
+            # 9. 禁止ワード変換 (ON/OFF)
+            MDBoxLayout:
+                orientation: "horizontal"
+                size_hint_y: None
+                height: self.minimum_height
+                spacing: "5dp"
+
+                MDBoxLayout:
+                    orientation: "horizontal"
+                    size_hint_x: 0.5
+                    size_hint_y: 1
+                    height: self.minimum_height
+                    HoverTooltipLabel:
+                        text: "禁止ワード変換"
+                        tooltip_text: "BannedWords.json を使うか切り替え"
+                        text_size: self.width, None
+                        halign: "left"
+                        valign: "center"
+
+                MDBoxLayout:
+                    orientation: "horizontal"
+                    size_hint_x: 0.5
+                    size_hint_y: None
+                    height: self.minimum_height
+                    MDFlatButton:
+                        id: banned_words_btn
+                        text: "ON"
+                        size_hint_x: 1
+                        md_bg_color: 1, 0, 0, 1
+                        on_release: root.toggle_banned_words(self)
+
 
 
 <MyAdaptiveButton@ButtonBehavior+MDLabel>:

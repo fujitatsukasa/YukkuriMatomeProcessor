@@ -114,6 +114,7 @@
                         height: "36dp"
                         option_cls: 'MySpinnerOption'
                         on_text: root.on_asset_subfolder_select(self.text)
+                        on_release: root.refresh_asset_subfolders()
 
             MDSeparator:
                 height: "1dp"
