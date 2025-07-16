@@ -105,6 +105,8 @@
                     size_hint_x: 0.5
                     size_hint_y: None
                     height: dp(36)
+                    spacing: "4dp"
+
                     Spinner:
                         id: asset_spinner
                         text: "選択してください"
@@ -115,6 +117,14 @@
                         option_cls: 'MySpinnerOption'
                         on_text: root.on_asset_subfolder_select(self.text)
                         on_release: root.refresh_asset_subfolders()
+
+                    HoverIconButton:
+                        icon: "folder-open"         # お好みのアイコン
+                        size_hint_x: None
+                        width: dp(30)
+                        tooltip_text: "画像フォルダを開く"
+                        hover_enabled: False
+                        on_release: root.open_asset_folder()
 
             MDSeparator:
                 height: "1dp"

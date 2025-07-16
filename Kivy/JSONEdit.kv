@@ -96,6 +96,13 @@
                     # テキスト入力のたびに検索処理を実行
                     on_text: root.on_search_input(self, self.text)
 
+                # ← ここで DynamicHeader を挿入
+                DynamicHeader:
+                    id: json_header
+                    # デフォルトは「キーワード / フォルダ名」
+                    left_title: 'キーワード'
+                    right_title: 'フォルダ名'
+
                 # JSONEdit_RV（RecycleView）
                 JSONEdit_RV:
                     id: json_rv_widget
@@ -142,3 +149,39 @@
         default_size_hint: 1, None
         size_hint_y: None
         height: self.minimum_height
+
+<DynamicHeader@BoxLayout>:
+    left_title: ''       # 左側の見出しテキスト
+    right_title: ''      # 右側の見出しテキスト
+    size_hint_y: None
+    height: dp(36)
+    orientation: 'horizontal'
+
+    canvas.before:
+        Color:
+            rgba: 0.2, 0.2, 0.2, 1    # 背景色
+        Rectangle:
+            pos: self.pos
+            size: self.size
+
+    Label:
+        text: root.left_title
+        size_hint_x: 0.5
+        color: 1,1,1,1
+        font_size: self.height * 0.5
+        halign: 'center'
+        valign: 'middle'
+        text_size: self.size
+
+    MDSeparator:
+        orientation: 'vertical'
+        color: 1,1,1,0.5
+
+    Label:
+        text: root.right_title
+        size_hint_x: 0.5
+        color: 1,1,1,1
+        font_size: self.height * 0.5
+        halign: 'center'
+        valign: 'middle'
+        text_size: self.size
