@@ -43,6 +43,8 @@
                         icon: "file-find-outline"
                         text: "台本取得"
                         selected: False
+                        # premium または script_get_only のときのみ有効
+                        disabled: app.membership_status not in ["premium", "trial", "script_get_only"]
                         on_press:
                             root.ids.screen_manager.current = "GetScripts"
 
@@ -51,6 +53,7 @@
                         icon: "movie-open-edit"
                         text: "台本編集"
                         selected: False
+                        disabled: app.membership_status not in ["premium", "trial"]
                         on_press:
                             root.ids.screen_manager.current = "ScriptEdit"
 
