@@ -7,6 +7,12 @@ on:
       - 'tools/collect_actual_memes_v20r8.py'
       - '.github/workflows/collect-actual-memes-v20r8.yml'
       - 'ACTUAL_MEME_TRIGGER_V20R8.txt'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'tools/collect_actual_memes_v20r8.py'
+      - '.github/workflows/collect-actual-memes-v20r8.yml'
+      - 'ACTUAL_MEME_TRIGGER_V20R8.txt'
   workflow_dispatch:
 
 permissions:
