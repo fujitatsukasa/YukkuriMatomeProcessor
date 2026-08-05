@@ -1,0 +1,16 @@
+name: Temporary Irodori runner probe
+
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened, ready_for_review]
+
+jobs:
+  probe:
+    if: startsWith(github.head_ref, 'tmp/irodori-runner-probe-')
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - run: |
+          uname -a
+          echo runner-ready
