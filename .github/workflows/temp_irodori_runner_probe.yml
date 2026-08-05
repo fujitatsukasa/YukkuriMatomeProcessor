@@ -14,8 +14,62 @@ permissions:
   actions: read
 
 jobs:
+  prepare-models:
+    if: startsWith(github.head_ref, 'tmp/irodori-runner-probe-')
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - name: Fetch Irodori and DACVAE weights through their public Git repositories
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y git-lfs
+          git lfs install
+          mkdir -p staged_models
+
+          clone_hf_repo() {
+            local url="$1"
+            local dst="$2"
+            local include="$3"
+            for wait_seconds in 0 30 60 120 240 300; do
+              if [ "$wait_seconds" -gt 0 ]; then sleep "$wait_seconds"; fi
+              rm -rf "$dst"
+              if GIT_LFS_SKIP_SMUDGE=1 git clone --depth 1 "$url" "$dst"; then
+                (
+                  cd "$dst"
+                  git lfs pull --include="$include" --exclude=""
+                ) && return 0
+              fi
+            done
+            return 1
+          }
+
+          clone_hf_repo \
+            https://huggingface.co/Aratako/Irodori-TTS-v4-Small \
+            staged_models/irodori \
+            'model.safetensors,tokenizer/**'
+
+          clone_hf_repo \
+            https://huggingface.co/Aratako/Semantic-DACVAE-Japanese-32dim \
+            staged_models/codec \
+            'weights.pth'
+
+          test -s staged_models/irodori/model.safetensors
+          test -f staged_models/irodori/tokenizer/tokenizer_config.json
+          test -s staged_models/codec/weights.pth
+          du -sh staged_models/irodori staged_models/codec
+          sha256sum staged_models/irodori/model.safetensors staged_models/codec/weights.pth > staged_models/model_sha256.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: irodori-v4-staged-models
+          path: staged_models/
+          if-no-files-found: error
+          retention-days: 3
+          compression-level: 0
+
   generate-voice:
     if: startsWith(github.head_ref, 'tmp/irodori-runner-probe-')
+    needs: prepare-models
     strategy:
       fail-fast: false
       max-parallel: 8
@@ -24,17 +78,22 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 240
     env:
-      HF_XET_HIGH_PERFORMANCE: '1'
-      HF_HUB_DISABLE_PROGRESS_BARS: '1'
-      HF_HUB_DOWNLOAD_TIMEOUT: '600'
+      HF_HUB_OFFLINE: '1'
+      TRANSFORMERS_OFFLINE: '1'
       TOKENIZERS_PARALLELISM: 'false'
       VOICE_INDEX: ${{ matrix.voice }}
+      IRODORI_LOCAL_CHECKPOINT: ${{ github.workspace }}/staged_models/irodori/model.safetensors
+      IRODORI_LOCAL_CODEC: ${{ github.workspace }}/staged_models/codec/weights.pth
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - name: Fetch pinned generation scripts and install current Irodori v4-Small runtime
+      - uses: actions/download-artifact@v4
+        with:
+          name: irodori-v4-staged-models
+          path: staged_models
+      - name: Fetch pinned generation scripts and install current Irodori runtime
         run: |
           sudo apt-get update
           sudo apt-get install -y ffmpeg libsndfile1 git
@@ -46,10 +105,10 @@ jobs:
           cd Irodori-TTS
           uv sync --extra cpu
           uv pip install openai-whisper rapidfuzz pykakasi scipy soundfile
-      - name: Generate ten matched speaking styles for one fresh voice
+      - name: Generate ten matched speaking styles for one fresh voice, fully offline
         run: |
           cd voice_build/Irodori-TTS
-          uv run --no-sync python ../tools/generate_irodori_v4_voice_from_scratch.py
+          uv run --no-sync python ../../../scripts/run_irodori_with_local_models.py
       - uses: actions/upload-artifact@v4
         if: always()
         with:
