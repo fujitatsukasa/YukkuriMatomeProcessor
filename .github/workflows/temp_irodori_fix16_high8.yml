@@ -38,6 +38,7 @@ jobs:
           curl -fsSL "https://raw.githubusercontent.com/fujitatsukasa/fujitatsukasa.github.io/${GENERATOR_COMMIT}/tools/irodori_fix16_spec.py" -o tools/irodori_fix16_spec.py
           curl -fsSL "https://raw.githubusercontent.com/fujitatsukasa/fujitatsukasa.github.io/${GENERATOR_COMMIT}/tools/generate_irodori_fix16_public.py" -o tools/generate_irodori_fix16_public.py
           curl -fsSL "https://raw.githubusercontent.com/fujitatsukasa/fujitatsukasa.github.io/${GENERATOR_COMMIT}/tools/generate_irodori_final_delivery.py" -o tools/generate_irodori_final_delivery.py
+          curl -fsSL "https://raw.githubusercontent.com/fujitatsukasa/fujitatsukasa.github.io/${GENERATOR_COMMIT}/tools/irodori_final_delivery_spec.py" -o tools/irodori_final_delivery_spec.py
 
       - name: Install official Irodori and validation tools
         run: |
