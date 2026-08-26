@@ -1,0 +1,162 @@
+name: Temporary Takubo Article Video and Official Page Fetch
+
+on:
+  push:
+    paths:
+      - '.github/workflows/takubo_asset_fetch2.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  fetch-more-assets:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install tools
+        run: |
+          set -euxo pipefail
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg jq
+          python -m pip install --upgrade 'yt-dlp[default]' curl_cffi requests beautifulsoup4
+
+      - name: Fetch article videos and official page screenshots
+        shell: bash
+        run: |
+          set -euxo pipefail
+          mkdir -p out/videos out/screens out/meta out/html
+
+          cat > /tmp/extract_media.py <<'PY'
+          import json, re
+          from pathlib import Path
+          from urllib.parse import urljoin
+          from curl_cffi import requests
+          from bs4 import BeautifulSoup
+
+          pages = {
+              '最新報道_テレ朝_20260825': 'https://news.tv-asahi.co.jp/news_society/articles/000528593.html',
+              '家宅捜索_テレ朝_20260215': 'https://news.tv-asahi.co.jp/news_society/articles/900184057.html',
+              '任意聴取_テレ朝_20260130': 'https://news.tv-asahi.co.jp/news_society/articles/900183006.html',
+              '最新報道_TBS_20260825': 'https://newsdig.tbs.co.jp/articles/sbs/2893791?display=1',
+              '最新報道_NNN_20260825': 'https://news.ntv.co.jp/category/society/3bb624e346ec4f7884e0674dc2c72731',
+          }
+          sess = requests.Session(impersonate='chrome')
+          for stem, url in pages.items():
+              try:
+                  r = sess.get(url, timeout=60)
+                  r.raise_for_status()
+                  Path(f'out/html/{stem}.html').write_text(r.text, encoding='utf-8')
+                  soup = BeautifulSoup(r.text, 'html.parser')
+                  urls=[]
+                  for tag in soup.find_all(['video','source','iframe']):
+                      for a in ['src','data-src','data-video-url']:
+                          if tag.get(a): urls.append(urljoin(r.url, tag[a]))
+                  patterns = [
+                    r'https?://[^"\'<>\\ ]+\.m3u8[^"\'<>\\ ]*',
+                    r'https?://[^"\'<>\\ ]+\.mp4[^"\'<>\\ ]*',
+                    r'https?:\\?/\\?/[^"\'<> ]+?\.m3u8[^"\'<> ]*',
+                    r'https?:\\?/\\?/[^"\'<> ]+?\.mp4[^"\'<> ]*',
+                  ]
+                  for pat in patterns:
+                      for m in re.findall(pat, r.text):
+                          urls.append(m.replace('\\/','/'))
+                  # Brightcove account/player/video IDs often appear in script data.
+                  text=r.text
+                  vids=set(re.findall(r'(?:videoId|video_id|video-id)["\'\s:=]+([0-9]{8,})', text, re.I))
+                  accounts=set(re.findall(r'(?:account|accountId|account_id)["\'\s:=]+([0-9]{6,})', text, re.I))
+                  players=set(re.findall(r'(?:player|playerId|player_id)["\'\s:=]+([A-Za-z0-9_-]{5,})', text, re.I))
+                  info={'page_url':url,'resolved_url':r.url,'media_urls':list(dict.fromkeys(urls)),'brightcove_video_ids':sorted(vids),'accounts':sorted(accounts),'players':sorted(players)}
+                  Path(f'out/meta/{stem}_media.json').write_text(json.dumps(info,ensure_ascii=False,indent=2),encoding='utf-8')
+              except Exception as e:
+                  Path(f'out/meta/{stem}_error.txt').write_text(repr(e),encoding='utf-8')
+          PY
+          python /tmp/extract_media.py
+
+          try_video () {
+            local stem="$1"; shift
+            for url in "$@"; do
+              echo "TRY $stem $url" | tee -a out/meta/yt_dlp.log
+              if yt-dlp --no-playlist --impersonate chrome --retries 3 --fragment-retries 3 \
+                  -f 'bv*[height<=720]+ba/b[height<=720]' --merge-output-format mp4 \
+                  --write-info-json --write-thumbnail --convert-thumbnails jpg \
+                  -o "out/videos/${stem}.%(ext)s" "$url" 2>&1 | tee -a out/meta/yt_dlp.log; then
+                if compgen -G "out/videos/${stem}*.mp4" > /dev/null; then return 0; fi
+              fi
+            done
+            return 0
+          }
+
+          try_video '101_最新報道_NNN_20260825' \
+            'https://news.ntv.co.jp/category/society/3bb624e346ec4f7884e0674dc2c72731' \
+            'https://www.youtube.com/watch?v=zVjQfzZPKqU'
+          try_video '102_最新報道_テレ朝_20260825' \
+            'https://news.tv-asahi.co.jp/news_society/articles/000528593.html'
+          try_video '103_家宅捜索_テレ朝_20260215' \
+            'https://news.tv-asahi.co.jp/news_society/articles/900184057.html' \
+            'https://www.youtube.com/watch?v=z2aw18A-OAU'
+          try_video '104_任意聴取_テレ朝_20260130' \
+            'https://news.tv-asahi.co.jp/news_society/articles/900183006.html' \
+            'https://www.youtube.com/watch?v=iL3x2wPk4qk'
+          try_video '105_最新報道_TBS_20260825' \
+            'https://newsdig.tbs.co.jp/articles/sbs/2893791?display=1' \
+            'https://newsdig.tbs.co.jp/articles/-/2893791?display=1'
+          try_video '106_百条委員会_報道ステーション_20250813' \
+            'https://www.youtube.com/watch?v=Qwt0xdDUQGI'
+          try_video '107_記者会見ノーカット_20250702' \
+            'https://www.youtube.com/watch?v=pRG2eglOpWM'
+
+          # Try media URLs extracted directly from article HTML.
+          python - <<'PY'
+          import json, subprocess
+          from pathlib import Path
+          for p in Path('out/meta').glob('*_media.json'):
+              data=json.loads(p.read_text(encoding='utf-8'))
+              stem='200_'+p.stem.replace('_media','')
+              for i,url in enumerate(data.get('media_urls',[]),1):
+                  out=f'out/videos/{stem}_{i:02d}.mp4'
+                  try:
+                      subprocess.run(['ffmpeg','-y','-loglevel','warning','-headers','User-Agent: Mozilla/5.0\r\nReferer: '+data['page_url']+'\r\n','-i',url,'-t','00:05:00','-c','copy',out],timeout=600,check=True)
+                      if Path(out).stat().st_size>100000: break
+                  except Exception:
+                      Path(out).unlink(missing_ok=True)
+          PY
+
+          # Official page screenshots. GitHub-hosted Chrome is used only to capture the public pages as displayed.
+          CHROME="$(command -v google-chrome || command -v google-chrome-stable || command -v chromium || command -v chromium-browser || true)"
+          echo "CHROME=$CHROME" > out/meta/chrome.txt
+          shot () {
+            local name="$1"; local url="$2"
+            if [ -n "$CHROME" ]; then
+              "$CHROME" --headless --disable-gpu --no-sandbox --hide-scrollbars \
+                --window-size=1600,1200 --virtual-time-budget=12000 \
+                --screenshot="out/screens/${name}.png" "$url" || true
+            fi
+          }
+          shot '301_東洋大学_卒業証書に関する公式見解_20250806' 'https://www.toyo.ac.jp/news/20250806-17927.html'
+          shot '302_東洋大学_通信教育課程証明書発行' 'https://www.toyo.ac.jp/academics/tsukyo/certificate/'
+          shot '303_東洋大学_証明書発行窓口' 'https://www.toyo.ac.jp/campuslife/student_support/info/'
+          shot '304_裁判所_刑事事件QandA_公判前整理手続' 'https://www.courts.go.jp/saiban/qa/qa_keizi/index.html'
+          shot '305_裁判所_刑事裁判の流れ' 'https://www.courts.go.jp/saibanin/introduction/kids/kidz/a7_1/index.html'
+          shot '306_伊東市議会_百条委員会公式ページ' 'https://www.city.ito.shizuoka.jp/gyosei/shiseijoho/100jouiinkai/index.html'
+          shot '307_eGov刑法_有印私文書偽造' 'https://laws.e-gov.go.jp/law/140AC0000000045'
+
+          for v in out/videos/*.mp4; do
+            [ -e "$v" ] || continue
+            base="$(basename "$v" .mp4)"
+            ffprobe -v error -show_format -show_streams -of json "$v" > "out/meta/${base}_ffprobe.json" || true
+            ffmpeg -hide_banner -loglevel error -ss 00:00:02 -i "$v" -frames:v 1 "out/screens/${base}_代表フレーム.jpg" || true
+          done
+
+          find out -type f -size 0 -delete
+          find out -type f -printf '%s %p\n' | sort -n > out/meta/file_sizes.txt
+
+      - name: Upload temporary asset bundle
+        uses: actions/upload-artifact@v4
+        with:
+          name: takubo-more-real-assets-${{ github.run_id }}
+          path: out
+          if-no-files-found: error
+          retention-days: 1
+          compression-level: 0
