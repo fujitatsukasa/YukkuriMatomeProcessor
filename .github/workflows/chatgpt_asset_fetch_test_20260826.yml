@@ -1,0 +1,26 @@
+name: ChatGPT Asset Fetch Test 20260826
+
+on:
+  push:
+    paths:
+      - '.github/workflows/chatgpt_asset_fetch_test_20260826.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download one public image
+        run: |
+          mkdir -p out
+          curl -L --fail --retry 3 -A 'Mozilla/5.0' 'https://www.nikkansports.com/general/nikkan/news/img/202507020000704-w1300_2.jpg' -o 'out/test.jpg'
+          file out/test.jpg
+          ls -lh out/test.jpg
+      - uses: actions/upload-artifact@v4
+        with:
+          name: test-asset-20260826
+          path: out/
+          retention-days: 1
