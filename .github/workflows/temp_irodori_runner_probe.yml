@@ -1,0 +1,175 @@
+name: Temporary Irodori v4-Small final 8 voices
+
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened, ready_for_review]
+
+concurrency:
+  group: temporary-irodori-final-pr-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  prepare-models:
+    if: startsWith(github.head_ref, 'tmp/irodori-runner-probe-')
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - name: Fetch Irodori and DACVAE weights through their public Git repositories
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y git-lfs
+          git lfs install
+          mkdir -p staged_models
+
+          clone_hf_repo() {
+            local url="$1"
+            local dst="$2"
+            local include="$3"
+            for wait_seconds in 0 30 60 120 240 300; do
+              if [ "$wait_seconds" -gt 0 ]; then sleep "$wait_seconds"; fi
+              rm -rf "$dst"
+              if GIT_LFS_SKIP_SMUDGE=1 git clone --depth 1 "$url" "$dst"; then
+                (
+                  cd "$dst"
+                  git lfs pull --include="$include" --exclude=""
+                ) && return 0
+              fi
+            done
+            return 1
+          }
+
+          clone_hf_repo \
+            https://huggingface.co/Aratako/Irodori-TTS-v4-Small \
+            staged_models/irodori \
+            'model.safetensors,tokenizer/**'
+
+          clone_hf_repo \
+            https://huggingface.co/Aratako/Semantic-DACVAE-Japanese-32dim \
+            staged_models/codec \
+            'weights.pth'
+
+          test -s staged_models/irodori/model.safetensors
+          test -f staged_models/irodori/tokenizer/tokenizer_config.json
+          test -s staged_models/codec/weights.pth
+          du -sh staged_models/irodori staged_models/codec
+          sha256sum staged_models/irodori/model.safetensors staged_models/codec/weights.pth > staged_models/model_sha256.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: irodori-v4-staged-models
+          path: staged_models/
+          if-no-files-found: error
+          retention-days: 3
+          compression-level: 0
+
+  generate-voice:
+    if: startsWith(github.head_ref, 'tmp/irodori-runner-probe-')
+    needs: prepare-models
+    strategy:
+      fail-fast: false
+      max-parallel: 8
+      matrix:
+        voice: [0, 1, 2, 3, 4, 5, 6, 7]
+    runs-on: ubuntu-latest
+    timeout-minutes: 240
+    env:
+      HF_HUB_OFFLINE: '1'
+      TRANSFORMERS_OFFLINE: '1'
+      TOKENIZERS_PARALLELISM: 'false'
+      VOICE_INDEX: ${{ matrix.voice }}
+      IRODORI_LOCAL_CHECKPOINT: ${{ github.workspace }}/staged_models/irodori/model.safetensors
+      IRODORI_LOCAL_CODEC: ${{ github.workspace }}/staged_models/codec/weights.pth
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/download-artifact@v4
+        with:
+          name: irodori-v4-staged-models
+          path: staged_models
+      - name: Fetch pinned generation scripts and install current Irodori runtime
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg libsndfile1 git
+          python -m pip install --upgrade pip uv
+          git clone https://github.com/fujitatsukasa/fujitatsukasa.github.io.git voice_build
+          cd voice_build
+          git checkout 115753161b86fe7cecedb26ef284c35b1624b6b0
+          git clone --depth 1 https://github.com/Aratako/Irodori-TTS.git Irodori-TTS
+          cd Irodori-TTS
+          uv sync --extra cpu
+          uv pip install openai-whisper rapidfuzz pykakasi scipy soundfile
+      - name: Generate ten matched speaking styles for one fresh voice, fully offline
+        run: |
+          cd voice_build/Irodori-TTS
+          uv run --no-sync python ../../../scripts/run_irodori_with_local_models.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: irodori-v4-final-voice-${{ matrix.voice }}
+          path: |
+            voice_build/irodori_finish_work/最終モノラル/
+            voice_build/irodori_finish_work/ASMR耳元ステレオ/
+            voice_build/irodori_finish_work/検証/
+          if-no-files-found: error
+          retention-days: 3
+          compression-level: 0
+
+  package:
+    if: startsWith(github.head_ref, 'tmp/irodori-runner-probe-')
+    needs: generate-voice
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Fetch pinned packaging scripts and install independent validation tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg libsndfile1 git
+          python -m pip install --upgrade pip
+          python -m pip install openai-whisper rapidfuzz pykakasi numpy scipy soundfile
+          git clone https://github.com/fujitatsukasa/fujitatsukasa.github.io.git voice_build
+          cd voice_build
+          git checkout 115753161b86fe7cecedb26ef284c35b1624b6b0
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: irodori-v4-final-voice-*
+          path: voice_build/downloaded_fresh
+          merge-multiple: true
+      - name: Re-transcribe all 80 WAVs, validate, and create Japanese WAV-only ZIPs
+        run: |
+          cd voice_build
+          python tools/package_irodori_v4_fresh_v2.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: irodori-v4-final-80wav
+          path: voice_build/irodori_v4_fresh_output/Irodori_v4_中高音8声_各10話法_明瞭再生成版_80WAV_日本語.zip
+          if-no-files-found: error
+          retention-days: 3
+          compression-level: 0
+      - uses: actions/upload-artifact@v4
+        with:
+          name: irodori-v4-final-asmr
+          path: voice_build/irodori_v4_fresh_output/Irodori_v4_ASMR耳元ステレオ_8声8WAV_日本語.zip
+          if-no-files-found: error
+          retention-days: 3
+          compression-level: 0
+      - uses: actions/upload-artifact@v4
+        with:
+          name: irodori-v4-final-validation
+          path: |
+            voice_build/irodori_v4_fresh_output/Irodori_v4_明瞭再生成版_検証資料.zip
+            voice_build/irodori_v4_fresh_output/最終集計.json
+            voice_build/irodori_v4_fresh_output/SHA256SUMS.txt
+          if-no-files-found: error
+          retention-days: 3
+          compression-level: 0
