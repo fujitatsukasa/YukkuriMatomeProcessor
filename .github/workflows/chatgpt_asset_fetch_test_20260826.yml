@@ -1,4 +1,4 @@
-name: ChatGPT Asset Fetch 20260826
+name: ChatGPT Video Retry 20260826
 
 on:
   push:
@@ -10,228 +10,244 @@ permissions:
   contents: read
 
 jobs:
-  fetch-assets:
+  fetch-video:
     runs-on: ubuntu-latest
     timeout-minutes: 45
     steps:
       - uses: actions/setup-python@v5
         with:
-          python-version: '3.12'
+          python-version: '3.13'
 
-      - name: Install tools
+      - name: Install video tools
         run: |
           sudo apt-get update -qq
-          sudo apt-get install -y -qq poppler-utils ffmpeg
+          sudo apt-get install -y -qq ffmpeg jq
           python -m pip install --upgrade pip
-          python -m pip install requests beautifulsoup4 pillow yt-dlp
+          python -m pip install --upgrade --pre 'yt-dlp[default,curl-cffi]' requests curl_cffi beautifulsoup4
+          yt-dlp --version | tee yt_dlp_version.txt
+          yt-dlp --list-impersonate-targets | tee impersonation_targets.txt || true
 
-      - name: Download still images, official PDFs and exact page captures
+      - name: Try news article native video and Pexels with browser impersonation
         shell: bash
         run: |
-          set -u
-          mkdir -p collected/raw collected/rendered collected/screens collected/videos collected/stock
+          set +e
+          mkdir -p retry/article retry/stock retry/logs retry/youtube
+          : > retry/logs/yt_dlp_retry.log
+
+          try_page () {
+            name="$1"; url="$2"
+            echo "===== $name =====" >> retry/logs/yt_dlp_retry.log
+            yt-dlp --impersonate chrome --extractor-args 'generic:impersonate' \
+              --no-playlist --retries 3 --fragment-retries 3 \
+              -f 'bv*[height<=720]+ba/b[height<=720]/best[height<=720]' \
+              --download-sections '*0-100' --force-keyframes-at-cuts \
+              --merge-output-format mp4 -o "retry/article/${name}.%(ext)s" "$url" \
+              >> retry/logs/yt_dlp_retry.log 2>&1
+          }
+          try_page '301_テレビ朝日_パソコン偽造データ報道' 'https://news.tv-asahi.co.jp/news_society/articles/900197920.html'
+          try_page '302_TBS_パソコン偽造データ報道' 'https://newsdig.tbs.co.jp/articles/-/2893791?display=1'
+          try_page '303_FNN_パソコン偽造データ報道' 'https://www.fnn.jp/articles/-/1101288'
+          try_page '304_LOOK_パソコン偽造データ報道' 'https://look.satv.co.jp/content_news/incident/96078'
+
+          try_stock () {
+            name="$1"; url="$2"
+            echo "===== $name =====" >> retry/logs/yt_dlp_retry.log
+            yt-dlp --impersonate chrome --extractor-args 'generic:impersonate' \
+              --no-playlist --retries 3 --fragment-retries 3 \
+              -f 'best[height<=720]/best' --merge-output-format mp4 \
+              -o "retry/stock/${name}.%(ext)s" "$url" \
+              >> retry/logs/yt_dlp_retry.log 2>&1
+          }
+          try_stock '401_パソコンでファイルを扱う手元_Pexels' 'https://www.pexels.com/video/close-up-of-a-laptop-and-a-desktop-computer-7989695/'
+          try_stock '402_プリンターへ用紙を入れる手元_Pexels' 'https://www.pexels.com/video/close-up-on-putting-paper-in-printer-10476939/'
+          try_stock '403_USBメモリーを挿す手元_Pexels' 'https://www.pexels.com/video/usb-flash-drive-17741155/'
+          try_stock '404_ネット注文をする手元_Pexels' 'https://www.pexels.com/video/a-person-using-a-laptop-while-holding-a-credit-card-6994837/'
+          try_stock '405_法律文書を確認する手元_Pexels' 'https://www.pexels.com/video/person-reading-a-papers-8061377/'
+          try_stock '406_弁護士が書類を説明する場面_Pexels' 'https://www.pexels.com/video/a-lawyer-talking-to-his-clients-8061607/'
+          try_stock '407_複数人で資料を照合する場面_Pexels' 'https://www.pexels.com/video/people-working-on-the-desks-5636968/'
+          true
+
+      - name: Retrieve public YouTube videos through current public frontends
+        shell: bash
+        run: |
+          set +e
           python <<'PY'
           from __future__ import annotations
-          import json, pathlib, re
-          from urllib.parse import urljoin, urlparse
+          import json, os, pathlib, re, shutil, subprocess, time
+          from urllib.parse import urlparse
           import requests
-          from bs4 import BeautifulSoup
 
-          root = pathlib.Path('collected')
+          root = pathlib.Path('retry')
+          outdir = root / 'youtube'
+          outdir.mkdir(parents=True, exist_ok=True)
           log = []
-          session = requests.Session()
-          session.headers.update({
-              'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/151 Safari/537.36',
-              'Accept-Language': 'ja,en-US;q=0.8,en;q=0.6',
-          })
+          s = requests.Session()
+          s.headers.update({'User-Agent':'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 Chrome/151 Safari/537.36','Accept':'application/json,text/plain,*/*'})
 
-          direct_files = [
-              ('raw/001_田久保真紀氏_2025年7月記者会見_日刊スポーツ共同.jpg', 'https://www.nikkansports.com/general/nikkan/news/img/202507020000704-w1300_2.jpg'),
-              ('raw/002_田久保真紀氏_百条委員会出頭_日刊スポーツ共同.jpg', 'https://www.nikkansports.com/general/nikkan/news/img/202508130000427-w1300_0.jpg'),
-              ('raw/003_伊東市議会_本会議場_TBS.jpg', 'https://newsdig.ismcdn.jp/mwimgs/f/7/680mw/img_f71ea28fc141ef78da8557fce61fdce5165841.jpg'),
-              ('raw/004_田久保真紀氏_卒業証書提出拒否報道_TBS_X.jpg', 'https://pbs.twimg.com/card_img/2022217738438000640/c1XjrhME?format=jpg&name=orig'),
-              ('raw/005_田久保真紀氏_百条委員会追及_テレビ朝日.jpg', 'https://news.tv-asahi.co.jp/articles_img/900171204_1200.jpg'),
-              ('raw/006_東洋大学卒業証書コピー_テレビ朝日.jpg', 'https://news.tv-asahi.co.jp/articles_img/900171172_img_b1ef6b0123692846ec1ade147d76667480130.jpg'),
-              ('raw/007_偽印鑑ネット発注報道_TBS.jpg', 'https://newsdig.ismcdn.jp/mwimgs/7/4/-/img_74c9863ad497bc01142f6356a7aaeadc348374.jpg'),
-              ('raw/008_家宅捜索と押収拒絶権報道_ABEMA.jpg', 'https://times-abema.ismcdn.jp/mwimgs/e/2/750w/img_e219b072a7f22255555c96ff931a580448477.jpg'),
-              ('raw/009_田久保真紀氏_夜間取材_静岡第一テレビ.jpg', 'https://image.news.livedoor.com/newsimage/stf/7/5/75fda_1800_8cf6e299_0310b042-wi.jpg'),
-              ('raw/010_伊東市役所庁舎_静岡フィルムコミッション.jpg', 'https://www.shizuoka-fc.net/cms/files/fc/MASTER/0200/5HKmqUEhOu0pwpJV7d92.jpg'),
-              ('raw/011_東洋大学白山キャンパス_東洋大学公式.jpg', 'https://www.toyo.ac.jp/assets/about/hakusan_h.jpg'),
-              ('raw/012_田久保真紀氏_2025年11月会見_共同.jpg', 'https://image.news.livedoor.com/newsimage/stf/3/4/34a95_1238_3d0ca6769e54bfbf809a6d1c8ddc1a08.jpg'),
-              ('raw/013_伊東市役所別角度_報道写真.jpg', 'https://www.kk-bestsellers.com/wp-content/uploads/10000000000000123064_20250702195648911983_P180619000159.jpg'),
+          videos = [
+              ('501_パソコンから偽造データ発見_NNN','zVjQfzZPKqU',95),
+              ('502_田久保氏宅の家宅捜索_NNN','0nme1WkB6R8',95),
+              ('503_田久保氏在宅起訴_NNN','yKexh43x8Rw',95),
+              ('504_田久保氏宅の家宅捜索_SBS','dfZI8W5ys1c',95),
+              ('505_田久保氏宅の家宅捜索_テレビ朝日','-CMjqicghx8',95),
+              ('506_田久保氏記者会見ノーカット','UBcAjuBHKV8',125),
+              ('507_田久保氏百条委員会','-nlIdtE2Zpo',125),
+              ('508_百条委員会虚偽陳述報道','2XYALVGYMUU',95),
+              ('509_パソコン偽造データ最新短報','uWUHhAaEpBE',95),
           ]
-          pdfs = [
-              ('raw/伊東市議会_百条委員会要点_2025年8月29日.pdf', 'https://www.city.ito.shizuoka.jp/material/files/group/32/R070829_hyakujyo_youten.pdf'),
-              ('raw/伊東市議会_百条委員会要点_2025年7月29日.pdf', 'https://www.city.ito.shizuoka.jp/material/files/group/32/R070729_hyakujyo_youten1.pdf'),
+          piped = [
+              'https://pipedapi.kavin.rocks',
+              'https://pipedapi.tokhmi.xyz',
+              'https://pipedapi.moomoo.me',
+              'https://pipedapi.syncpundit.io',
+              'https://api-piped.mha.fi',
+              'https://pipedapi.adminforge.de',
+              'https://pipedapi.reallyaweso.me',
           ]
-          pages = [
-              ('東洋大学公式_本学に係る報道について', 'https://www.toyo.ac.jp/news/20250806-17927.html'),
-              ('裁判所公式_刑事事件Q&A', 'https://www.courts.go.jp/saiban/qa/qa_keizi/index.html'),
-              ('裁判所公式_刑事裁判の流れ', 'https://www.courts.go.jp/saibanin/introduction/kids/kidz/a7_1/index.html'),
-              ('e-Gov法令検索_刑法', 'https://laws.e-gov.go.jp/law/140AC0000000045'),
-              ('伊東市公式_市役所アクセス', 'https://www.city.ito.shizuoka.jp/gyosei/soshikikarasagasu/sisan/shiseijoho/2/2/2134.html'),
-              ('テレビ朝日_パソコン偽造データ最新報道', 'https://news.tv-asahi.co.jp/news_society/articles/900197920.html'),
-              ('TBS_パソコン偽造データ最新報道', 'https://newsdig.tbs.co.jp/articles/-/2893791?display=1'),
-              ('FNN_パソコン偽造データ最新報道', 'https://www.fnn.jp/articles/-/1101288'),
-              ('LOOK静岡朝日_パソコン偽造データ最新報道', 'https://look.satv.co.jp/content_news/incident/96078'),
-              ('2NN_関連スレッド反応', 'https://www.2nn.jp/newsplus/1787639074/'),
+          invidious = [
+              'https://inv.nadeko.net',
+              'https://invidious.nerdvpn.de',
+              'https://yt.chocolatemoo53.com',
           ]
 
-          def fetch(url: str, path: pathlib.Path) -> bool:
-              path.parent.mkdir(parents=True, exist_ok=True)
+          def quality_num(v):
+              q = str(v.get('quality') or v.get('qualityLabel') or '')
+              m = re.search(r'(\d+)', q)
+              return int(m.group(1)) if m else 0
+
+          def download_url(url, path, referer=None):
+              headers={'User-Agent':s.headers['User-Agent']}
+              if referer: headers['Referer']=referer
               try:
-                  r = session.get(url, timeout=50, allow_redirects=True)
-                  r.raise_for_status()
-                  if len(r.content) < 500:
-                      raise RuntimeError(f'too small: {len(r.content)}')
-                  path.write_bytes(r.content)
-                  log.append({'kind':'download','url':url,'path':str(path),'status':'ok','bytes':len(r.content),'content_type':r.headers.get('content-type','')})
-                  return True
-              except Exception as exc:
-                  log.append({'kind':'download','url':url,'path':str(path),'status':'failed','error':repr(exc)})
-                  return False
+                  with s.get(url, headers=headers, stream=True, timeout=70, allow_redirects=True) as r:
+                      r.raise_for_status()
+                      total=0
+                      with open(path,'wb') as f:
+                          for chunk in r.iter_content(1024*1024):
+                              if chunk:
+                                  f.write(chunk); total += len(chunk)
+                              if total > 400_000_000:
+                                  raise RuntimeError('download too large')
+                  return total
+              except Exception:
+                  if pathlib.Path(path).exists(): pathlib.Path(path).unlink()
+                  raise
 
-          for rel, url in direct_files + pdfs:
-              fetch(url, root / rel)
+          def trim_copy(src, dst, seconds):
+              cmd=['ffmpeg','-y','-hide_banner','-loglevel','error','-i',str(src),'-t',str(seconds),'-map','0:v:0','-map','0:a?','-c:v','libx264','-preset','veryfast','-crf','24','-c:a','aac','-b:a','128k','-movflags','+faststart',str(dst)]
+              p=subprocess.run(cmd,stdout=subprocess.PIPE,stderr=subprocess.STDOUT,text=True,timeout=900)
+              if p.returncode != 0 or not dst.exists() or dst.stat().st_size < 10000:
+                  raise RuntimeError('ffmpeg failed: '+p.stdout[-1000:])
 
-          for title, url in pages:
-              safe = re.sub(r'[^0-9A-Za-zぁ-んァ-ヶ一-龠ー_-]+', '_', title)
-              try:
-                  r = session.get(url, timeout=50, allow_redirects=True)
-                  r.raise_for_status()
-                  soup = BeautifulSoup(r.text, 'html.parser')
-                  candidates = []
-                  for key in [('property','og:image'),('name','twitter:image'),('name','twitter:image:src')]:
-                      tag = soup.find('meta', attrs={key[0]: key[1]})
-                      if tag and tag.get('content'):
-                          candidates.append(urljoin(r.url, tag['content']))
-                  for img in soup.find_all('img'):
-                      src = img.get('data-src') or img.get('data-original') or img.get('src')
-                      if not src:
-                          continue
-                      src = urljoin(r.url, src)
-                      low = src.lower()
-                      if any(x in low for x in ['logo','icon','avatar','banner','advert','pixel','tracking']):
-                          continue
-                      candidates.append(src)
-                  seen, saved = set(), 0
-                  for img_url in candidates:
-                      if img_url in seen:
-                          continue
-                      seen.add(img_url)
-                      ext = pathlib.Path(urlparse(img_url).path).suffix.lower()
-                      if ext not in ['.jpg','.jpeg','.png','.webp']:
-                          ext = '.jpg'
-                      out = root / 'raw' / f'{safe}_記事画像{saved+1:02d}{ext}'
-                      if fetch(img_url, out):
-                          saved += 1
-                      if saved >= 5:
-                          break
-                  log.append({'kind':'page_extract','url':url,'title':title,'status':'ok','saved':saved})
-              except Exception as exc:
-                  log.append({'kind':'page_extract','url':url,'title':title,'status':'failed','error':repr(exc)})
-
-          (root / 'page_urls.json').write_text(json.dumps(pages, ensure_ascii=False, indent=2), encoding='utf-8')
-          (root / 'fetch_log.json').write_text(json.dumps(log, ensure_ascii=False, indent=2), encoding='utf-8')
-          PY
-
-          for pdf in collected/raw/*.pdf; do
-            [ -f "$pdf" ] || continue
-            base="$(basename "$pdf" .pdf)"
-            pdftoppm -png -r 150 "$pdf" "collected/rendered/${base}" || true
-          done
-
-          python <<'PY'
-          import json, pathlib, re, subprocess
-          from shutil import which
-          root = pathlib.Path('collected')
-          pages = json.loads((root/'page_urls.json').read_text(encoding='utf-8'))
-          chrome = next((which(x) for x in ['google-chrome-stable','google-chrome','chromium','chromium-browser'] if which(x)), None)
-          results=[]
-          if chrome:
-              for title,url in pages:
-                  safe = re.sub(r'[^0-9A-Za-zぁ-んァ-ヶ一-龠ー_-]+','_',title)
-                  out = root/'screens'/f'{safe}.png'
-                  cmd=[chrome,'--headless=new','--disable-gpu','--no-sandbox','--hide-scrollbars','--disable-dev-shm-usage','--window-size=1440,1800','--virtual-time-budget=12000',f'--screenshot={out.resolve()}',url]
+          def try_invidious(name, vid, seconds):
+              for base in invidious:
+                  # direct itag 18 endpoint first
+                  for local in ['true','false']:
+                      url=f'{base}/latest_version?id={vid}&itag=18&local={local}'
+                      tmp=outdir/(name+'_inv_tmp.mp4')
+                      try:
+                          n=download_url(url,tmp,base)
+                          final=outdir/(name+'.mp4')
+                          trim_copy(tmp,final,seconds)
+                          tmp.unlink(missing_ok=True)
+                          log.append({'video':vid,'name':name,'route':'invidious_latest','base':base,'url':url,'status':'ok','bytes':final.stat().st_size})
+                          return True
+                      except Exception as exc:
+                          log.append({'video':vid,'name':name,'route':'invidious_latest','base':base,'url':url,'status':'failed','error':repr(exc)})
+                          tmp.unlink(missing_ok=True)
                   try:
-                      p=subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, timeout=100)
-                      results.append({'title':title,'url':url,'path':str(out),'returncode':p.returncode,'exists':out.exists(),'bytes':out.stat().st_size if out.exists() else 0,'output':p.stdout[-1000:]})
+                      r=s.get(f'{base}/api/v1/videos/{vid}',timeout=35)
+                      r.raise_for_status(); data=r.json()
+                      streams=data.get('formatStreams') or []
+                      streams=sorted(streams,key=quality_num,reverse=True)
+                      streams=[x for x in streams if quality_num(x)<=720 and x.get('url')]
+                      if not streams: raise RuntimeError('no muxed streams')
+                      st=streams[0]
+                      tmp=outdir/(name+'_invjson_tmp.mp4')
+                      download_url(st['url'],tmp,base)
+                      final=outdir/(name+'.mp4')
+                      trim_copy(tmp,final,seconds); tmp.unlink(missing_ok=True)
+                      log.append({'video':vid,'name':name,'route':'invidious_json','base':base,'status':'ok','quality':st.get('qualityLabel'),'bytes':final.stat().st_size})
+                      return True
                   except Exception as exc:
-                      results.append({'title':title,'url':url,'path':str(out),'error':repr(exc)})
-          else:
-              results.append({'status':'chrome_not_found'})
-          (root/'screenshot_log.json').write_text(json.dumps(results,ensure_ascii=False,indent=2),encoding='utf-8')
+                      log.append({'video':vid,'name':name,'route':'invidious_json','base':base,'status':'failed','error':repr(exc)})
+              return False
+
+          def try_piped(name, vid, seconds):
+              for base in piped:
+                  try:
+                      r=s.get(f'{base}/streams/{vid}',timeout=40)
+                      r.raise_for_status(); data=r.json()
+                      streams=data.get('videoStreams') or []
+                      # Prefer muxed stream. Some instances mark videoOnly=false.
+                      mux=[x for x in streams if x.get('url') and not x.get('videoOnly') and quality_num(x)<=720]
+                      mux=sorted(mux,key=quality_num,reverse=True)
+                      if mux:
+                          st=mux[0]
+                          tmp=outdir/(name+'_piped_tmp.mp4')
+                          download_url(st['url'],tmp,base)
+                          final=outdir/(name+'.mp4')
+                          trim_copy(tmp,final,seconds); tmp.unlink(missing_ok=True)
+                          log.append({'video':vid,'name':name,'route':'piped_muxed','base':base,'status':'ok','quality':st.get('quality'),'bytes':final.stat().st_size})
+                          return True
+                      vids=[x for x in streams if x.get('url') and quality_num(x)<=720]
+                      auds=[x for x in (data.get('audioStreams') or []) if x.get('url')]
+                      vids=sorted(vids,key=quality_num,reverse=True)
+                      auds=sorted(auds,key=lambda x:int(x.get('bitrate') or 0),reverse=True)
+                      if not vids or not auds: raise RuntimeError('no separate streams')
+                      vtmp=outdir/(name+'_vtmp.bin'); atmp=outdir/(name+'_atmp.bin'); muxed=outdir/(name+'_muxed.mp4')
+                      download_url(vids[0]['url'],vtmp,base); download_url(auds[0]['url'],atmp,base)
+                      cmd=['ffmpeg','-y','-hide_banner','-loglevel','error','-i',str(vtmp),'-i',str(atmp),'-t',str(seconds),'-map','0:v:0','-map','1:a:0','-c:v','libx264','-preset','veryfast','-crf','24','-c:a','aac','-b:a','128k','-movflags','+faststart',str(muxed)]
+                      p=subprocess.run(cmd,stdout=subprocess.PIPE,stderr=subprocess.STDOUT,text=True,timeout=900)
+                      vtmp.unlink(missing_ok=True); atmp.unlink(missing_ok=True)
+                      if p.returncode != 0 or not muxed.exists() or muxed.stat().st_size<10000: raise RuntimeError('mux failed '+p.stdout[-500:])
+                      final=outdir/(name+'.mp4'); muxed.replace(final)
+                      log.append({'video':vid,'name':name,'route':'piped_separate','base':base,'status':'ok','quality':vids[0].get('quality'),'bytes':final.stat().st_size})
+                      return True
+                  except Exception as exc:
+                      log.append({'video':vid,'name':name,'route':'piped','base':base,'status':'failed','error':repr(exc)})
+                      for p in outdir.glob(name+'_*tmp*'): p.unlink(missing_ok=True)
+              return False
+
+          for name,vid,seconds in videos:
+              final=outdir/(name+'.mp4')
+              if final.exists() and final.stat().st_size>10000: continue
+              ok=try_invidious(name,vid,seconds)
+              if not ok: ok=try_piped(name,vid,seconds)
+              log.append({'video':vid,'name':name,'final_status':'ok' if ok else 'inaccessible'})
+
+          (root/'logs'/'frontend_download.json').write_text(json.dumps(log,ensure_ascii=False,indent=2),encoding='utf-8')
           PY
+          true
 
-      - name: Download public news and event video clips
+      - name: Validate and inventory recovered video
         shell: bash
         run: |
           set +e
-          : > collected/video_download.log
-          download_yt () {
-            name="$1"; url="$2"; section="$3"
-            echo "===== $name =====" >> collected/video_download.log
-            yt-dlp --no-playlist --retries 3 --fragment-retries 3 \
-              --extractor-args "youtube:player_client=android,web_safari" \
-              -f "bv*[height<=480]+ba/b[height<=480]/best[height<=480]" \
-              --download-sections "$section" --force-keyframes-at-cuts \
-              --merge-output-format mp4 \
-              -o "collected/videos/${name}.%(ext)s" "$url" \
-              >> collected/video_download.log 2>&1
-          }
-          download_yt "101_パソコンから偽造データ発見_NNN" "https://www.youtube.com/watch?v=zVjQfzZPKqU" "*0-90"
-          download_yt "102_田久保氏宅の家宅捜索_NNN" "https://www.youtube.com/watch?v=0nme1WkB6R8" "*0-90"
-          download_yt "103_田久保氏在宅起訴_NNN" "https://www.youtube.com/watch?v=yKexh43x8Rw" "*0-90"
-          download_yt "104_田久保氏宅の家宅捜索_SBS" "https://www.youtube.com/watch?v=dfZI8W5ys1c" "*0-90"
-          download_yt "105_田久保氏宅の家宅捜索_テレビ朝日" "https://www.youtube.com/watch?v=-CMjqicghx8" "*0-90"
-          download_yt "106_田久保氏記者会見ノーカット" "https://www.youtube.com/watch?v=UBcAjuBHKV8" "*0-120"
-          download_yt "107_田久保氏百条委員会" "https://www.youtube.com/watch?v=-nlIdtE2Zpo" "*0-120"
-          download_yt "108_百条委員会虚偽陳述を巡る報道" "https://www.youtube.com/watch?v=2XYALVGYMUU" "*0-90"
-          download_yt "109_パソコン偽造データ最新短報" "https://www.youtube.com/shorts/uWUHhAaEpBE" "*0-90"
-          true
-
-      - name: Download Pexels licensed stock B-roll
-        shell: bash
-        run: |
-          set +e
-          : > collected/stock_download.log
-          download_stock () {
-            name="$1"; url="$2"
-            echo "===== $name =====" >> collected/stock_download.log
-            yt-dlp --no-playlist --retries 3 -f "best[height<=720]/best" \
-              --merge-output-format mp4 -o "collected/stock/${name}.%(ext)s" "$url" \
-              >> collected/stock_download.log 2>&1
-          }
-          download_stock "201_パソコンでファイルを扱う手元_Pexels" "https://www.pexels.com/video/close-up-of-a-laptop-and-a-desktop-computer-7989695/"
-          download_stock "202_プリンターへ用紙を入れる手元_Pexels" "https://www.pexels.com/video/close-up-on-putting-paper-in-printer-10476939/"
-          download_stock "203_USBメモリーをパソコンへ挿す手元_Pexels" "https://www.pexels.com/video/usb-flash-drive-17741155/"
-          download_stock "204_ネット注文をする手元_Pexels" "https://www.pexels.com/video/a-person-using-a-laptop-while-holding-a-credit-card-6994837/"
-          download_stock "205_法律文書を確認する手元_Pexels" "https://www.pexels.com/video/person-reading-a-papers-8061377/"
-          download_stock "206_弁護士が依頼者へ書類を説明_Pexels" "https://www.pexels.com/video/a-lawyer-talking-to-his-clients-8061607/"
-          download_stock "207_複数人が資料を照合する場面_Pexels" "https://www.pexels.com/video/people-working-on-the-desks-5636968/"
-          true
-
-      - name: Write inventory
-        shell: bash
-        run: |
           python <<'PY'
-          import hashlib, json, mimetypes, pathlib
-          root=pathlib.Path('collected')
-          rows=[]
+          import hashlib,json,mimetypes,pathlib,subprocess
+          root=pathlib.Path('retry')
+          inv=[]
           for p in sorted(root.rglob('*')):
-              if not p.is_file():
-                  continue
-              h=hashlib.sha256(p.read_bytes()).hexdigest()
-              rows.append({'path':str(p.relative_to(root)),'bytes':p.stat().st_size,'sha256':h,'mime':mimetypes.guess_type(p.name)[0] or ''})
-          (root/'inventory.json').write_text(json.dumps(rows,ensure_ascii=False,indent=2),encoding='utf-8')
-          print(json.dumps({'files':len(rows),'bytes':sum(x['bytes'] for x in rows)},ensure_ascii=False))
+              if not p.is_file(): continue
+              rec={'path':str(p.relative_to(root)),'bytes':p.stat().st_size,'sha256':hashlib.sha256(p.read_bytes()).hexdigest(),'mime':mimetypes.guess_type(p.name)[0] or ''}
+              if p.suffix.lower() in ['.mp4','.webm','.mov','.mkv']:
+                  q=subprocess.run(['ffprobe','-v','error','-show_entries','format=duration:stream=width,height,codec_name','-of','json',str(p)],stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True)
+                  try: rec['ffprobe']=json.loads(q.stdout)
+                  except: rec['ffprobe_error']=q.stderr[-1000:]
+                  d=subprocess.run(['ffmpeg','-v','error','-i',str(p),'-f','null','-'],stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True)
+                  rec['decode_ok']=d.returncode==0
+                  rec['decode_error']=d.stderr[-500:] if d.returncode else ''
+              inv.append(rec)
+          (root/'retry_inventory.json').write_text(json.dumps(inv,ensure_ascii=False,indent=2),encoding='utf-8')
+          print(json.dumps({'files':len(inv),'videos':sum(1 for x in inv if x['path'].lower().endswith(('.mp4','.webm','.mov','.mkv')))},ensure_ascii=False))
           PY
-          find collected -maxdepth 2 -type f -printf '%p %s bytes\n' | sort
+          find retry -maxdepth 3 -type f -printf '%p %s bytes\n' | sort
 
       - uses: actions/upload-artifact@v4
         with:
-          name: collected-assets-20260826
-          path: collected/
+          name: recovered-video-assets-20260826
+          path: retry/
           retention-days: 1
           compression-level: 6
           if-no-files-found: error
