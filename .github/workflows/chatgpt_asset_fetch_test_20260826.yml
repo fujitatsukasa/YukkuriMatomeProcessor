@@ -1,4 +1,4 @@
-name: ChatGPT Asset Fetch Test 20260826
+name: ChatGPT Asset Fetch 20260826
 
 on:
   push:
@@ -10,17 +10,228 @@ permissions:
   contents: read
 
 jobs:
-  fetch:
+  fetch-assets:
     runs-on: ubuntu-latest
+    timeout-minutes: 45
     steps:
-      - name: Download one public image
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install tools
         run: |
-          mkdir -p out
-          curl -L --fail --retry 3 -A 'Mozilla/5.0' 'https://www.nikkansports.com/general/nikkan/news/img/202507020000704-w1300_2.jpg' -o 'out/test.jpg'
-          file out/test.jpg
-          ls -lh out/test.jpg
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq poppler-utils ffmpeg
+          python -m pip install --upgrade pip
+          python -m pip install requests beautifulsoup4 pillow yt-dlp
+
+      - name: Download still images, official PDFs and exact page captures
+        shell: bash
+        run: |
+          set -u
+          mkdir -p collected/raw collected/rendered collected/screens collected/videos collected/stock
+          python <<'PY'
+          from __future__ import annotations
+          import json, pathlib, re
+          from urllib.parse import urljoin, urlparse
+          import requests
+          from bs4 import BeautifulSoup
+
+          root = pathlib.Path('collected')
+          log = []
+          session = requests.Session()
+          session.headers.update({
+              'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/151 Safari/537.36',
+              'Accept-Language': 'ja,en-US;q=0.8,en;q=0.6',
+          })
+
+          direct_files = [
+              ('raw/001_田久保真紀氏_2025年7月記者会見_日刊スポーツ共同.jpg', 'https://www.nikkansports.com/general/nikkan/news/img/202507020000704-w1300_2.jpg'),
+              ('raw/002_田久保真紀氏_百条委員会出頭_日刊スポーツ共同.jpg', 'https://www.nikkansports.com/general/nikkan/news/img/202508130000427-w1300_0.jpg'),
+              ('raw/003_伊東市議会_本会議場_TBS.jpg', 'https://newsdig.ismcdn.jp/mwimgs/f/7/680mw/img_f71ea28fc141ef78da8557fce61fdce5165841.jpg'),
+              ('raw/004_田久保真紀氏_卒業証書提出拒否報道_TBS_X.jpg', 'https://pbs.twimg.com/card_img/2022217738438000640/c1XjrhME?format=jpg&name=orig'),
+              ('raw/005_田久保真紀氏_百条委員会追及_テレビ朝日.jpg', 'https://news.tv-asahi.co.jp/articles_img/900171204_1200.jpg'),
+              ('raw/006_東洋大学卒業証書コピー_テレビ朝日.jpg', 'https://news.tv-asahi.co.jp/articles_img/900171172_img_b1ef6b0123692846ec1ade147d76667480130.jpg'),
+              ('raw/007_偽印鑑ネット発注報道_TBS.jpg', 'https://newsdig.ismcdn.jp/mwimgs/7/4/-/img_74c9863ad497bc01142f6356a7aaeadc348374.jpg'),
+              ('raw/008_家宅捜索と押収拒絶権報道_ABEMA.jpg', 'https://times-abema.ismcdn.jp/mwimgs/e/2/750w/img_e219b072a7f22255555c96ff931a580448477.jpg'),
+              ('raw/009_田久保真紀氏_夜間取材_静岡第一テレビ.jpg', 'https://image.news.livedoor.com/newsimage/stf/7/5/75fda_1800_8cf6e299_0310b042-wi.jpg'),
+              ('raw/010_伊東市役所庁舎_静岡フィルムコミッション.jpg', 'https://www.shizuoka-fc.net/cms/files/fc/MASTER/0200/5HKmqUEhOu0pwpJV7d92.jpg'),
+              ('raw/011_東洋大学白山キャンパス_東洋大学公式.jpg', 'https://www.toyo.ac.jp/assets/about/hakusan_h.jpg'),
+              ('raw/012_田久保真紀氏_2025年11月会見_共同.jpg', 'https://image.news.livedoor.com/newsimage/stf/3/4/34a95_1238_3d0ca6769e54bfbf809a6d1c8ddc1a08.jpg'),
+              ('raw/013_伊東市役所別角度_報道写真.jpg', 'https://www.kk-bestsellers.com/wp-content/uploads/10000000000000123064_20250702195648911983_P180619000159.jpg'),
+          ]
+          pdfs = [
+              ('raw/伊東市議会_百条委員会要点_2025年8月29日.pdf', 'https://www.city.ito.shizuoka.jp/material/files/group/32/R070829_hyakujyo_youten.pdf'),
+              ('raw/伊東市議会_百条委員会要点_2025年7月29日.pdf', 'https://www.city.ito.shizuoka.jp/material/files/group/32/R070729_hyakujyo_youten1.pdf'),
+          ]
+          pages = [
+              ('東洋大学公式_本学に係る報道について', 'https://www.toyo.ac.jp/news/20250806-17927.html'),
+              ('裁判所公式_刑事事件Q&A', 'https://www.courts.go.jp/saiban/qa/qa_keizi/index.html'),
+              ('裁判所公式_刑事裁判の流れ', 'https://www.courts.go.jp/saibanin/introduction/kids/kidz/a7_1/index.html'),
+              ('e-Gov法令検索_刑法', 'https://laws.e-gov.go.jp/law/140AC0000000045'),
+              ('伊東市公式_市役所アクセス', 'https://www.city.ito.shizuoka.jp/gyosei/soshikikarasagasu/sisan/shiseijoho/2/2/2134.html'),
+              ('テレビ朝日_パソコン偽造データ最新報道', 'https://news.tv-asahi.co.jp/news_society/articles/900197920.html'),
+              ('TBS_パソコン偽造データ最新報道', 'https://newsdig.tbs.co.jp/articles/-/2893791?display=1'),
+              ('FNN_パソコン偽造データ最新報道', 'https://www.fnn.jp/articles/-/1101288'),
+              ('LOOK静岡朝日_パソコン偽造データ最新報道', 'https://look.satv.co.jp/content_news/incident/96078'),
+              ('2NN_関連スレッド反応', 'https://www.2nn.jp/newsplus/1787639074/'),
+          ]
+
+          def fetch(url: str, path: pathlib.Path) -> bool:
+              path.parent.mkdir(parents=True, exist_ok=True)
+              try:
+                  r = session.get(url, timeout=50, allow_redirects=True)
+                  r.raise_for_status()
+                  if len(r.content) < 500:
+                      raise RuntimeError(f'too small: {len(r.content)}')
+                  path.write_bytes(r.content)
+                  log.append({'kind':'download','url':url,'path':str(path),'status':'ok','bytes':len(r.content),'content_type':r.headers.get('content-type','')})
+                  return True
+              except Exception as exc:
+                  log.append({'kind':'download','url':url,'path':str(path),'status':'failed','error':repr(exc)})
+                  return False
+
+          for rel, url in direct_files + pdfs:
+              fetch(url, root / rel)
+
+          for title, url in pages:
+              safe = re.sub(r'[^0-9A-Za-zぁ-んァ-ヶ一-龠ー_-]+', '_', title)
+              try:
+                  r = session.get(url, timeout=50, allow_redirects=True)
+                  r.raise_for_status()
+                  soup = BeautifulSoup(r.text, 'html.parser')
+                  candidates = []
+                  for key in [('property','og:image'),('name','twitter:image'),('name','twitter:image:src')]:
+                      tag = soup.find('meta', attrs={key[0]: key[1]})
+                      if tag and tag.get('content'):
+                          candidates.append(urljoin(r.url, tag['content']))
+                  for img in soup.find_all('img'):
+                      src = img.get('data-src') or img.get('data-original') or img.get('src')
+                      if not src:
+                          continue
+                      src = urljoin(r.url, src)
+                      low = src.lower()
+                      if any(x in low for x in ['logo','icon','avatar','banner','advert','pixel','tracking']):
+                          continue
+                      candidates.append(src)
+                  seen, saved = set(), 0
+                  for img_url in candidates:
+                      if img_url in seen:
+                          continue
+                      seen.add(img_url)
+                      ext = pathlib.Path(urlparse(img_url).path).suffix.lower()
+                      if ext not in ['.jpg','.jpeg','.png','.webp']:
+                          ext = '.jpg'
+                      out = root / 'raw' / f'{safe}_記事画像{saved+1:02d}{ext}'
+                      if fetch(img_url, out):
+                          saved += 1
+                      if saved >= 5:
+                          break
+                  log.append({'kind':'page_extract','url':url,'title':title,'status':'ok','saved':saved})
+              except Exception as exc:
+                  log.append({'kind':'page_extract','url':url,'title':title,'status':'failed','error':repr(exc)})
+
+          (root / 'page_urls.json').write_text(json.dumps(pages, ensure_ascii=False, indent=2), encoding='utf-8')
+          (root / 'fetch_log.json').write_text(json.dumps(log, ensure_ascii=False, indent=2), encoding='utf-8')
+          PY
+
+          for pdf in collected/raw/*.pdf; do
+            [ -f "$pdf" ] || continue
+            base="$(basename "$pdf" .pdf)"
+            pdftoppm -png -r 150 "$pdf" "collected/rendered/${base}" || true
+          done
+
+          python <<'PY'
+          import json, pathlib, re, subprocess
+          from shutil import which
+          root = pathlib.Path('collected')
+          pages = json.loads((root/'page_urls.json').read_text(encoding='utf-8'))
+          chrome = next((which(x) for x in ['google-chrome-stable','google-chrome','chromium','chromium-browser'] if which(x)), None)
+          results=[]
+          if chrome:
+              for title,url in pages:
+                  safe = re.sub(r'[^0-9A-Za-zぁ-んァ-ヶ一-龠ー_-]+','_',title)
+                  out = root/'screens'/f'{safe}.png'
+                  cmd=[chrome,'--headless=new','--disable-gpu','--no-sandbox','--hide-scrollbars','--disable-dev-shm-usage','--window-size=1440,1800','--virtual-time-budget=12000',f'--screenshot={out.resolve()}',url]
+                  try:
+                      p=subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, timeout=100)
+                      results.append({'title':title,'url':url,'path':str(out),'returncode':p.returncode,'exists':out.exists(),'bytes':out.stat().st_size if out.exists() else 0,'output':p.stdout[-1000:]})
+                  except Exception as exc:
+                      results.append({'title':title,'url':url,'path':str(out),'error':repr(exc)})
+          else:
+              results.append({'status':'chrome_not_found'})
+          (root/'screenshot_log.json').write_text(json.dumps(results,ensure_ascii=False,indent=2),encoding='utf-8')
+          PY
+
+      - name: Download public news and event video clips
+        shell: bash
+        run: |
+          set +e
+          : > collected/video_download.log
+          download_yt () {
+            name="$1"; url="$2"; section="$3"
+            echo "===== $name =====" >> collected/video_download.log
+            yt-dlp --no-playlist --retries 3 --fragment-retries 3 \
+              --extractor-args "youtube:player_client=android,web_safari" \
+              -f "bv*[height<=480]+ba/b[height<=480]/best[height<=480]" \
+              --download-sections "$section" --force-keyframes-at-cuts \
+              --merge-output-format mp4 \
+              -o "collected/videos/${name}.%(ext)s" "$url" \
+              >> collected/video_download.log 2>&1
+          }
+          download_yt "101_パソコンから偽造データ発見_NNN" "https://www.youtube.com/watch?v=zVjQfzZPKqU" "*0-90"
+          download_yt "102_田久保氏宅の家宅捜索_NNN" "https://www.youtube.com/watch?v=0nme1WkB6R8" "*0-90"
+          download_yt "103_田久保氏在宅起訴_NNN" "https://www.youtube.com/watch?v=yKexh43x8Rw" "*0-90"
+          download_yt "104_田久保氏宅の家宅捜索_SBS" "https://www.youtube.com/watch?v=dfZI8W5ys1c" "*0-90"
+          download_yt "105_田久保氏宅の家宅捜索_テレビ朝日" "https://www.youtube.com/watch?v=-CMjqicghx8" "*0-90"
+          download_yt "106_田久保氏記者会見ノーカット" "https://www.youtube.com/watch?v=UBcAjuBHKV8" "*0-120"
+          download_yt "107_田久保氏百条委員会" "https://www.youtube.com/watch?v=-nlIdtE2Zpo" "*0-120"
+          download_yt "108_百条委員会虚偽陳述を巡る報道" "https://www.youtube.com/watch?v=2XYALVGYMUU" "*0-90"
+          download_yt "109_パソコン偽造データ最新短報" "https://www.youtube.com/shorts/uWUHhAaEpBE" "*0-90"
+          true
+
+      - name: Download Pexels licensed stock B-roll
+        shell: bash
+        run: |
+          set +e
+          : > collected/stock_download.log
+          download_stock () {
+            name="$1"; url="$2"
+            echo "===== $name =====" >> collected/stock_download.log
+            yt-dlp --no-playlist --retries 3 -f "best[height<=720]/best" \
+              --merge-output-format mp4 -o "collected/stock/${name}.%(ext)s" "$url" \
+              >> collected/stock_download.log 2>&1
+          }
+          download_stock "201_パソコンでファイルを扱う手元_Pexels" "https://www.pexels.com/video/close-up-of-a-laptop-and-a-desktop-computer-7989695/"
+          download_stock "202_プリンターへ用紙を入れる手元_Pexels" "https://www.pexels.com/video/close-up-on-putting-paper-in-printer-10476939/"
+          download_stock "203_USBメモリーをパソコンへ挿す手元_Pexels" "https://www.pexels.com/video/usb-flash-drive-17741155/"
+          download_stock "204_ネット注文をする手元_Pexels" "https://www.pexels.com/video/a-person-using-a-laptop-while-holding-a-credit-card-6994837/"
+          download_stock "205_法律文書を確認する手元_Pexels" "https://www.pexels.com/video/person-reading-a-papers-8061377/"
+          download_stock "206_弁護士が依頼者へ書類を説明_Pexels" "https://www.pexels.com/video/a-lawyer-talking-to-his-clients-8061607/"
+          download_stock "207_複数人が資料を照合する場面_Pexels" "https://www.pexels.com/video/people-working-on-the-desks-5636968/"
+          true
+
+      - name: Write inventory
+        shell: bash
+        run: |
+          python <<'PY'
+          import hashlib, json, mimetypes, pathlib
+          root=pathlib.Path('collected')
+          rows=[]
+          for p in sorted(root.rglob('*')):
+              if not p.is_file():
+                  continue
+              h=hashlib.sha256(p.read_bytes()).hexdigest()
+              rows.append({'path':str(p.relative_to(root)),'bytes':p.stat().st_size,'sha256':h,'mime':mimetypes.guess_type(p.name)[0] or ''})
+          (root/'inventory.json').write_text(json.dumps(rows,ensure_ascii=False,indent=2),encoding='utf-8')
+          print(json.dumps({'files':len(rows),'bytes':sum(x['bytes'] for x in rows)},ensure_ascii=False))
+          PY
+          find collected -maxdepth 2 -type f -printf '%p %s bytes\n' | sort
+
       - uses: actions/upload-artifact@v4
         with:
-          name: test-asset-20260826
-          path: out/
+          name: collected-assets-20260826
+          path: collected/
           retention-days: 1
+          compression-level: 6
+          if-no-files-found: error
