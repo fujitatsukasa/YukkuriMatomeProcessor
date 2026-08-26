@@ -1,0 +1,83 @@
+name: Temporary Irodori same-voice high 8 repair
+
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened, ready_for_review]
+
+permissions:
+  contents: read
+
+jobs:
+  generate:
+    if: startsWith(github.head_ref, 'tmp/irodori-fix16-high8-')
+    strategy:
+      fail-fast: false
+      max-parallel: 8
+      matrix:
+        voice: [8, 9, 10, 11, 12, 13, 14, 15]
+    runs-on: ubuntu-latest
+    timeout-minutes: 210
+    env:
+      VOICE_INDEX: ${{ matrix.voice }}
+      HF_XET_HIGH_PERFORMANCE: '1'
+      HF_HUB_DISABLE_PROGRESS_BARS: '1'
+      HF_HUB_DOWNLOAD_TIMEOUT: '600'
+      TOKENIZERS_PARALLELISM: 'false'
+      GENERATOR_COMMIT: '68baea7fa3393386b309275c241bc1347ee7f485'
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Fetch the exact same generator and 16-voice specification
+        run: |
+          mkdir -p tools
+          curl -fsSL "https://raw.githubusercontent.com/fujitatsukasa/fujitatsukasa.github.io/${GENERATOR_COMMIT}/tools/irodori_fix16_spec.py" -o tools/irodori_fix16_spec.py
+          curl -fsSL "https://raw.githubusercontent.com/fujitatsukasa/fujitatsukasa.github.io/${GENERATOR_COMMIT}/tools/generate_irodori_fix16_public.py" -o tools/generate_irodori_fix16_public.py
+          curl -fsSL "https://raw.githubusercontent.com/fujitatsukasa/fujitatsukasa.github.io/${GENERATOR_COMMIT}/tools/generate_irodori_final_delivery.py" -o tools/generate_irodori_final_delivery.py
+          curl -fsSL "https://raw.githubusercontent.com/fujitatsukasa/fujitatsukasa.github.io/${GENERATOR_COMMIT}/tools/irodori_final_delivery_spec.py" -o tools/irodori_final_delivery_spec.py
+          cat > tools/run_fix16_high.py <<'PY'
+          import os
+          import sys
+
+          requested_voice = os.environ["VOICE_INDEX"]
+          sys.path.insert(0, "../tools")
+          # The reused helper module has only eight legacy voice definitions at import time.
+          # Import it safely with index 0, then restore the actual 8-15 index before loading
+          # the fixed 16-voice generator. The fixed generator then overwrites every helper
+          # path, voice, checkpoint, and scoring callback with the requested exact voice.
+          os.environ["VOICE_INDEX"] = "0"
+          import generate_irodori_final_delivery  # noqa: F401
+          os.environ["VOICE_INDEX"] = requested_voice
+          import generate_irodori_fix16_public
+
+          generate_irodori_fix16_public.main()
+          PY
+
+      - name: Install official Irodori and validation tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg libsndfile1 git
+          python -m pip install --upgrade pip uv
+          git clone --depth 1 https://github.com/Aratako/Irodori-TTS.git Irodori-TTS
+          cd Irodori-TTS
+          uv sync --extra cpu
+          uv pip install 'setuptools<81' faster-whisper rapidfuzz pykakasi scipy soundfile huggingface_hub hf_xet pyarrow resemblyzer webrtcvad librosa
+
+      - name: Regenerate ten correctly named and acted lines for one exact original high voice
+        run: |
+          cd Irodori-TTS
+          uv run --no-sync python ../tools/run_fix16_high.py
+
+      - name: Upload this exact voice and all validation records
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: irodori-fix16-high-public-voice-${{ matrix.voice }}
+          path: fix16_public_output/voice_*/
+          if-no-files-found: warn
+          retention-days: 3
+          compression-level: 0
