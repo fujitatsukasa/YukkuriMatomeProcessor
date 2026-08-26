@@ -1,0 +1,185 @@
+name: Temporary Takubo Asset Fetch
+
+on:
+  push:
+    paths:
+      - '.github/workflows/takubo_asset_fetch.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  fetch-assets:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install media tools
+        run: |
+          set -euxo pipefail
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg poppler-utils
+          python -m pip install --upgrade yt-dlp requests beautifulsoup4 pillow
+
+      - name: Download real images, official PDFs and public news videos
+        shell: bash
+        run: |
+          set -euxo pipefail
+          mkdir -p out/images out/pdfs out/pdf_pages out/videos out/video_meta
+
+          cat > /tmp/fetch_assets.py <<'PY'
+          from pathlib import Path
+          from urllib.parse import urljoin, urlparse
+          import re
+          import requests
+          from bs4 import BeautifulSoup
+
+          root = Path('out')
+          headers = {
+              'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/131 Safari/537.36'
+          }
+          session = requests.Session()
+          session.headers.update(headers)
+
+          direct_images = {
+              '001_田久保真紀前市長_記者会見_日刊スポーツ_20250702.jpg': 'https://www.nikkansports.com/general/nikkan/news/img/202507020000704-w1300_2.jpg',
+              '002_田久保真紀前市長_百条委員会_日刊スポーツ_20250813.jpg': 'https://www.nikkansports.com/general/nikkan/news/img/202508130000427-w1300_0.jpg',
+              '003_田久保真紀市長_百条委員会_SBS_20250813.jpg': 'https://newsdig.ismcdn.jp/mwimgs/1/6/1200xm/img_16f4f54561880449fec4f4cf1995f969256952.jpg',
+              '004_伊東市議会_辞職勧告決議_SBS_20250707.jpg': 'https://newsdig.ismcdn.jp/mwimgs/f/7/680mw/img_f71ea28fc141ef78da8557fce61fdce5165841.jpg',
+              '005_田久保前市長宅_家宅捜索_テレ朝_01.jpg': 'https://news.tv-asahi.co.jp/articles_img/900184057_img_a7c6509a0a0a91c76614f44d7406527d78189.jpg',
+              '006_田久保前市長宅_家宅捜索_テレ朝_02.jpg': 'https://news.tv-asahi.co.jp/articles_img/900184057_img_b04c1ff0d4ef7add93a71632ad3913ba80353.jpg',
+              '007_田久保真紀前市長_家宅捜索報道_テレ朝.jpg': 'https://news.tv-asahi.co.jp/articles_img/900184057_img_482125b55e217fd0000dcbc0b61c1dac75499.jpg',
+              '008_伊東市議会議長_家宅捜索報道_テレ朝.jpg': 'https://news.tv-asahi.co.jp/articles_img/900184057_img_7f2f776b2d118c8f2dc852a531f816ea79342.jpg',
+              '009_卒業証書19秒説明_テレ朝.jpg': 'https://news.tv-asahi.co.jp/articles_img/900184057_img_8bcef0088475cc73b03c5541fe962c8995218.jpg',
+              '010_田久保氏代理人_福島弁護士_テレ朝.jpg': 'https://news.tv-asahi.co.jp/articles_img/900184057_img_4bd1c23540981ff52590bfb231306966100241.jpg',
+              '011_卒業証書提出拒否_テレ朝.jpg': 'https://news.tv-asahi.co.jp/articles_img/900184057_img_bc9c96e6cceea9a2d6db8b35d12b4fd281406.jpg',
+              '012_元検事弁護士_捜査解説_テレ朝.jpg': 'https://news.tv-asahi.co.jp/articles_img/900184057_img_be1b0a4e4667d54379d316b9422b9cd7100768.jpg',
+              '013_田久保前市長_任意聴取後_テレ朝_01.jpg': 'https://news.tv-asahi.co.jp/articles_img/900183006_img_eb22498aaf7dc2bd0150e4c42609f3b4194799.jpg',
+              '014_田久保前市長_任意聴取後_テレ朝_02.jpg': 'https://news.tv-asahi.co.jp/articles_img/900183006_img_ebf6203df3c6a0f5c83d299409ded0c988830.jpg',
+              '015_田久保前市長_SNS投稿_テレ朝.jpg': 'https://news.tv-asahi.co.jp/articles_img/900183006_img_cf47fc141b469b66d26ac0e27cb8d36891753.jpg',
+              '016_広報いとう学歴記載_テレ朝.jpg': 'https://news.tv-asahi.co.jp/articles_img/900183006_img_fc9f6195de426c8d4f0d001a2a5ab35f204082.jpg',
+              '017_百条委員会刑事告発_テレ朝.jpg': 'https://news.tv-asahi.co.jp/articles_img/900183006_img_c432ceae44ebd7a22b733cf300b1ed7a197237.jpg',
+          }
+
+          pages_for_og = {
+              '018_最新報道_TBS_偽造データ_20260825': 'https://newsdig.tbs.co.jp/articles/-/2893791',
+              '019_最新報道_テレ朝_偽造データ_20260825': 'https://news.tv-asahi.co.jp/news_society/articles/000528593.html',
+              '020_最新報道_静岡新聞_偽造データ_20260825': 'https://www.at-s.com/snews/article/ats/2041599.html',
+              '021_百条委員会_証人尋問_SBS_20250813': 'https://www.at-s.com/snews/article/ats/1783463.html',
+          }
+
+          pdfs = {
+              '伊東市議会_百条委員会要点記録_20250729.pdf': 'https://www.city.ito.shizuoka.jp/material/files/group/32/R070729_hyakujyo_youten1.pdf',
+              '伊東市議会_百条委員会要点記録_20250829.pdf': 'https://www.city.ito.shizuoka.jp/material/files/group/32/R070829_hyakujyo_youten.pdf',
+              '裁判所_裁判員制度なるほどブック_202510.pdf': 'https://www.courts.go.jp/saibanin/vc-files/saibanin/naruhodo_book_tatever_R7.10.pdf',
+              '裁判所_新プロシーディングス刑事裁判_202602.pdf': 'https://www.courts.go.jp/saikosai/vc-files/saikosai/shihoukensyujyo/shinproceedingskeijisaiban.pdf',
+          }
+
+          def save_url(url: str, path: Path) -> bool:
+              path.parent.mkdir(parents=True, exist_ok=True)
+              try:
+                  with session.get(url, timeout=60, stream=True, allow_redirects=True) as r:
+                      r.raise_for_status()
+                      ctype = r.headers.get('content-type', '')
+                      with path.open('wb') as f:
+                          for chunk in r.iter_content(chunk_size=1024 * 1024):
+                              if chunk:
+                                  f.write(chunk)
+                  print('SAVED', path, path.stat().st_size, ctype, url)
+                  return path.stat().st_size > 0
+              except Exception as e:
+                  print('FAILED', path, url, repr(e))
+                  return False
+
+          for name, url in direct_images.items():
+              save_url(url, root / 'images' / name)
+
+          for stem, page_url in pages_for_og.items():
+              try:
+                  r = session.get(page_url, timeout=60, allow_redirects=True)
+                  r.raise_for_status()
+                  soup = BeautifulSoup(r.text, 'html.parser')
+                  candidates = []
+                  for attr, value in [('property', 'og:image'), ('name', 'twitter:image'), ('property', 'twitter:image')]:
+                      tag = soup.find('meta', attrs={attr: value})
+                      if tag and tag.get('content'):
+                          candidates.append(urljoin(r.url, tag['content']))
+                  for tag in soup.find_all('img'):
+                      src = tag.get('data-src') or tag.get('src')
+                      if src:
+                          src = urljoin(r.url, src)
+                          if re.search(r'\.(?:jpe?g|png|webp)(?:\?|$)', src, re.I):
+                              candidates.append(src)
+                  seen = set()
+                  for i, img_url in enumerate(candidates, 1):
+                      if img_url in seen:
+                          continue
+                      seen.add(img_url)
+                      suffix = Path(urlparse(img_url).path).suffix.lower()
+                      if suffix not in {'.jpg', '.jpeg', '.png', '.webp'}:
+                          suffix = '.jpg'
+                      out = root / 'images' / f'{stem}_{i:02d}{suffix}'
+                      if save_url(img_url, out):
+                          break
+              except Exception as e:
+                  print('PAGE_FAILED', page_url, repr(e))
+
+          for name, url in pdfs.items():
+              save_url(url, root / 'pdfs' / name)
+          PY
+
+          python /tmp/fetch_assets.py | tee out/video_meta/download_log.txt
+
+          if [ -s 'out/pdfs/伊東市議会_百条委員会要点記録_20250729.pdf' ]; then
+            pdftoppm -png -r 170 -f 1 -l 1 'out/pdfs/伊東市議会_百条委員会要点記録_20250729.pdf' 'out/pdf_pages/018_伊東市議会要点記録_20250729_表紙'
+            pdftoppm -png -r 170 -f 5 -l 7 'out/pdfs/伊東市議会_百条委員会要点記録_20250729.pdf' 'out/pdf_pages/019_伊東市議会要点記録_20250729_証言'
+          fi
+          if [ -s 'out/pdfs/伊東市議会_百条委員会要点記録_20250829.pdf' ]; then
+            pdftoppm -png -r 170 -f 1 -l 1 'out/pdfs/伊東市議会_百条委員会要点記録_20250829.pdf' 'out/pdf_pages/022_伊東市議会要点記録_20250829_表紙'
+            pdftoppm -png -r 170 -f 7 -l 10 'out/pdfs/伊東市議会_百条委員会要点記録_20250829.pdf' 'out/pdf_pages/023_伊東市議会要点記録_20250829_告発判断'
+          fi
+          if [ -s 'out/pdfs/裁判所_裁判員制度なるほどブック_202510.pdf' ]; then
+            pdftoppm -png -r 160 -f 2 -l 3 'out/pdfs/裁判所_裁判員制度なるほどブック_202510.pdf' 'out/pdf_pages/027_裁判所_裁判手続の流れ'
+            pdftoppm -png -r 160 -f 32 -l 33 'out/pdfs/裁判所_裁判員制度なるほどブック_202510.pdf' 'out/pdf_pages/029_裁判所_刑事裁判の基礎知識'
+          fi
+          if [ -s 'out/pdfs/裁判所_新プロシーディングス刑事裁判_202602.pdf' ]; then
+            pdftoppm -png -r 150 -f 6 -l 7 'out/pdfs/裁判所_新プロシーディングス刑事裁判_202602.pdf' 'out/pdf_pages/031_裁判所_刑事裁判目次'
+            pdftoppm -png -r 150 -f 31 -l 33 'out/pdfs/裁判所_新プロシーディングス刑事裁判_202602.pdf' 'out/pdf_pages/033_裁判所_公判前整理手続'
+          fi
+
+          download_video () {
+            local id="$1"
+            local stem="$2"
+            yt-dlp --no-playlist --retries 5 --fragment-retries 5 \
+              -f 'bv*[height<=720]+ba/b[height<=720]' \
+              --merge-output-format mp4 \
+              --write-info-json --write-thumbnail --convert-thumbnails jpg \
+              -o "out/videos/${stem}.%(ext)s" \
+              "https://www.youtube.com/watch?v=${id}" || true
+          }
+
+          download_video 'zVjQfzZPKqU' '101_最新報道_パソコンから偽造データ_NNN_20260825'
+          download_video 'Qwt0xdDUQGI' '102_百条委員会初出頭_報道ステーション_20250813'
+          download_video 'z2aw18A-OAU' '103_田久保前市長宅家宅捜索_テレ朝_20260215'
+          download_video 'iL3x2wPk4qk' '104_田久保前市長任意聴取_テレ朝_20260130'
+          download_video 'pRG2eglOpWM' '105_田久保市長記者会見_ノーカット_20250702'
+
+          for v in out/videos/*.mp4; do
+            [ -e "$v" ] || continue
+            base="$(basename "$v" .mp4)"
+            ffprobe -v error -show_format -show_streams -of json "$v" > "out/video_meta/${base}_ffprobe.json" || true
+            ffmpeg -hide_banner -loglevel error -i "$v" -vf "fps=1/20,scale=480:-2,tile=4x3" -frames:v 1 "out/video_meta/${base}_コンタクトシート.jpg" || true
+          done
+
+          find out -type f -size 0 -delete
+          find out -type f -printf '%s %p\n' | sort -n > out/video_meta/file_sizes.txt
+
+      - name: Upload temporary asset bundle
+        uses: actions/upload-artifact@v4
+        with:
+          name: takubo-real-assets-${{ github.run_id }}
+          path: out
+          if-no-files-found: error
+          retention-days: 1
+          compression-level: 0
