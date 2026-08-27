@@ -1,0 +1,98 @@
+name: ChatGPT temporary Takubo asset collection
+
+on:
+  push:
+    paths:
+      - '.github/workflows/chatgpt_takubo_collect_temp.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  collect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install tools
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq poppler-utils
+          python -m pip install --quiet requests pillow
+      - name: Download real assets
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p out/素材 out/meta
+          python - <<'PY'
+          import csv, hashlib, io, json, os, time
+          from pathlib import Path
+          from urllib.parse import urlparse
+          import requests
+          from PIL import Image
+
+          out=Path('out/素材')
+          rows=[]
+          s=requests.Session()
+          s.headers.update({'User-Agent':'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/131 Safari/537.36'})
+          images=[
+          ('001_田久保真紀前市長_記者会見_日刊スポーツ_20250702.jpg','https://www.nikkansports.com/general/nikkan/news/img/202507020000704-w1300_2.jpg','https://www.nikkansports.com/general/nikkan/news/202507020000704.html','記者会見'),
+          ('002_田久保真紀前市長_百条委員会_日刊スポーツ_20250813.jpg','https://www.nikkansports.com/general/nikkan/news/img/202508130000427-w1300_0.jpg','https://www.nikkansports.com/general/nikkan/news/202508130000427.html','百条委員会'),
+          ('003_田久保真紀市長_百条委員会_SBS_20250813.jpg','https://newsdig.ismcdn.jp/mwimgs/1/6/1200xm/img_16f4f54561880449fec4f4cf1995f969256952.jpg','https://newsdig.tbs.co.jp/articles/sbs/2106283','百条委員会'),
+          ('004_伊東市議会_辞職勧告決議_SBS_20250707.jpg','https://newsdig.ismcdn.jp/mwimgs/f/7/680mw/img_f71ea28fc141ef78da8557fce61fdce5165841.jpg','https://newsdig.tbs.co.jp/articles/sbs/2030918','市議会'),
+          ('005_田久保前市長宅_家宅捜索_テレ朝_01.jpg','https://news.tv-asahi.co.jp/articles_img/900184057_img_a7c6509a0a0a91c76614f44d7406527d78189.jpg','https://news.tv-asahi.co.jp/news_society/articles/900184057.html','家宅捜索'),
+          ('006_田久保前市長宅_家宅捜索_テレ朝_02.jpg','https://news.tv-asahi.co.jp/articles_img/900184057_img_b04c1ff0d4ef7add93a71632ad3913ba80353.jpg','https://news.tv-asahi.co.jp/news_society/articles/900184057.html','家宅捜索'),
+          ('007_田久保真紀前市長_家宅捜索報道_テレ朝.jpg','https://news.tv-asahi.co.jp/articles_img/900184057_img_482125b55e217fd0000dcbc0b61c1dac75499.jpg','https://news.tv-asahi.co.jp/news_society/articles/900184057.html','家宅捜索'),
+          ('008_伊東市議会議長_家宅捜索報道_テレ朝.jpg','https://news.tv-asahi.co.jp/articles_img/900184057_img_7f2f776b2d118c8f2dc852a531f816ea79342.jpg','https://news.tv-asahi.co.jp/news_society/articles/900184057.html','市議会議長'),
+          ('009_卒業証書19秒説明_テレ朝.jpg','https://news.tv-asahi.co.jp/articles_img/900184057_img_8bcef0088475cc73b03c5541fe962c8995218.jpg','https://news.tv-asahi.co.jp/news_society/articles/900184057.html','卒業証書提示'),
+          ('010_田久保氏代理人_福島弁護士_テレ朝.jpg','https://news.tv-asahi.co.jp/articles_img/900184057_img_4bd1c23540981ff52590bfb231306966100241.jpg','https://news.tv-asahi.co.jp/news_society/articles/900184057.html','弁護側'),
+          ('011_卒業証書提出拒否_テレ朝.jpg','https://news.tv-asahi.co.jp/articles_img/900184057_img_bc9c96e6cceea9a2d6db8b35d12b4fd281406.jpg','https://news.tv-asahi.co.jp/news_society/articles/900184057.html','証書提出拒否'),
+          ('012_元検事弁護士_捜査解説_テレ朝.jpg','https://news.tv-asahi.co.jp/articles_img/900184057_img_be1b0a4e4667d54379d316b9422b9cd7100768.jpg','https://news.tv-asahi.co.jp/news_society/articles/900184057.html','捜査解説'),
+          ('013_田久保前市長_任意聴取後_テレ朝_01.jpg','https://news.tv-asahi.co.jp/articles_img/900183006_img_eb22498aaf7dc2bd0150e4c42609f3b4194799.jpg','https://news.tv-asahi.co.jp/news_society/articles/900183006.html','任意聴取'),
+          ('014_田久保前市長_任意聴取後_テレ朝_02.jpg','https://news.tv-asahi.co.jp/articles_img/900183006_img_ebf6203df3c6a0f5c83d299409ded0c988830.jpg','https://news.tv-asahi.co.jp/news_society/articles/900183006.html','任意聴取'),
+          ('015_田久保前市長_SNS投稿_テレ朝.jpg','https://news.tv-asahi.co.jp/articles_img/900183006_img_cf47fc141b469b66d26ac0e27cb8d36891753.jpg','https://news.tv-asahi.co.jp/news_society/articles/900183006.html','本人投稿'),
+          ('016_広報いとう学歴記載_テレ朝.jpg','https://news.tv-asahi.co.jp/articles_img/900183006_img_fc9f6195de426c8d4f0d001a2a5ab35f204082.jpg','https://news.tv-asahi.co.jp/news_society/articles/900183006.html','広報いとう'),
+          ('017_百条委員会刑事告発_テレ朝.jpg','https://news.tv-asahi.co.jp/articles_img/900183006_img_c432ceae44ebd7a22b733cf300b1ed7a197237.jpg','https://news.tv-asahi.co.jp/news_society/articles/900183006.html','百条委員会告発'),
+          ('018_田久保氏百条委員会後コメント_TBS.jpg','https://newsdig.ismcdn.jp/mwimgs/1/1/1200w/img_11f644d17ab0b6bbfc797dba18fe2e6e118046.jpg','https://newsdig.tbs.co.jp/articles/-/2107068','百条委員会後'),
+          ('019_田久保氏定例会見_静岡新聞.jpg','https://www.at-s.com/news/images/n182/1815413/IP250929TAN900025000_0001_CDSP.jpg','https://news.at-s.com/article/1815413','定例会見')]
+          for name,url,page,group in images:
+              status='INACCESSIBLE'; note=''; w=h=''; sha=''
+              try:
+                  r=s.get(url,timeout=45); r.raise_for_status(); data=r.content
+                  im=Image.open(io.BytesIO(data)); im.load(); w,h=im.size
+                  if w<400 or h<220: raise RuntimeError(f'too small {w}x{h}')
+                  (out/name).write_bytes(data); sha=hashlib.sha256(data).hexdigest(); status='OBSERVED'
+              except Exception as e: note=repr(e)
+              rows.append([name if status=='OBSERVED' else '',page,url,group,status,sha,w,h,note])
+          pdfs=[
+          ('伊東市議会_百条委員会調査報告書.pdf','https://www.city.ito.shizuoka.jp/material/files/group/32/R070829_hyakujyo_chousahoukoku.pdf','https://www.city.ito.shizuoka.jp/gyosei/soshikikarasagasu/gikaijimukyoku/shiseijoho/1/1/13764.html'),
+          ('伊東市議会_百条委員会要点記録_20250829.pdf','https://www.city.ito.shizuoka.jp/material/files/group/32/R070829_hyakujyo_youten.pdf','https://www.city.ito.shizuoka.jp/gyosei/soshikikarasagasu/gikaijimukyoku/shiseijoho/1/1/13764.html')]
+          for name,url,page in pdfs:
+              try:
+                  r=s.get(url,timeout=60); r.raise_for_status(); data=r.content
+                  (Path('out')/name).write_bytes(data)
+                  rows.append([name,page,url,'公式PDF','OBSERVED',hashlib.sha256(data).hexdigest(),'','',''])
+              except Exception as e: rows.append(['',page,url,'公式PDF','INACCESSIBLE','','','',repr(e)])
+          with open('out/meta/取得台帳.csv','w',encoding='utf-8-sig',newline='') as f:
+              cw=csv.writer(f); cw.writerow(['filename','source_page_url','direct_url','group','status','sha256','width','height','notes']); cw.writerows(rows)
+          PY
+          if [ -s 'out/伊東市議会_百条委員会調査報告書.pdf' ]; then
+            pdftoppm -png -r 165 -f 1 -l 1 'out/伊東市議会_百条委員会調査報告書.pdf' 'out/素材/020_百条委員会調査報告書_表紙'
+            pdftoppm -png -r 165 -f 4 -l 8 'out/伊東市議会_百条委員会調査報告書.pdf' 'out/素材/021_百条委員会調査報告書_経緯'
+            pdftoppm -png -r 165 -f 9 -l 14 'out/伊東市議会_百条委員会調査報告書.pdf' 'out/素材/026_百条委員会調査報告書_大学照会'
+            pdftoppm -png -r 165 -f 15 -l 20 'out/伊東市議会_百条委員会調査報告書.pdf' 'out/素材/032_百条委員会調査報告書_認定'
+          fi
+          if [ -s 'out/伊東市議会_百条委員会要点記録_20250829.pdf' ]; then
+            pdftoppm -png -r 165 -f 1 -l 1 'out/伊東市議会_百条委員会要点記録_20250829.pdf' 'out/素材/038_百条委員会要点記録_表紙'
+            pdftoppm -png -r 165 -f 7 -l 10 'out/伊東市議会_百条委員会要点記録_20250829.pdf' 'out/素材/039_百条委員会要点記録_告発判断'
+          fi
+          rm -f out/*.pdf
+          find out/素材 -type f -size 0 -delete
+          find out -type f -printf '%s %p\n' | sort -n > out/meta/file_sizes.txt
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: chatgpt-takubo-assets-${{ github.run_id }}
+          path: out/**
+          retention-days: 2
+          compression-level: 0
