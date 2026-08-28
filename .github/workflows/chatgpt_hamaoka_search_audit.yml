@@ -1,0 +1,95 @@
+name: ChatGPT Hamaoka two-pass search audit
+
+on:
+  push:
+    branches:
+      - chatgpt-hamaoka-public-20260828
+    paths:
+      - '.github/workflows/chatgpt_hamaoka_search_audit.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  audit-search:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install requests beautifulsoup4
+      - name: Run two-pass five-surface searches
+        shell: bash
+        run: |
+          python <<'PY'
+          import csv, re, time, urllib.parse
+          from pathlib import Path
+          import requests
+          from bs4 import BeautifulSoup
+
+          OUT=Path('search_output'); OUT.mkdir(exist_ok=True)
+          S=requests.Session(); S.headers.update({'User-Agent':'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/151 Safari/537.36','Accept-Language':'ja,en-US;q=0.8'})
+          targets={
+            'T01':('浜岡原発1号機2号機 外観 場所','浜岡原子力発電所 1号機 2号機 航空写真 御前崎'),
+            'T02':('中部電力 2026年8月27日 浜岡廃炉 不適切 会見 大塚温久','浜岡原発 廃炉費 8億円 記者会見 中部電力 原子力部長'),
+            'T03':('中部電力 浜岡原発 廃炉 不適切事案 公式 1218246','浜岡1号機2号機 実施報告 費用請求 書き換え 公式'),
+            'T04':('NuRO 使用済燃料再処理 廃炉推進機構 廃炉 費用 支払い 仕組み','廃炉拠出金 機構 工事 実績 確認 支払 公式'),
+            'T05':('浜岡原発 廃止措置 計画 実施報告 工事報告書','浜岡1号機2号機 解体撤去 廃止措置計画 資料'),
+            'T06':('浜岡 廃炉 14件 解体物量 解体機器 印鑑 書き換え','中部電力 工事報告書 写し 重量 日付 印鑑 改ざん'),
+            'T07':('浜岡原発 廃炉 現地確認 2025年7月24日 25日 NuRO','浜岡 廃炉 実績確認 現地 工事 2025 費用請求'),
+            'T08':('NuRO 中部電力 2025年度 類似事案 外部専門家 確認','廃炉推進機構 他電力会社 類似事例 自身の手続き 調査'),
+            'T09':('浜岡 廃炉 約11億円 約8億円 過払い 確認中','中部電力 廃炉費 受領 11億 8億 返還額'),
+            'T10':('浜岡原発 1号機2号機 解体 現場 放射性廃棄物 写真','浜岡 廃炉 原子炉圧力容器 上蓋 解体 作業'),
+            'T11':('浜岡1号機2号機 使用済燃料 貯蔵なし 安全性 直接影響なし','浜岡 廃炉 不適切報告 安全への影響 供用終了設備'),
+            'T12':('経済産業省 中部電力 浜岡 報告徴収 2026年9月25日','浜岡廃炉 不適切請求 法70条 報告命令 公式'),
+            'T13':('中部電力 浜岡 廃炉 外部弁護士 調査 組織的','浜岡 不適切請求 社外弁護士 聞き取り 再発防止'),
+            'T14':('中部電力 浜岡3号機4号機 地震動 データ不正 2026年1月','浜岡原発 再稼働審査 不正データ 林欣吾 謝罪')
+          }
+          surfaces=['公式','報道','画像検索','X','YouTube']
+          rows=[]
+          def bing_count(q,images=False):
+            url=('https://www.bing.com/images/search?q=' if images else 'https://www.bing.com/search?q=')+urllib.parse.quote(q)
+            r=S.get(url,timeout=25); text=r.text
+            if images:
+              links=set(re.findall(r'"murl":"(https?://[^"\\]+)',text))
+              if not links:
+                soup=BeautifulSoup(text,'html.parser'); links={a.get('href') for a in soup.select('a.iusc') if a.get('href')}
+            else:
+              soup=BeautifulSoup(text,'html.parser'); links={a.get('href') for a in soup.select('li.b_algo h2 a') if a.get('href')}
+            return r.status_code,len(links),url
+          def x_count(q):
+            url='https://x.com/search?q='+urllib.parse.quote(q)+'&src=typed_query&f=live'
+            r=S.get(url,timeout=25); ids=set(re.findall(r'/status/(\d+)',r.text))
+            if ids:return r.status_code,len(ids),url
+            st,c,fu=bing_count('site:x.com '+q);return st,c,url+' | fallback='+fu
+          def yt_count(q):
+            url='https://www.youtube.com/results?search_query='+urllib.parse.quote(q)
+            r=S.get(url,timeout=25); ids=set(re.findall(r'"videoId":"([A-Za-z0-9_-]{11})"',r.text))
+            if ids:return r.status_code,len(ids),url
+            st,c,fu=bing_count('site:youtube.com/watch '+q);return st,c,url+' | fallback='+fu
+          for tid,(q1,q2) in targets.items():
+            for rnd,q in [(1,q1),(2,q2)]:
+              for surface in surfaces:
+                actual=q
+                try:
+                  if surface=='公式': st,c,url=bing_count(q+' (site:chuden.co.jp OR site:nuro.or.jp OR site:meti.go.jp OR site:pref.shizuoka.jp)')
+                  elif surface=='報道': st,c,url=bing_count(q+' ニュース')
+                  elif surface=='画像検索': st,c,url=bing_count(q,True)
+                  elif surface=='X': st,c,url=x_count(q)
+                  else: st,c,url=yt_count(q)
+                  result='SEARCHED_HIT' if c else 'SEARCHED_NO_HIT'
+                except Exception as e:
+                  st='ERROR';c=0;url='';result='SEARCH_ERROR:'+repr(e)[:180]
+                rows.append({'target_id':tid,'探索巡':rnd,'探索面':surface,'実行検索語':actual,'検索日時':time.strftime('%Y-%m-%dT%H:%M:%SZ',time.gmtime()),'確認結果件数':c,'結果':result,'検索先':url,'HTTP':st})
+                time.sleep(.15)
+          with open(OUT/'search_audit.csv','w',encoding='utf-8-sig',newline='') as f:
+            w=csv.DictWriter(f,fieldnames=list(rows[0]));w.writeheader();w.writerows(rows)
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: hamaoka-search-audit
+          path: search_output/search_audit.csv
+          if-no-files-found: error
+          retention-days: 1
