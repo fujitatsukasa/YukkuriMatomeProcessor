@@ -1,0 +1,224 @@
+name: ChatGPT Hamaoka public media collector
+
+on:
+  push:
+    branches:
+      - chatgpt-hamaoka-public-20260828
+    paths:
+      - '.github/workflows/chatgpt_hamaoka_public.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  collect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y poppler-utils ffmpeg
+          python -m pip install --upgrade pip
+          pip install requests beautifulsoup4 lxml pillow yt-dlp
+      - name: Collect actual public web media
+        shell: bash
+        run: |
+          python <<'PY'
+          from __future__ import annotations
+          import csv, hashlib, html, json, re, subprocess, sys, time
+          from pathlib import Path
+          from urllib.parse import urljoin, urlparse, unquote
+          import requests
+          from bs4 import BeautifulSoup
+          from PIL import Image
+
+          ROOT=Path('output'); MEDIA=ROOT/'media'; META=ROOT/'meta'; TMP=ROOT/'tmp'; VIDEO=ROOT/'videos'
+          for d in (MEDIA,META,TMP,VIDEO): d.mkdir(parents=True,exist_ok=True)
+          S=requests.Session(); S.headers.update({'User-Agent':'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/151 Safari/537.36','Accept-Language':'ja,en-US;q=0.8,en;q=0.6'})
+          TIMEOUT=45; seen={}; assets=[]; pages=[]; videos=[]
+
+          page_seeds=[
+            ('chuden_case','https://www.chuden.co.jp/publicity/press/1218246_3273.html'),
+            ('chuden_meti','https://www.chuden.co.jp/publicity/press/1218247_3273.html'),
+            ('chuden_nuro','https://www.chuden.co.jp/publicity/press/1218248_3273.html'),
+            ('chuden_status','https://www.chuden.co.jp/energy/nuclear/hamaoka/hama_haishi/joukyou/'),
+            ('chuden_plan','https://www.chuden.co.jp/energy/nuclear/hamaoka/hama_haishi/sochi/'),
+            ('chuden_dismantle','https://www.chuden.co.jp/energy/nuclear/hamaoka/hama_haishi/kaitai/'),
+            ('chuden_hamaoka','https://www.chuden.co.jp/energy/nuclear/hamaoka/'),
+            ('nuro_role','https://www.nuro.or.jp/decommissioning/role.html'),
+            ('tv_asahi_529181','https://news.tv-asahi.co.jp/news_society/articles/000529181.html'),
+            ('tv_asahi_529119','https://news.tv-asahi.co.jp/news_society/articles/000529119.html'),
+            ('tv_asahi_529023','https://news.tv-asahi.co.jp/news_society/articles/000529023.html'),
+            ('tv_asahi_update','https://news.tv-asahi.co.jp/news_economy/articles/900198153.html'),
+            ('fnn_1102343','https://www.fnn.jp/articles/-/1102343'),
+            ('fnn_1102851','https://www.fnn.jp/articles/-/1102851'),
+            ('fnn_1102603','https://www.fnn.jp/articles/-/1102603'),
+            ('fnn_1102352','https://www.fnn.jp/articles/-/1102352'),
+            ('look_96315','https://look.satv.co.jp/content_news/politics_economic/96315'),
+            ('nippon_jiji','https://www.nippon.com/ja/news/yjj2026082700331/'),
+            ('tokai_decommission','https://www.tokai-tv.com/tokainews/feature/article_20250423_40014'),
+            ('mainichi_decommission','https://mainichi.jp/articles/20250317/k00/00m/040/143000c'),
+            ('enefro_hamaoka','https://ene-fro.com/article/ef432_a1/'),
+            ('shizuoka_hamaoka','https://www.pref.shizuoka.jp/bosaikinkyu/genshiryoku/hamaokagenpatsu/1035405.html'),
+            ('ats_current','https://www.at-s.com/snews/article/ats/2043492.html'),
+            ('ats_inspection','https://www.at-s.com/snews/article/ats/1876898.html'),
+            ('ats_dismantling','https://news.at-s.com/article/1676344'),
+            ('nagoyatv_current','https://www.nagoyatv.com/news/index_amp.html?id=036949'),
+            ('sbs_current','https://newsdig.tbs.co.jp/articles/sbs/2902253?display=1')
+          ]
+          direct_images=[
+            ('tokai_aerial','https://www.tokai-tv.com/tokainews/image/202504234001402.jpg','https://www.tokai-tv.com/tokainews/feature/article_20250423_40014'),
+            ('mainichi_plant','https://cf-images.ap-northeast-1.prod.boltdns.net/v1/static/5490902205001/c8886fd2-46ab-46b9-8d25-3c1a96973ec8/e7cd408f-c492-41b5-a54b-a2e32700e37b/1280x720/match/image.jpg','https://mainichi.jp/articles/20250317/k00/00m/040/143000c'),
+            ('livedoor_hayashi','https://image.news.livedoor.com/newsimage/stf/d/6/d6726_1793_9a92d101_8eb6d62c-sta.jpg','https://news.livedoor.com/topics/detail/30376605/'),
+            ('tbs_report_folder','https://newsdig.ismcdn.jp/mwimgs/d/b/1360mw/img_db2d0cdf58c794dbc335ead979d6db2a45611.jpg','https://newsdig.tbs.co.jp/articles/-/2565500?display=1'),
+            ('tbs_hayashi_press','https://newsdig.ismcdn.jp/mwimgs/d/b/-/img_db38e6f69293a81dfba09c9c2220191b342953.jpg','https://newsdig.tbs.co.jp/'),
+            ('enefro_aerial','https://ene-fro.com/article/ef456_a1/image/entry01.jpg','https://ene-fro.com/article/ef456_a1/')
+          ]
+          pdf_seeds=[
+            ('nuro_20260827','https://www.nuro.or.jp/pdf/20260827_1.pdf'),
+            ('chuden_status_overview','https://www.chuden.co.jp/resource/energy/joukyou_190520haishisochi.pdf'),
+            ('chuden_decommission_flyer','https://www.chuden.co.jp/resource/energy/nuclear/hamaoka/hama_haishi/kanren/haishi_20150428chirashi.pdf'),
+            ('chuden_ufb_research','https://www.chuden.co.jp/resource/seicho_kaihatsu/kaihatsu/techno/techno_webtenzikai2022/techno_webtenzikai2022_11_1.pdf')
+          ]
+          yt_ids=['V0yQkeJ5WI0','rfsehgrViOg','RDt0ZXVdEoU','8P7bOKAYXkg','FfqGcRCJ3rc','IWO_VFtZJmw','mYZEvGZt_nU','_Sc_8-tKleI','YAsAcLjhuZ4','ngexsDILEBw','Fw_6odXg9BE']
+          generic_video_pages=[u for _,u in page_seeds if any(x in u for x in ('tv-asahi','fnn.jp','look.satv','tokai-tv','mainichi.jp','newsdig.tbs'))]
+
+          def slug(s,n=80):
+            s=unquote(str(s)); s=re.sub(r'[^0-9A-Za-z._-]+','_',s).strip('._'); return (s or 'asset')[:n]
+          def sha(b): return hashlib.sha256(b).hexdigest()
+          def dims(path):
+            try:
+              with Image.open(path) as im: im.load(); return im.width,im.height,im.format or ''
+            except: return 0,0,''
+          def ext_for(url,ct):
+            e=Path(urlparse(url).path).suffix.lower();
+            if e=='.jpeg': e='.jpg'
+            if e in ('.jpg','.png','.webp','.tif','.tiff','.bmp'): return e
+            if 'png' in ct:return '.png'
+            if 'webp' in ct:return '.webp'
+            return '.jpg'
+          def save_image(data,tag,source_page,asset_url,note=''):
+            h=sha(data)
+            if h in seen:
+              assets.append({'record':'asset','tag':tag,'source_page':source_page,'asset_url':asset_url,'status':'SHA_DUPLICATE','file':seen[h],'sha256':h,'width':'','height':'','bytes':len(data),'note':note}); return None
+            p=MEDIA/f'{slug(tag)}_{h[:12]}{ext_for(asset_url,"")}'
+            p.write_bytes(data); w,hh,fmt=dims(p)
+            if not w or not hh:
+              p.unlink(missing_ok=True); assets.append({'record':'asset','tag':tag,'source_page':source_page,'asset_url':asset_url,'status':'EXCLUDED_NOT_IMAGE','file':'','sha256':h,'width':'','height':'','bytes':len(data),'note':note}); return None
+            if w<500 or hh<280:
+              p.unlink(missing_ok=True); assets.append({'record':'asset','tag':tag,'source_page':source_page,'asset_url':asset_url,'status':'EXCLUDED_SMALL','file':'','sha256':h,'width':w,'height':hh,'bytes':len(data),'note':note}); return None
+            seen[h]=str(p); assets.append({'record':'asset','tag':tag,'source_page':source_page,'asset_url':asset_url,'status':'SAVED','file':str(p),'sha256':h,'width':w,'height':hh,'bytes':len(data),'note':(note+';format='+fmt).strip(';')}); return p
+          def download_image(tag,url,source_page,note=''):
+            try:
+              r=S.get(url,timeout=TIMEOUT,allow_redirects=True,headers={'Referer':source_page,'User-Agent':S.headers['User-Agent']})
+              ct=r.headers.get('content-type','').lower()
+              if r.status_code!=200: raise RuntimeError('HTTP_'+str(r.status_code))
+              if 'text/html' in ct or r.content[:100].lstrip().lower().startswith((b'<html',b'<!doctype')): raise RuntimeError('HTML')
+              return save_image(r.content,tag,source_page,r.url,note)
+            except Exception as e:
+              assets.append({'record':'asset','tag':tag,'source_page':source_page,'asset_url':url,'status':'ERROR','file':'','sha256':'','width':'','height':'','bytes':'','note':repr(e)[:300]}); return None
+          def candidates(base,text):
+            soup=BeautifulSoup(text,'lxml'); found={}
+            def add(v,hint=0):
+              if not v or str(v).startswith('data:'): return
+              u=urljoin(base,html.unescape(str(v)).replace('\\/','/'))
+              if re.search(r'\.(?:jpe?g|png|webp|tiff?|bmp)(?:[?#].*)?$',u,re.I): found[u]=max(found.get(u,0),hint)
+            for m in soup.select('meta[property="og:image"],meta[name="twitter:image"],meta[property="twitter:image"]'): add(m.get('content'),1400)
+            for tag in soup.find_all(['img','source','a','video']):
+              for k in ('src','data-src','data-original','data-lazy-src','data-image','poster','href'): add(tag.get(k),int(tag.get('width') or 0) if str(tag.get('width') or '').isdigit() else 0)
+              for k in ('srcset','data-srcset'):
+                if tag.get(k):
+                  for part in tag.get(k).split(','):
+                    bits=part.strip().split(); hint=int(bits[1][:-1]) if len(bits)>1 and bits[1].endswith('w') and bits[1][:-1].isdigit() else 0; add(bits[0],hint)
+            raw=html.unescape(text).replace('\\/','/')
+            for u in re.findall(r'https?://[^"\'<>\\s]+?\.(?:jpe?g|png|webp)(?:\?[^"\'<>\\s]*)?',raw,re.I): add(u)
+            out=[]
+            for u,h in found.items():
+              low=u.lower()
+              if any(t in low for t in ('favicon','sprite','pixel','tracking','loading','placeholder','icon_','/icon/','logo_','/logo/')): continue
+              out.append((u,h))
+            return sorted(out,key=lambda x:x[1],reverse=True)
+
+          for tag,u,src in direct_images: download_image('direct_'+tag,u,src,'direct web result original')
+          for idx,(tag,u) in enumerate(page_seeds,1):
+            start=time.time(); found=0; before=len(assets)
+            try:
+              r=S.get(u,timeout=TIMEOUT,allow_redirects=True); r.raise_for_status(); cc=candidates(r.url,r.text); found=len(cc)
+              for n,(img,hint) in enumerate(cc,1): download_image(f'page{idx:02d}_{tag}_{n:03d}',img,r.url,f'width_hint={hint}')
+              new=assets[before:]; sv=sum(x['status']=='SAVED' for x in new); du=sum(x['status']=='SHA_DUPLICATE' for x in new); ex=len(new)-sv-du
+              pages.append({'tag':tag,'page_url':u,'resolved_url':r.url,'status':'HTTP_200','found_total':found,'saved':sv,'sha_duplicate':du,'excluded':ex,'seconds':round(time.time()-start,2)})
+            except Exception as e:
+              pages.append({'tag':tag,'page_url':u,'status':'ERROR','found_total':found,'saved':0,'sha_duplicate':0,'excluded':found,'seconds':round(time.time()-start,2),'note':repr(e)[:300]})
+
+          try:
+            api='https://commons.wikimedia.org/w/api.php'; prm={'action':'query','generator':'categorymembers','gcmtitle':'Category:Hamaoka_Nuclear_Power_Plant','gcmtype':'file','gcmlimit':'500','prop':'imageinfo','iiprop':'url|size|mime|extmetadata','format':'json'}
+            rr=S.get(api,params=prm,timeout=TIMEOUT); rr.raise_for_status(); pp=list((rr.json().get('query') or {}).get('pages',{}).values()); before=len(assets)
+            for i,p in enumerate(sorted(pp,key=lambda x:x.get('title','')),1):
+              ii=(p.get('imageinfo') or [{}])[0]; u=ii.get('url')
+              if u: download_image(f'commons_{i:03d}_{p.get("title","")}',u,'https://commons.wikimedia.org/wiki/Category:Hamaoka_Nuclear_Power_Plant',json.dumps({'title':p.get('title'),'width':ii.get('width'),'height':ii.get('height'),'extmetadata':ii.get('extmetadata')},ensure_ascii=False)[:3000])
+            new=assets[before:]; pages.append({'tag':'commons','page_url':'https://commons.wikimedia.org/wiki/Category:Hamaoka_Nuclear_Power_Plant','status':'HTTP_200','found_total':len(pp),'saved':sum(x['status']=='SAVED' for x in new),'sha_duplicate':sum(x['status']=='SHA_DUPLICATE' for x in new),'excluded':sum(x['status'] not in ('SAVED','SHA_DUPLICATE') for x in new)})
+          except Exception as e: pages.append({'tag':'commons','page_url':'https://commons.wikimedia.org/wiki/Category:Hamaoka_Nuclear_Power_Plant','status':'ERROR','found_total':0,'saved':0,'sha_duplicate':0,'excluded':0,'note':repr(e)[:300]})
+
+          for idx,(tag,u) in enumerate(pdf_seeds,1):
+            start=time.time()
+            try:
+              r=S.get(u,timeout=TIMEOUT); r.raise_for_status(); pdf=TMP/f'{idx:02d}_{tag}.pdf'; pdf.write_bytes(r.content); pref=TMP/f'{idx:02d}_{tag}_page'
+              cp=subprocess.run(['pdftoppm','-png','-r','170',str(pdf),str(pref)],capture_output=True,text=True,timeout=300); found=0; before=len(assets)
+              for n,p in enumerate(sorted(TMP.glob(f'{idx:02d}_{tag}_page-*.png')),1):
+                found+=1; data=p.read_bytes(); h=sha(data); w,hh,fmt=dims(p)
+                if h in seen: assets.append({'record':'asset','tag':'pdf_'+tag,'source_page':u,'asset_url':f'{u}#page={n}','status':'SHA_DUPLICATE','file':seen[h],'sha256':h,'width':w,'height':hh,'bytes':len(data),'note':'official PDF page'}); p.unlink(missing_ok=True)
+                else:
+                  out=MEDIA/f'pdf_{slug(tag)}_p{n:03d}_{h[:12]}.png'; p.replace(out); seen[h]=str(out); assets.append({'record':'asset','tag':'pdf_'+tag,'source_page':u,'asset_url':f'{u}#page={n}','status':'SAVED','file':str(out),'sha256':h,'width':w,'height':hh,'bytes':len(data),'note':'official PDF page;format='+fmt})
+              new=assets[before:]; pages.append({'tag':'pdf_'+tag,'page_url':u,'status':'SAVED','found_total':found,'saved':sum(x['status']=='SAVED' for x in new),'sha_duplicate':sum(x['status']=='SHA_DUPLICATE' for x in new),'excluded':sum(x['status'] not in ('SAVED','SHA_DUPLICATE') for x in new),'seconds':round(time.time()-start,2),'render_returncode':cp.returncode})
+            except Exception as e: pages.append({'tag':'pdf_'+tag,'page_url':u,'status':'ERROR','found_total':0,'saved':0,'sha_duplicate':0,'excluded':0,'seconds':round(time.time()-start,2),'note':repr(e)[:300]})
+
+          def probe(path):
+            cp=subprocess.run(['ffprobe','-v','error','-select_streams','v:0','-show_entries','stream=width,height,codec_name','-show_entries','format=duration','-of','json',str(path)],capture_output=True,text=True,timeout=60)
+            try:return json.loads(cp.stdout) if cp.returncode==0 else {}
+            except:return {}
+          def fetch_video(url,tag):
+            before={p.resolve() for p in VIDEO.glob('*')}; start=time.time(); tpl=str(VIDEO/(slug(tag)+'_%(id)s_%(title).80B.%(ext)s'))
+            cmd=[sys.executable,'-m','yt_dlp','--no-playlist','--retries','3','--fragment-retries','3','--socket-timeout','30','--max-filesize','180M','-f','bestvideo[height<=720]+bestaudio/best[height<=720]','--merge-output-format','mp4','--write-info-json','-o',tpl,url]
+            try:
+              cp=subprocess.run(cmd,capture_output=True,text=True,timeout=1200); made=[]
+              for p in VIDEO.glob('*'):
+                if p.resolve() in before or p.suffix.lower() not in ('.mp4','.webm','.mkv','.mov','.m4v'): continue
+                b=p.read_bytes(); h=sha(b); info=probe(p); st=(info.get('streams') or [{}])[0]; fm=info.get('format') or {}; made.append(str(p)); assets.append({'record':'asset','tag':tag,'source_page':url,'asset_url':url,'status':'SAVED_VIDEO','file':str(p),'sha256':h,'width':st.get('width',''),'height':st.get('height',''),'bytes':len(b),'note':f'duration={fm.get("duration","")};codec={st.get("codec_name","")}'})
+              videos.append({'tag':tag,'url':url,'returncode':cp.returncode,'media_files':'|'.join(made),'seconds':round(time.time()-start,2),'stderr_tail':cp.stderr[-1000:]})
+            except Exception as e: videos.append({'tag':tag,'url':url,'returncode':-1,'media_files':'','seconds':round(time.time()-start,2),'note':repr(e)[:400]})
+          for vid in yt_ids: fetch_video('https://www.youtube.com/watch?v='+vid,'youtube_'+vid)
+          for i,u in enumerate(generic_video_pages,1): fetch_video(u,f'pagevideo_{i:02d}')
+
+          def write_csv(path,rows):
+            keys=[]
+            for r in rows:
+              for k in r:
+                if k not in keys: keys.append(k)
+            with open(path,'w',encoding='utf-8-sig',newline='') as f:
+              if keys: w=csv.DictWriter(f,fieldnames=keys); w.writeheader(); w.writerows(rows)
+          write_csv(META/'asset_records.csv',assets); write_csv(META/'page_reconciliation.csv',pages); write_csv(META/'video_records.csv',videos)
+          inventory=[]
+          for p in sorted(list(MEDIA.glob('*'))+list(VIDEO.glob('*'))):
+            if not p.is_file() or p.suffix.lower()=='.json': continue
+            b=p.read_bytes(); w=hh=dur=codec=''
+            if p.suffix.lower() in ('.jpg','.jpeg','.png','.webp','.tif','.tiff','.bmp'): w,hh,_=dims(p)
+            elif p.suffix.lower() in ('.mp4','.webm','.mkv','.mov','.m4v'):
+              info=probe(p); st=(info.get('streams') or [{}])[0]; fm=info.get('format') or {}; w=st.get('width',''); hh=st.get('height',''); dur=fm.get('duration',''); codec=st.get('codec_name','')
+            inventory.append({'file':str(p),'sha256':sha(b),'bytes':len(b),'width':w,'height':hh,'duration':dur,'codec':codec})
+          write_csv(META/'inventory.csv',inventory)
+          summary={'pages':len(page_seeds),'pdfs':len(pdf_seeds),'youtube_ids':len(yt_ids),'generic_video_pages':len(generic_video_pages),'saved_images':sum(x.get('status')=='SAVED' for x in assets),'saved_videos':sum(x.get('status')=='SAVED_VIDEO' for x in assets),'sha_duplicates':sum(x.get('status')=='SHA_DUPLICATE' for x in assets),'inventory_files':len(inventory),'generated_at_utc':time.strftime('%Y-%m-%dT%H:%M:%SZ',time.gmtime())}
+          (META/'summary.json').write_text(json.dumps(summary,ensure_ascii=False,indent=2),encoding='utf-8'); print(json.dumps(summary,ensure_ascii=False,indent=2))
+          PY
+      - name: Upload Hamaoka media artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: hamaoka-public-media
+          path: output/
+          if-no-files-found: error
+          compression-level: 6
+          retention-days: 1
