@@ -1,0 +1,192 @@
+name: ChatGPT Hamaoka fast original-media collector
+
+on:
+  push:
+    branches:
+      - chatgpt-hamaoka-public-20260828
+    paths:
+      - '.github/workflows/chatgpt_hamaoka_fast.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  collect-fast:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y poppler-utils ffmpeg
+          python -m pip install --upgrade pip
+          pip install requests beautifulsoup4 lxml pillow yt-dlp
+      - name: Collect original images PDFs and selected videos
+        shell: bash
+        run: |
+          python <<'PY'
+          from __future__ import annotations
+          import csv, hashlib, html, json, re, subprocess, sys, time
+          from pathlib import Path
+          from urllib.parse import urljoin, urlparse, unquote
+          import requests
+          from bs4 import BeautifulSoup
+          from PIL import Image
+
+          ROOT=Path('fast_output'); MEDIA=ROOT/'media'; META=ROOT/'meta'; TMP=ROOT/'tmp'; VIDEO=ROOT/'videos'
+          for d in (MEDIA,META,TMP,VIDEO): d.mkdir(parents=True,exist_ok=True)
+          S=requests.Session(); S.headers.update({'User-Agent':'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/151 Safari/537.36','Accept-Language':'ja,en-US;q=0.8,en;q=0.6'})
+          seen={}; rec=[]; pages=[]; vrec=[]; TIMEOUT=35
+          pageset=[
+            ('中部電力_不適切事案','https://www.chuden.co.jp/publicity/press/1218246_3273.html'),
+            ('中部電力_経産省報告徴収','https://www.chuden.co.jp/publicity/press/1218247_3273.html'),
+            ('中部電力_NuRO指示','https://www.chuden.co.jp/publicity/press/1218248_3273.html'),
+            ('中部電力_廃炉進捗','https://www.chuden.co.jp/energy/nuclear/hamaoka/hama_haishi/joukyou/'),
+            ('中部電力_廃止措置','https://www.chuden.co.jp/energy/nuclear/hamaoka/hama_haishi/sochi/'),
+            ('中部電力_解体撤去','https://www.chuden.co.jp/energy/nuclear/hamaoka/hama_haishi/kaitai/'),
+            ('NuRO_廃炉の役割','https://www.nuro.or.jp/decommissioning/role.html'),
+            ('テレ朝_20260828','https://news.tv-asahi.co.jp/news_economy/articles/900198153.html'),
+            ('テレ朝_20260827','https://news.tv-asahi.co.jp/news_society/articles/000529181.html'),
+            ('FNN_テレビ静岡会見','https://www.fnn.jp/articles/-/1102851'),
+            ('FNN_東海テレビ会見','https://www.fnn.jp/articles/-/1102352'),
+            ('FNN_速報','https://www.fnn.jp/articles/-/1102343'),
+            ('FNN_地元反応','https://www.fnn.jp/articles/-/1102852'),
+            ('nippon時事_会見','https://www.nippon.com/ja/news/yjj2026082700331/'),
+            ('朝日_会見','https://smart.asahi.com/v/article/ASV8W0HVNV8WULFA003M.php'),
+            ('東海テレビ_廃炉現場','https://www.tokai-tv.com/tokainews/feature/article_20250423_40014'),
+            ('毎日_廃炉現場','https://mainichi.jp/articles/20250317/k00/00m/040/143000c'),
+            ('静岡県_浜岡原発','https://www.pref.shizuoka.jp/bosaikinkyu/genshiryoku/hamaokagenpatsu/1035405.html')
+          ]
+          direct=[
+            ('浜岡原発航空全景_東海テレビ','https://www.tokai-tv.com/tokainews/image/202504234001402.jpg','https://www.tokai-tv.com/tokainews/feature/article_20250423_40014'),
+            ('浜岡原発廃炉現場_毎日新聞動画画像','https://cf-images.ap-northeast-1.prod.boltdns.net/v1/static/5490902205001/c8886fd2-46ab-46b9-8d25-3c1a96973ec8/e7cd408f-c492-41b5-a54b-a2e32700e37b/1280x720/match/image.jpg','https://mainichi.jp/articles/20250317/k00/00m/040/143000c'),
+            ('浜岡原発航空全景_エネフロ','https://ene-fro.com/article/ef456_a1/image/entry01.jpg','https://ene-fro.com/article/ef456_a1/'),
+            ('中部電力林社長_2026年1月地元謝罪','https://image.news.livedoor.com/newsimage/stf/d/6/d6726_1793_9a92d101_8eb6d62c-sta.jpg','https://news.livedoor.com/topics/detail/30376605/'),
+            ('中部電力林社長_2026年1月会見','https://newsdig.ismcdn.jp/mwimgs/d/b/-/img_db38e6f69293a81dfba09c9c2220191b342953.jpg','https://newsdig.tbs.co.jp/'),
+            ('中部電力_報告書資料','https://newsdig.ismcdn.jp/mwimgs/d/b/1360mw/img_db2d0cdf58c794dbc335ead979d6db2a45611.jpg','https://newsdig.tbs.co.jp/articles/-/2565500?display=1')
+          ]
+          pdfs=[
+            ('NuRO_20260827指示','https://www.nuro.or.jp/pdf/20260827_1.pdf'),
+            ('中部電力_廃止措置進捗概要','https://www.chuden.co.jp/resource/energy/joukyou_190520haishisochi.pdf'),
+            ('中部電力_廃止措置説明資料','https://www.chuden.co.jp/resource/energy/nuclear/hamaoka/hama_haishi/kanren/haishi_20150428chirashi.pdf'),
+            ('中部電力_廃炉解体技術資料','https://www.chuden.co.jp/resource/seicho_kaihatsu/kaihatsu/techno/techno_webtenzikai2022/techno_webtenzikai2022_11_1.pdf')
+          ]
+          video_urls=[
+            ('テレ朝_不適切請求_20260828','https://news.tv-asahi.co.jp/news_economy/articles/900198153.html'),
+            ('テレ朝_不適切請求_20260827','https://news.tv-asahi.co.jp/news_society/articles/000529181.html'),
+            ('東海テレビ_廃炉現場_20250423','https://www.tokai-tv.com/tokainews/feature/article_20250423_40014')
+          ]
+
+          def safe(s,n=90):
+            s=unquote(str(s)); s=re.sub(r'[<>:"/\\|?*\x00-\x1f]','_',s); s=re.sub(r'\s+','_',s).strip(' ._'); return (s or 'asset')[:n]
+          def hsh(b): return hashlib.sha256(b).hexdigest()
+          def info_img(p):
+            try:
+              with Image.open(p) as im: im.load(); return im.width,im.height,im.format or ''
+            except:return 0,0,''
+          def ext(url,ct):
+            e=Path(urlparse(url).path).suffix.lower(); e='.jpg' if e=='.jpeg' else e
+            if e in ('.jpg','.png','.webp','.tif','.tiff','.bmp'): return e
+            if 'png' in ct:return '.png'
+            if 'webp' in ct:return '.webp'
+            return '.jpg'
+          def save_bytes(tag,data,src,url,ct='',note=''):
+            hh=hsh(data)
+            if hh in seen:
+              rec.append({'tag':tag,'source_page':src,'asset_url':url,'status':'SHA_DUPLICATE','file':seen[hh],'sha256':hh,'width':'','height':'','bytes':len(data),'note':note}); return None
+            p=MEDIA/f'{safe(tag)}_{hh[:12]}{ext(url,ct)}'; p.write_bytes(data); w,he,fmt=info_img(p)
+            if w<500 or he<280:
+              p.unlink(missing_ok=True); rec.append({'tag':tag,'source_page':src,'asset_url':url,'status':'EXCLUDED_SMALL_OR_INVALID','file':'','sha256':hh,'width':w,'height':he,'bytes':len(data),'note':note}); return None
+            seen[hh]=str(p); rec.append({'tag':tag,'source_page':src,'asset_url':url,'status':'SAVED','file':str(p),'sha256':hh,'width':w,'height':he,'bytes':len(data),'note':(note+';format='+fmt).strip(';')}); return p
+          def get_img(tag,url,src,note=''):
+            try:
+              r=S.get(url,timeout=TIMEOUT,allow_redirects=True,headers={'User-Agent':S.headers['User-Agent'],'Referer':src}); ct=r.headers.get('content-type','').lower()
+              if r.status_code!=200:raise RuntimeError(f'HTTP {r.status_code}')
+              if 'text/html' in ct or r.content[:100].lstrip().lower().startswith((b'<html',b'<!doctype')):raise RuntimeError('HTML')
+              return save_bytes(tag,r.content,src,r.url,ct,note)
+            except Exception as e:
+              rec.append({'tag':tag,'source_page':src,'asset_url':url,'status':'ERROR','file':'','sha256':'','width':'','height':'','bytes':'','note':repr(e)[:300]}); return None
+          def cands(base,text):
+            soup=BeautifulSoup(text,'lxml'); f={}
+            def add(v,hint=0):
+              if not v or str(v).startswith('data:'):return
+              u=urljoin(base,html.unescape(str(v)).replace('\\/','/').strip())
+              if re.search(r'\.(?:jpe?g|png|webp|tiff?|bmp)(?:[?#].*)?$',u,re.I): f[u]=max(f.get(u,0),hint)
+            for m in soup.select('meta[property="og:image"],meta[name="twitter:image"],meta[property="twitter:image"]'):add(m.get('content'),1600)
+            for t in soup.find_all(['img','source','a','video']):
+              hint=int(t.get('width') or 0) if str(t.get('width') or '').isdigit() else 0
+              for k in ('src','data-src','data-original','data-lazy-src','data-image','poster','href'):add(t.get(k),hint)
+              for k in ('srcset','data-srcset'):
+                if t.get(k):
+                  for part in t.get(k).split(','):
+                    b=part.strip().split(); h=int(b[1][:-1]) if len(b)>1 and b[1].endswith('w') and b[1][:-1].isdigit() else 0; add(b[0],h)
+            raw=html.unescape(text).replace('\\/','/')
+            for u in re.findall(r'https?://[^"\'<>\\s]+?\.(?:jpe?g|png|webp)(?:\?[^"\'<>\\s]*)?',raw,re.I):add(u)
+            out=[]
+            for u,h in f.items():
+              lo=u.lower()
+              if any(x in lo for x in ('favicon','sprite','pixel','tracking','placeholder','loading','/icon/','icon_','/logo/','logo_')):continue
+              out.append((u,h))
+            return sorted(out,key=lambda x:x[1],reverse=True)
+
+          for tag,u,src in direct:get_img(tag,u,src,'direct original URL')
+          for i,(tag,u) in enumerate(pageset,1):
+            st=time.time(); before=len(rec); found=0
+            try:
+              r=S.get(u,timeout=TIMEOUT,allow_redirects=True); r.raise_for_status(); cs=cands(r.url,r.text); found=len(cs)
+              for n,(iu,h) in enumerate(cs,1):get_img(f'{tag}_{n:03d}',iu,r.url,f'width_hint={h}')
+              nn=rec[before:]; pages.append({'tag':tag,'page_url':u,'resolved_url':r.url,'status':'HTTP_200','found_total':found,'saved':sum(x['status']=='SAVED' for x in nn),'sha_duplicate':sum(x['status']=='SHA_DUPLICATE' for x in nn),'excluded':sum(x['status'] not in ('SAVED','SHA_DUPLICATE') for x in nn),'seconds':round(time.time()-st,2)})
+            except Exception as e:pages.append({'tag':tag,'page_url':u,'status':'ERROR','found_total':found,'saved':0,'sha_duplicate':0,'excluded':found,'seconds':round(time.time()-st,2),'note':repr(e)[:300]})
+          try:
+            api='https://commons.wikimedia.org/w/api.php'; pm={'action':'query','generator':'categorymembers','gcmtitle':'Category:Hamaoka_Nuclear_Power_Plant','gcmtype':'file','gcmlimit':'500','prop':'imageinfo','iiprop':'url|size|mime|extmetadata','format':'json'}; r=S.get(api,params=pm,timeout=TIMEOUT); r.raise_for_status(); pp=list((r.json().get('query') or {}).get('pages',{}).values()); before=len(rec)
+            for i,p in enumerate(sorted(pp,key=lambda x:x.get('title','')),1):
+              ii=(p.get('imageinfo') or [{}])[0]
+              if ii.get('url'):get_img(f'ウィキメディアコモンズ_浜岡原発_{i:03d}',ii['url'],'https://commons.wikimedia.org/wiki/Category:Hamaoka_Nuclear_Power_Plant',json.dumps({'title':p.get('title'),'width':ii.get('width'),'height':ii.get('height'),'license':((ii.get('extmetadata') or {}).get('LicenseShortName') or {}).get('value',''),'artist':((ii.get('extmetadata') or {}).get('Artist') or {}).get('value','')},ensure_ascii=False))
+            nn=rec[before:]; pages.append({'tag':'ウィキメディアコモンズ_浜岡原発','page_url':'https://commons.wikimedia.org/wiki/Category:Hamaoka_Nuclear_Power_Plant','status':'HTTP_200','found_total':len(pp),'saved':sum(x['status']=='SAVED' for x in nn),'sha_duplicate':sum(x['status']=='SHA_DUPLICATE' for x in nn),'excluded':sum(x['status'] not in ('SAVED','SHA_DUPLICATE') for x in nn)})
+          except Exception as e:pages.append({'tag':'ウィキメディアコモンズ_浜岡原発','page_url':'https://commons.wikimedia.org/wiki/Category:Hamaoka_Nuclear_Power_Plant','status':'ERROR','found_total':0,'saved':0,'sha_duplicate':0,'excluded':0,'note':repr(e)[:300]})
+          for i,(tag,u) in enumerate(pdfs,1):
+            st=time.time(); before=len(rec)
+            try:
+              r=S.get(u,timeout=TIMEOUT); r.raise_for_status(); pf=TMP/f'{i:02d}.pdf'; pf.write_bytes(r.content); pref=TMP/f'p{i:02d}'; cp=subprocess.run(['pdftoppm','-png','-r','170',str(pf),str(pref)],capture_output=True,text=True,timeout=180); fs=sorted(TMP.glob(f'p{i:02d}-*.png'))
+              for n,p in enumerate(fs,1):
+                data=p.read_bytes(); hh=hsh(data); w,he,fmt=info_img(p)
+                if hh in seen:rec.append({'tag':tag,'source_page':u,'asset_url':f'{u}#page={n}','status':'SHA_DUPLICATE','file':seen[hh],'sha256':hh,'width':w,'height':he,'bytes':len(data),'note':'official PDF page'}); p.unlink(missing_ok=True)
+                else:
+                  out=MEDIA/f'{safe(tag)}_第{n:02d}頁_{hh[:12]}.png'; p.replace(out); seen[hh]=str(out); rec.append({'tag':tag,'source_page':u,'asset_url':f'{u}#page={n}','status':'SAVED','file':str(out),'sha256':hh,'width':w,'height':he,'bytes':len(data),'note':'official PDF page;format='+fmt})
+              nn=rec[before:]; pages.append({'tag':tag,'page_url':u,'status':'SAVED','found_total':len(fs),'saved':sum(x['status']=='SAVED' for x in nn),'sha_duplicate':sum(x['status']=='SHA_DUPLICATE' for x in nn),'excluded':sum(x['status'] not in ('SAVED','SHA_DUPLICATE') for x in nn),'seconds':round(time.time()-st,2),'render_returncode':cp.returncode})
+            except Exception as e:pages.append({'tag':tag,'page_url':u,'status':'ERROR','found_total':0,'saved':0,'sha_duplicate':0,'excluded':0,'seconds':round(time.time()-st,2),'note':repr(e)[:300]})
+          def probe(p):
+            cp=subprocess.run(['ffprobe','-v','error','-select_streams','v:0','-show_entries','stream=width,height,codec_name','-show_entries','format=duration','-of','json',str(p)],capture_output=True,text=True,timeout=30)
+            try:return json.loads(cp.stdout) if cp.returncode==0 else {}
+            except:return {}
+          for tag,u in video_urls:
+            st=time.time(); tpl=str(VIDEO/(safe(tag)+'_%(id)s.%(ext)s'))
+            try:
+              cp=subprocess.run([sys.executable,'-m','yt_dlp','--no-playlist','--retries','2','--fragment-retries','2','--socket-timeout','20','--max-filesize','120M','-f','best[height<=720]/best','--merge-output-format','mp4','-o',tpl,u],capture_output=True,text=True,timeout=300); made=[]
+              for p in VIDEO.glob(safe(tag)+'_*'):
+                if p.suffix.lower() not in ('.mp4','.webm','.mkv','.mov','.m4v'):continue
+                b=p.read_bytes(); inf=probe(p); stt=(inf.get('streams') or [{}])[0]; fm=inf.get('format') or {}; made.append(str(p)); rec.append({'tag':tag,'source_page':u,'asset_url':u,'status':'SAVED_VIDEO','file':str(p),'sha256':hsh(b),'width':stt.get('width',''),'height':stt.get('height',''),'bytes':len(b),'note':f'duration={fm.get("duration","")};codec={stt.get("codec_name","")}'})
+              vrec.append({'tag':tag,'url':u,'returncode':cp.returncode,'media_files':'|'.join(made),'seconds':round(time.time()-st,2),'stderr_tail':cp.stderr[-1000:]})
+            except Exception as e:vrec.append({'tag':tag,'url':u,'returncode':-1,'media_files':'','seconds':round(time.time()-st,2),'note':repr(e)[:300]})
+          def write(path,rows):
+            keys=[]
+            for r in rows:
+              for k in r:
+                if k not in keys:keys.append(k)
+            with open(path,'w',encoding='utf-8-sig',newline='') as f:
+              if keys:w=csv.DictWriter(f,fieldnames=keys);w.writeheader();w.writerows(rows)
+          write(META/'asset_records.csv',rec);write(META/'page_reconciliation.csv',pages);write(META/'video_records.csv',vrec)
+          summary={'saved_images':sum(x.get('status')=='SAVED' for x in rec),'saved_videos':sum(x.get('status')=='SAVED_VIDEO' for x in rec),'duplicates':sum(x.get('status')=='SHA_DUPLICATE' for x in rec),'pages':len(pageset),'pdfs':len(pdfs),'generated_at_utc':time.strftime('%Y-%m-%dT%H:%M:%SZ',time.gmtime())};(META/'summary.json').write_text(json.dumps(summary,ensure_ascii=False,indent=2),encoding='utf-8');print(json.dumps(summary,ensure_ascii=False,indent=2))
+          PY
+      - name: Upload fast Hamaoka artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: hamaoka-fast-original-media
+          path: fast_output/
+          if-no-files-found: error
+          compression-level: 6
+          retention-days: 1
