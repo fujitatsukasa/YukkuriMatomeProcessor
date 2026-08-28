@@ -1,0 +1,40 @@
+name: ChatGPT Hamaoka official source page captures
+
+on:
+  push:
+    branches:
+      - chatgpt-hamaoka-public-20260828
+    paths:
+      - '.github/workflows/chatgpt_hamaoka_official_screens.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  capture:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - name: Capture official pages at source resolution
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p official_screens
+          CHROME=$(command -v google-chrome || command -v chromium || command -v chromium-browser)
+          capture(){
+            local name="$1" url="$2"
+            "$CHROME" --headless=new --no-sandbox --disable-gpu --hide-scrollbars --force-device-scale-factor=1 --window-size=1920,1080 --virtual-time-budget=10000 --screenshot="official_screens/${name}.png" "$url" || true
+          }
+          capture '中部電力公式_不適切事案発表_20260827' 'https://www.chuden.co.jp/publicity/press/1218246_3273.html'
+          capture '中部電力公式_経済産業大臣報告徴収_20260827' 'https://www.chuden.co.jp/publicity/press/1218247_3273.html'
+          capture '中部電力公式_NuRO指示受領_20260827' 'https://www.chuden.co.jp/publicity/press/1218248_3273.html'
+          capture 'NuRO公式_廃炉推進業務の役割' 'https://www.nuro.or.jp/decommissioning/role.html'
+          capture '中部電力公式_浜岡1号機2号機廃止措置進捗' 'https://www.chuden.co.jp/energy/nuclear/hamaoka/hama_haishi/joukyou/'
+          file official_screens/*
+      - uses: actions/upload-artifact@v4
+        with:
+          name: hamaoka-official-source-screens
+          path: official_screens/
+          if-no-files-found: error
+          retention-days: 1
